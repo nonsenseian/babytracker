@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BabyTracker | Newborn Activity & Feeding Log</title>
+    <link rel="icon" type="image/png" href="https://nonsenseian.github.io/nonsenseian_logo.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        outfit: ['"Outfit"', 'sans-serif']
+                    },
+                    colors: {
+                        cream: '#FDFBF7',
+                        babyBlue: '#E0F2FE',
+                        babyBlueText: '#0369A1',
+                        babyYellow: '#FEF9C3',
+                        babyYellowText: '#A16207',
+                        babyPink: '#FCE7F3',
+                        babyPinkText: '#BE185D',
+                        babyPurple: '#F3E8FF',
+                        babyPurpleText: '#7E22CE',
+                        babyGreen: '#DCFCE7',
+                        babyGreenText: '#15803D',
+                        babyOrange: '#FFEDD5',
+                        babyOrangeText: '#C2410C',
+                        nightBg: '#0B0F19',
+                        nightCard: '#151D2F',
+                        nightBorder: '#23304B'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- GunDB for Peer-to-Peer & Relay Realtime Sync -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    
+    <!-- QRCode.js for generating QR codes to share with partner -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* Custom Smooth Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(203, 213, 225, 0.8);
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, 0.8);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 1);
+        }
+        
+        /* Night Vision 3 AM Feed Mode */
+        body.night-vision {
+            background-color: #070709 !important;
+            color: #ef4444 !important;
+        }
+        body.night-vision .bg-white,
+        body.night-vision .bg-cream,
+        body.night-vision .dark\:bg-nightCard {
+            background-color: #120909 !important;
+            border-color: #3b1111 !important;
+            color: #f87171 !important;
+        }
+        body.night-vision button,
+        body.night-vision input,
+        body.night-vision select {
+            border-color: #451a1a !important;
+            color: #fca5a5 !important;
+        }
+
+        /* Cute Card Hover Transitions */
+        .cute-card {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cute-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Pulse Animation for Active Timers */
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.02); }
+        }
+        .timer-active {
+            animation: timerPulse 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-[#FAF7F2] text-slate-800 dark:bg-nightBg dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-300">
+
+    <!-- Top Navigation & Baby Banner -->
+    <header class="sticky top-0 z-30 bg-[#FAF7F2]/90 dark:bg-nightBg/90 backdrop-blur-md border-b border-amber-200/50 dark:border-nightBorder">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- Left: Logo & Baby Profile -->
+            <div class="flex items-center space-x-3.5">
+                <a href="/home" class="flex items-center space-x-2 group" title="Return to Nonsenseian Home">
+                    <span class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-200 via-rose-200 to-sky-200 dark:from-amber-600/30 dark:to-sky-600/30 flex items-center justify-center text-2xl shadow-sm group-hover:scale-105 transition-transform">
+                        👶
+                    </span>
+                </a>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="text-xl sm:text-2xl font-extrabold font-outfit tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+                            BabyTracker
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-700/50">
+                                Newborn
+                            </span>
+                        </h1>
+                        <button id="editBabyBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs p-1" title="Customize Baby Info">
+                            ✏️
+                        </button>
+                    </div>
+                    <p id="babyStatusSubtitle" class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        Baby Ian • Born Oct 1, 2026 (9 Days Old)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: Action Buttons & Utilities -->
+            <div class="flex items-center flex-wrap gap-2">
+                <!-- Unit Switcher mL vs oz -->
+                <div class="flex items-center bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-xl p-1 shadow-sm text-xs font-bold">
+                    <button id="unitMlBtn" class="px-2.5 py-1 rounded-lg transition-colors bg-amber-500 text-white shadow-xs">
+                        mL
+                    </button>
+                    <button id="unitOzBtn" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        oz
+                    </button>
+                </div>
+
+                <!-- Sync / Partner Sharing Button -->
+                <button id="sharePartnerBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all">
+                    <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Share Room</span>
+                    <span id="roomCodeBadge" class="hidden sm:inline text-[10px] bg-sky-200/60 dark:bg-sky-800/60 px-1.5 py-0.5 rounded-md">P2P</span>
+                </button>
+
+                <!-- Export to Apple Notes -->
+                <button id="exportNotesBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-all" title="Export clean formatted text for Apple Notes">
+                    <span>📋</span>
+                    <span>Apple Notes</span>
+                </button>
+
+                <!-- 3 AM Night Mode Toggle -->
+                <button id="nightFeedToggle" class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs shadow-sm transition-all" title="Toggle 3 AM Red Night-Vision Mode">
+                    🌙
+                </button>
+
+                <!-- Dark / Light Theme Toggle -->
+                <button id="themeToggleBtn" class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs shadow-sm transition-all" title="Toggle Light/Dark Theme">
+                    ☀️
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full space-y-6">
+
+        <!-- Active Timers Bar (Nursing Left/Right & Sleep) -->
+        <section class="bg-white dark:bg-nightCard border border-amber-100 dark:border-nightBorder rounded-2xl p-4 shadow-sm cute-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">⏱️</span>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        Live Timers & Quick Tools
+                    </h2>
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">
+                    Background persistent • Timers continue if tab closes
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                
+                <!-- Nursing Timer (Left & Right Breast) -->
+                <div class="p-3.5 rounded-xl bg-gradient-to-br from-rose-50/80 to-pink-50/50 dark:from-rose-950/20 dark:to-pink-950/10 border border-rose-200/60 dark:border-rose-900/40 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                            🤱 Nursing Timer
+                            <span id="nursingSideBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-extrabold uppercase">L & R</span>
+                        </span>
+                        <span id="nursingTimerDisplay" class="font-mono text-base font-bold text-rose-800 dark:text-rose-200">
+                            00:00
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button id="timerLeftBtn" class="flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors">
+                            Left (0m)
+                        </button>
+                        <button id="timerRightBtn" class="flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors">
+                            Right (0m)
+                        </button>
+                        <button id="stopNursingBtn" class="py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors" title="Finish and log nursing">
+                            Save
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sleep / Nap Timer -->
+                <div class="p-3.5 rounded-xl bg-gradient-to-br from-indigo-50/80 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/10 border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                            😴 Nap / Sleep Timer
+                        </span>
+                        <span id="sleepTimerDisplay" class="font-mono text-base font-bold text-indigo-800 dark:text-indigo-200">
+                            00:00:00
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="toggleSleepTimerBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5">
+                            <span id="sleepTimerIcon">▶️</span>
+                            <span id="sleepTimerText">Start Nap</span>
+                        </button>
+                        <button id="cancelSleepTimerBtn" class="py-1.5 px-3 rounded-lg bg-white dark:bg-nightBg border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tummy Time Timer -->
+                <div class="p-3.5 rounded-xl bg-gradient-to-br from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/60 dark:border-emerald-900/40 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                            🐢 Tummy Time
+                        </span>
+                        <span id="tummyTimerDisplay" class="font-mono text-base font-bold text-emerald-800 dark:text-emerald-200">
+                            00:00
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="toggleTummyTimerBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5">
+                            <span id="tummyTimerIcon">▶️</span>
+                            <span id="tummyTimerText">Start Tummy Time</span>
+                        </button>
+                        <button id="cancelTummyTimerBtn" class="py-1.5 px-3 rounded-lg bg-white dark:bg-nightBg border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Primary Action Banner: Big "Log New Activity" + Quick Chips -->
+        <div class="bg-gradient-to-r from-amber-500 via-rose-500 to-sky-500 p-[1.5px] rounded-2xl shadow-md">
+            <div class="bg-white dark:bg-nightCard rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-4 w-full md:w-auto">
+                    <!-- Big Button from Wireframe -->
+                    <button id="openLogModalBtn" class="w-full md:w-auto px-6 py-3.5 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 active:scale-95 text-white font-outfit text-base font-extrabold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        <span class="text-xl">✨</span>
+                        <span>Log New Activity</span>
+                    </button>
+                    <div class="hidden lg:block text-left">
+                        <div class="text-xs font-bold text-slate-800 dark:text-slate-200">One-Tap Quick Logging</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">Timestamps automatically recorded</div>
+                    </div>
+                </div>
+
+                <!-- Quick Buttons for Newborn Parents -->
+                <div class="grid grid-cols-5 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2 w-full md:w-auto justify-center">
+                    <button onclick="quickLog('pee')" class="flex flex-col sm:flex-row items-center gap-1 px-2.5 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs font-bold text-amber-800 dark:text-amber-200 active:scale-95 transition-all" title="Quick Log Wet Diaper">
+                        <span>🟡</span>
+                        <span>Pee</span>
+                    </button>
+                    <button onclick="quickLog('poop')" class="flex flex-col sm:flex-row items-center gap-1 px-2.5 py-1.5 bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/50 border border-orange-200 dark:border-orange-800/60 rounded-xl text-xs font-bold text-orange-800 dark:text-orange-200 active:scale-95 transition-all" title="Quick Log Poop Diaper">
+                        <span>💩</span>
+                        <span>Poop</span>
+                    </button>
+                    <button onclick="quickLog('formula')" class="flex flex-col sm:flex-row items-center gap-1 px-2.5 py-1.5 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs font-bold text-sky-800 dark:text-sky-200 active:scale-95 transition-all" title="Quick Log Formula Bottle">
+                        <span>🍼</span>
+                        <span>Formula</span>
+                    </button>
+                    <button onclick="quickLog('breastmilk')" class="flex flex-col sm:flex-row items-center gap-1 px-2.5 py-1.5 bg-pink-50 dark:bg-pink-950/40 hover:bg-pink-100 dark:hover:bg-pink-900/50 border border-pink-200 dark:border-pink-800/60 rounded-xl text-xs font-bold text-pink-800 dark:text-pink-200 active:scale-95 transition-all" title="Quick Log Breastmilk Bottle">
+                        <span>🤱</span>
+                        <span>Breast</span>
+                    </button>
+                    <button onclick="quickLog('sleep')" class="flex flex-col sm:flex-row items-center gap-1 px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800/60 rounded-xl text-xs font-bold text-indigo-800 dark:text-indigo-200 active:scale-95 transition-all" title="Quick Log Nap / Sleep">
+                        <span>😴</span>
+                        <span>Sleep</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Selector & Day Navigation Controls (From Wireframe) -->
+        <div class="bg-white dark:bg-nightCard border border-amber-100 dark:border-nightBorder rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+                <button id="prevDayBtn" class="p-2 rounded-xl border border-slate-200 dark:border-nightBorder hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors" title="Previous Day">
+                    ◀
+                </button>
+                <div class="flex items-center space-x-2">
+                    <input type="date" id="selectedDateInput" class="px-3 py-1.5 bg-amber-50/50 dark:bg-nightBg border border-amber-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button id="todayBtn" class="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        Today
+                    </button>
+                </div>
+                <button id="nextDayBtn" class="p-2 rounded-xl border border-slate-200 dark:border-nightBorder hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors" title="Next Day">
+                    ▶
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button id="toggleCalendarViewBtn" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
+                    <span>📅</span>
+                    <span id="calendarToggleLabel">Show Calendar View</span>
+                </button>
+                <div class="relative">
+                    <select id="categoryFilter" class="px-3 py-1.5 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="all">All Categories</option>
+                        <option value="feeding">🍼 Feedings Only</option>
+                        <option value="formula">🍼 Formula Only</option>
+                        <option value="breastmilk">🤱 Breastmilk Only</option>
+                        <option value="diaper">🚼 Diapers Only</option>
+                        <option value="pee">🟡 Pee Only</option>
+                        <option value="poop">💩 Poop Only</option>
+                        <option value="sleep">😴 Sleep Only</option>
+                        <option value="tummy">🐢 Tummy Time</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapsible Calendar View (From Wireframe: "Calendar view that allows the user to select by day") -->
+        <section id="calendarViewContainer" class="hidden bg-white dark:bg-nightCard border border-amber-200/60 dark:border-nightBorder rounded-2xl p-5 shadow-sm cute-card">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>🗓️</span>
+                        <span>Monthly Activity Calendar</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Click any day to inspect and view all tracked baby activities for that date.
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="calPrevMonthBtn" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold">◀</button>
+                    <span id="calMonthYearTitle" class="text-sm font-bold text-slate-700 dark:text-slate-200">October 2026</span>
+                    <button id="calNextMonthBtn" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold">▶</button>
+                </div>
+            </div>
+
+            <!-- Days of Week Header -->
+            <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 dark:text-slate-500 mb-2">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            
+            <!-- Calendar Grid -->
+            <div id="calendarGrid" class="grid grid-cols-7 gap-1.5">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </section>
+
+        <!-- Top Metrics & Visualizations Grid (Feeding Progress Bar, Feed Tracker, Diaper Tracker) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            
+            <!-- 1. Feeding Tracker & Progress Bar (From Wireframe) -->
+            <div class="bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-2xl p-5 shadow-sm cute-card flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                            🍼 Feed Tracker
+                        </span>
+                        <button id="setFeedGoalBtn" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+                            🎯 Set Goal
+                        </button>
+                    </div>
+
+                    <div class="flex items-baseline justify-between mt-1">
+                        <div>
+                            <span class="text-3xl font-extrabold font-outfit text-slate-900 dark:text-white" id="totalFedDisplay">
+                                85 mL
+                            </span>
+                            <span class="text-xs text-slate-400 ml-1" id="totalFedAlternateDisplay">(2.9 oz)</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 block" id="feedGoalTargetDisplay">
+                                Goal: 750 mL
+                            </span>
+                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400" id="feedGoalPercentDisplay">
+                                11%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Feeding Progress Bar (Wireframe highlight) -->
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3.5 mt-3 overflow-hidden p-0.5 border border-slate-200/50 dark:border-slate-700">
+                        <div id="feedingProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-400 h-full rounded-full transition-all duration-500" style="width: 11%;"></div>
+                    </div>
+
+                    <!-- Breakdown: Formula vs Breastmilk -->
+                    <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-nightBorder text-xs">
+                        <div class="p-2 rounded-xl bg-sky-50/70 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30">
+                            <div class="text-slate-500 dark:text-slate-400 font-medium">🍼 Formula</div>
+                            <div class="font-bold text-sky-700 dark:text-sky-300 text-sm" id="formulaTotalDisplay">35 mL</div>
+                        </div>
+                        <div class="p-2 rounded-xl bg-pink-50/70 dark:bg-pink-950/20 border border-pink-100 dark:border-pink-900/30">
+                            <div class="text-slate-500 dark:text-slate-400 font-medium">🤱 Breastmilk</div>
+                            <div class="font-bold text-pink-700 dark:text-pink-300 text-sm" id="breastmilkTotalDisplay">50 mL</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                    <span id="lastFeedTimeAgo">Last Fed: 2h ago</span>
+                    <span id="totalFeedCount">3 sessions today</span>
+                </div>
+            </div>
+
+            <!-- 2. Diaper Tracker (From Wireframe) -->
+            <div class="bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-2xl p-5 shadow-sm cute-card flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                            🚼 Diaper Tracker
+                        </span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300" id="hydrationStatusBadge">
+                            Hydrated ✨
+                        </span>
+                    </div>
+
+                    <div class="flex items-baseline justify-between mt-1">
+                        <div>
+                            <span class="text-3xl font-extrabold font-outfit text-slate-900 dark:text-white" id="totalDiapersDisplay">
+                                4
+                            </span>
+                            <span class="text-xs text-slate-400 ml-1">Total Diapers</span>
+                        </div>
+                        <div class="text-right text-xs text-slate-500 dark:text-slate-400">
+                            Target: 6+ daily
+                        </div>
+                    </div>
+
+                    <!-- Pee & Poop Breakdown Cards -->
+                    <div class="grid grid-cols-2 gap-2 mt-4 pt-1">
+                        <div class="p-3 rounded-xl bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200/60 dark:border-yellow-900/30 flex items-center space-x-2.5">
+                            <span class="text-2xl">🟡</span>
+                            <div>
+                                <div class="text-xs text-yellow-800 dark:text-yellow-300 font-semibold">Wet (Pee)</div>
+                                <div class="text-lg font-extrabold text-yellow-900 dark:text-yellow-200" id="totalPeeDisplay">3</div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-900/30 flex items-center space-x-2.5">
+                            <span class="text-2xl">💩</span>
+                            <div>
+                                <div class="text-xs text-orange-800 dark:text-orange-300 font-semibold">Dirty (Poop)</div>
+                                <div class="text-lg font-extrabold text-orange-900 dark:text-orange-200" id="totalPoopDisplay">1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between border-t border-slate-100 dark:border-nightBorder">
+                    <span id="lastDiaperTimeAgo">Last Change: 1h 45m ago</span>
+                    <span>Sizes: S / M / L</span>
+                </div>
+            </div>
+
+            <!-- 3. Sleep & Development Tracker (From Wireframe: "Add other helpful features and visualizations") -->
+            <div class="bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-2xl p-5 shadow-sm cute-card flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
+                            😴 Sleep & Milestones
+                        </span>
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400" id="tummyTimeSummary">
+                            🐢 12m Tummy
+                        </span>
+                    </div>
+
+                    <div class="flex items-baseline justify-between mt-1">
+                        <div>
+                            <span class="text-3xl font-extrabold font-outfit text-slate-900 dark:text-white" id="totalSleepHoursDisplay">
+                                6h 30m
+                            </span>
+                            <span class="text-xs text-slate-400 ml-1">Total Sleep</span>
+                        </div>
+                        <div class="text-right text-xs text-indigo-600 dark:text-indigo-400 font-bold" id="napCountDisplay">
+                            3 Naps Today
+                        </div>
+                    </div>
+
+                    <!-- Sleep Quality Bar -->
+                    <div class="mt-4 pt-2">
+                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                            <span>Nap Consistency</span>
+                            <span id="sleepPercentTarget">Healthy 14-17h target</span>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                            <div id="sleepProgressBar" class="bg-indigo-500 h-full rounded-full" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between border-t border-slate-100 dark:border-nightBorder">
+                    <span id="lastSleepTimeAgo">Awake for 1h 15m</span>
+                    <span id="sleepStatusIndicator">🌙 Rested</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 24-Hour Visual Timeline Ribbon -->
+        <section class="bg-white dark:bg-nightCard border border-amber-100 dark:border-nightBorder rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">🕒</span>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        24-Hour Day Timeline Ribbon
+                    </h3>
+                </div>
+                <div class="text-[11px] text-slate-400 dark:text-slate-500">
+                    12 AM — 11:59 PM
+                </div>
+            </div>
+
+            <!-- Visual Bar -->
+            <div class="relative w-full h-10 bg-slate-100 dark:bg-slate-800/80 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center">
+                <!-- Hour markers -->
+                <div class="absolute inset-0 flex justify-between pointer-events-none px-2 text-[9px] font-mono text-slate-400 dark:text-slate-500">
+                    <span>12a</span>
+                    <span>3a</span>
+                    <span>6a</span>
+                    <span>9a</span>
+                    <span>12p</span>
+                    <span>3p</span>
+                    <span>6p</span>
+                    <span>9p</span>
+                    <span>12a</span>
+                </div>
+                <!-- Dynamic Activity Markers -->
+                <div id="timelineEventsContainer" class="relative w-full h-full">
+                    <!-- Event chips populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-slate-500 dark:text-slate-400 justify-end">
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> Formula</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Breastmilk</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Pee (🟡)</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-700"></span> Poop (💩)</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span> Sleep</span>
+            </div>
+        </section>
+
+        <!-- Main Tracked Activity List (From Wireframe: Date/Timestamp, Category, Scroll Wheel) -->
+        <section class="bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-2xl p-5 shadow-sm cute-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-nightBorder">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-xl">
+                        📜
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold font-outfit text-slate-900 dark:text-white flex items-center gap-2">
+                            Tracked Activity
+                            <span id="activityCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                                4 items
+                            </span>
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400" id="activityListSubtitle">
+                            Showing logs for selected date
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <!-- Search input -->
+                    <div class="relative">
+                        <input type="text" id="logSearchInput" placeholder="Filter notes..." class="pl-7 pr-3 py-1.5 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <span class="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
+                    </div>
+
+                    <!-- Clean All / Reset Option -->
+                    <button id="clearDayLogsBtn" class="text-xs px-2.5 py-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition-colors" title="Delete all logs for this day">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table / List Content with Scrollwheel Styling -->
+            <div class="mt-4 max-h-[500px] overflow-y-auto pr-1" id="activityScrollContainer">
+                <div id="activityListContent" class="space-y-2.5">
+                    <!-- Dynamically rendered activity items -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="noActivityState" class="hidden py-12 text-center text-slate-400 dark:text-slate-500 space-y-2">
+                    <span class="text-4xl block">🍼</span>
+                    <p class="text-sm font-semibold">No activities logged for this day yet.</p>
+                    <p class="text-xs">Click "Log New Activity" or use the quick buttons above!</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-amber-200/50 dark:border-nightBorder bg-white/50 dark:bg-nightCard/50 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                Built with ❤️ for new parents • <a href="/home" class="text-amber-600 dark:text-amber-400 font-semibold hover:underline">Nonsenseian Tools</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="backupJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200">💾 Backup Data</button>
+                <button id="restoreJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200">📂 Restore Data</button>
+                <input type="file" id="restoreFileInput" class="hidden" accept=".json">
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- 1. Log New Activity Modal -->
+    <div id="logActivityModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
+            
+            <button id="closeLogModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+                ✕
+            </button>
+
+            <div class="flex items-center space-x-3 mb-5">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-xl">
+                    ✏️
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold font-outfit text-slate-900 dark:text-white" id="modalTitleText">
+                        Log Activity
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Record newborn feed, diaper, sleep, or milestone
+                    </p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="activityForm" class="space-y-4">
+                <input type="hidden" id="editLogId" value="">
+
+                <!-- Category Selector -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                        Category
+                    </label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button type="button" data-cat="feeding" class="cat-select-btn p-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold flex flex-col items-center gap-1 transition-all bg-amber-50 dark:bg-amber-950/40 border-amber-400 text-amber-900 dark:text-amber-200">
+                            <span class="text-xl">🍼</span>
+                            <span>Feeding</span>
+                        </button>
+                        <button type="button" data-cat="diaper" class="cat-select-btn p-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold flex flex-col items-center gap-1 transition-all hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <span class="text-xl">🚼</span>
+                            <span>Diaper</span>
+                        </button>
+                        <button type="button" data-cat="sleep" class="cat-select-btn p-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold flex flex-col items-center gap-1 transition-all hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <span class="text-xl">😴</span>
+                            <span>Sleep</span>
+                        </button>
+                        <button type="button" data-cat="tummy" class="cat-select-btn p-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold flex flex-col items-center gap-1 transition-all hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <span class="text-xl">🐢</span>
+                            <span>Tummy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date & Timestamp (Auto-tracked, manually adjustable as requested!) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                            Date
+                        </label>
+                        <input type="date" id="modalDateInput" required class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1 flex justify-between">
+                            <span>Time</span>
+                            <button type="button" id="setNowBtn" class="text-amber-600 dark:text-amber-400 text-[10px] font-bold hover:underline">Set to Now</button>
+                        </label>
+                        <input type="time" id="modalTimeInput" required class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <!-- DYNAMIC SECTION 1: Feeding Fields -->
+                <div id="feedingFields" class="space-y-3 p-3.5 bg-amber-50/60 dark:bg-nightBg/60 border border-amber-200/50 dark:border-nightBorder rounded-2xl">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-amber-900 dark:text-amber-200">
+                            Feeding Type
+                        </label>
+                        <div class="flex gap-1.5 text-xs font-bold">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="feedTypeRadio" value="formula" checked class="text-amber-500 focus:ring-amber-400">
+                                <span>🍼 Formula</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer ml-3">
+                                <input type="radio" name="feedTypeRadio" value="breastmilk" class="text-amber-500 focus:ring-amber-400">
+                                <span>🤱 Breastmilk</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer ml-3">
+                                <input type="radio" name="feedTypeRadio" value="nursing" class="text-amber-500 focus:ring-amber-400">
+                                <span>⏱️ Nursing</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Volume Amount (Formula vs Breastmilk in mL togglable to oz) -->
+                    <div id="feedAmountContainer">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                Volume Fed (<span id="modalVolumeUnitLabel">mL</span>)
+                            </label>
+                            <button type="button" id="toggleModalVolumeUnitBtn" class="text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                                Switch to oz
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="number" step="any" min="0" max="1000" id="feedAmountInput" placeholder="e.g. 45" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-amber-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400" id="feedAmountUnitSuffix">mL</span>
+                        </div>
+                        
+                        <!-- Quick Volume Chips -->
+                        <div class="flex flex-wrap gap-1.5 mt-2" id="quickVolumeChips">
+                            <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">15 mL</button>
+                            <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">30 mL (1oz)</button>
+                            <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">45 mL (1.5oz)</button>
+                            <button type="button" onclick="setFeedAmount(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">60 mL (2oz)</button>
+                            <button type="button" onclick="setFeedAmount(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">90 mL (3oz)</button>
+                        </div>
+                    </div>
+
+                    <!-- Duration in minutes -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                            Duration (minutes, optional)
+                        </label>
+                        <input type="number" id="feedDurationInput" placeholder="e.g. 15" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-amber-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <!-- DYNAMIC SECTION 2: Diaper Fields -->
+                <div id="diaperFields" class="hidden space-y-3 p-3.5 bg-yellow-50/60 dark:bg-nightBg/60 border border-yellow-200/50 dark:border-nightBorder rounded-2xl">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                            Diaper Contents
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer hover:border-yellow-400">
+                                <input type="radio" name="diaperTypeRadio" value="pee" checked class="text-yellow-500">
+                                <span>🟡 Pee</span>
+                            </label>
+                            <label class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer hover:border-orange-400">
+                                <input type="radio" name="diaperTypeRadio" value="poop" class="text-orange-500">
+                                <span>💩 Poop</span>
+                            </label>
+                            <label class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer hover:border-amber-400">
+                                <input type="radio" name="diaperTypeRadio" value="both" class="text-amber-500">
+                                <span>🟡💩 Both</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Size (Small / Medium / Large from Wireframe) -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                            Amount / Size
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-center text-xs font-bold cursor-pointer hover:border-yellow-400">
+                                <input type="radio" name="diaperSizeRadio" value="small" checked>
+                                <span class="ml-1">Small</span>
+                            </label>
+                            <label class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-center text-xs font-bold cursor-pointer hover:border-yellow-400">
+                                <input type="radio" name="diaperSizeRadio" value="medium">
+                                <span class="ml-1">Medium</span>
+                            </label>
+                            <label class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-center text-xs font-bold cursor-pointer hover:border-yellow-400">
+                                <input type="radio" name="diaperSizeRadio" value="large">
+                                <span class="ml-1">Large</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Color / Texture tags -->
+                    <div id="poopDetailRow">
+                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                            Stool Characteristic (Optional)
+                        </label>
+                        <select id="poopTextureSelect" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200">
+                            <option value="normal">Normal (Mustard yellow)</option>
+                            <option value="seedy">Seedy (Typical breastfed)</option>
+                            <option value="soft">Soft / Formed</option>
+                            <option value="runny">Loose / Runny</option>
+                            <option value="greenish">Greenish</option>
+                            <option value="meconium">Meconium (Day 1-3 newborn)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC SECTION 3: Sleep Fields -->
+                <div id="sleepFields" class="hidden space-y-3 p-3.5 bg-indigo-50/60 dark:bg-nightBg/60 border border-indigo-200/50 dark:border-nightBorder rounded-2xl">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                            Nap Duration (minutes)
+                        </label>
+                        <input type="number" id="sleepDurationInput" placeholder="e.g. 90" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-indigo-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                        <div class="flex gap-1.5 mt-2">
+                            <button type="button" onclick="setSleepDuration(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">30m</button>
+                            <button type="button" onclick="setSleepDuration(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">45m</button>
+                            <button type="button" onclick="setSleepDuration(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1 hr</button>
+                            <button type="button" onclick="setSleepDuration(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1.5 hrs</button>
+                            <button type="button" onclick="setSleepDuration(120)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">2 hrs</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC SECTION 4: Tummy Time Fields -->
+                <div id="tummyFields" class="hidden space-y-3 p-3.5 bg-emerald-50/60 dark:bg-nightBg/60 border border-emerald-200/50 dark:border-nightBorder rounded-2xl">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                            Tummy Time (minutes)
+                        </label>
+                        <input type="number" id="tummyDurationInput" placeholder="e.g. 5" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-emerald-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Notes & Observations -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                        Notes & Observations
+                    </label>
+                    <textarea id="modalNotesInput" rows="2" placeholder="e.g. Baby burped twice, calm demeanor, alert..." class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-3 pt-2">
+                    <button type="button" id="cancelModalBtn" class="w-1/3 py-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveLogBtn" class="w-2/3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white text-xs font-extrabold shadow-md transition-all">
+                        Save Activity
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 2. Partner Share / Sync Modal -->
+    <div id="sharePartnerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-sky-200/80 dark:border-nightBorder rounded-3xl max-w-md w-full shadow-2xl p-6 relative">
+            <button id="closeShareModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+                ✕
+            </button>
+
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 flex items-center justify-center text-xl">
+                    🔗
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold font-outfit text-slate-900 dark:text-white">
+                        Share with Partner
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Live real-time sync between caregivers
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div class="p-3 bg-sky-50 dark:bg-sky-950/30 border border-sky-200/60 dark:border-sky-900/40 rounded-2xl space-y-1.5">
+                    <p class="text-slate-700 dark:text-slate-300 font-medium">
+                        Share this private link or QR code with your partner or nanny. The page will <strong>update in real-time for both of you</strong>, and nobody else can see it without this link!
+                    </p>
+                </div>
+
+                <!-- QR Code Display -->
+                <div class="flex flex-col items-center justify-center p-3 bg-white dark:bg-nightBg rounded-2xl border border-slate-200 dark:border-nightBorder">
+                    <div id="qrcodeContainer" class="p-2 bg-white rounded-xl shadow-xs"></div>
+                    <span class="text-[11px] text-slate-400 mt-2">Scan with iPhone Camera / Chrome</span>
+                </div>
+
+                <!-- Share Link Box -->
+                <div>
+                    <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">
+                        Private Room Link
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="shareUrlInput" readonly class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
+                        <button id="copyShareUrlBtn" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-xs whitespace-nowrap">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Room Key -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-nightBorder text-slate-500 dark:text-slate-400">
+                    <span>Active Room: <strong class="font-mono text-slate-800 dark:text-slate-200" id="currentRoomDisplay">...</strong></span>
+                    <button id="createNewRoomBtn" class="text-sky-600 dark:text-sky-400 font-bold hover:underline">Generate New Room</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Apple Notes Export Modal -->
+    <div id="exportNotesModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
+            <button id="closeExportModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+                ✕
+            </button>
+
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-xl">
+                    📋
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold font-outfit text-slate-900 dark:text-white">
+                        Export for Apple Notes
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Formatted clean text ready to paste directly into Notes app
+                    </p>
+                </div>
+            </div>
+
+            <!-- Preview Box -->
+            <div class="space-y-3">
+                <div class="relative">
+                    <textarea id="notesPreviewTextarea" rows="12" readonly class="w-full font-mono text-xs p-3.5 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl text-slate-800 dark:text-slate-200 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button id="copyNotesTextBtn" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5">
+                        <span>📋</span>
+                        <span id="copyNotesBtnText">Copy to Clipboard</span>
+                    </button>
+                    <button id="nativeShareNotesBtn" class="py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-all" title="Share via iOS Sheet / Apple Notes">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Set Daily Goal Modal -->
+    <div id="setGoalModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-sm w-full shadow-2xl p-6 relative">
+            <button id="closeGoalModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+                ✕
+            </button>
+            <h3 class="text-lg font-bold font-outfit text-slate-900 dark:text-white mb-2">
+                🎯 Set Daily Feed Goal
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                Recommended target by pediatricians for newborn stage (approx. 600 - 850 mL)
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Daily Target (<span id="goalUnitLabel">mL</span>)
+                    </label>
+                    <input type="number" id="goalAmountInput" class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-900 dark:text-white">
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="saveGoalBtn" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md">
+                        Save Goal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Success</span>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        /**
+         * BabyTracker Core Application Logic
+         * Comprehensive Newborn Activity & Feeding Log with Realtime Sync
+         */
+
+        // App State
+        const AppState = {
+            unit: 'mL', // 'mL' or 'oz'
+            selectedDate: getTodayDateString(),
+            calendarViewMonth: new Date().getMonth(),
+            calendarViewYear: new Date().getFullYear(),
+            dailyFeedGoalMl: 750,
+            babyName: 'Baby Ian',
+            babyBirthDate: '2026-10-01',
+            roomId: '',
+            logs: [],
+            timers: {
+                nursing: {
+                    activeSide: null, // 'left' or 'right' or null
+                    leftSeconds: 0,
+                    rightSeconds: 0,
+                    intervalId: null,
+                    lastStartTime: null
+                },
+                sleep: {
+                    active: false,
+                    seconds: 0,
+                    startTime: null,
+                    intervalId: null
+                },
+                tummy: {
+                    active: false,
+                    seconds: 0,
+                    startTime: null,
+                    intervalId: null
+                }
+            }
+        };
+
+        // Realtime Sync Engine (GunDB + BroadcastChannel)
+        let gunInstance = null;
+        let gunRoom = null;
+        let localChannel = null;
+
+        // Constants
+        const ML_PER_OZ = 29.5735;
+
+        // Helper: Format Date to YYYY-MM-DD
+        function getTodayDateString() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Helper: Format Time string for display (e.g. 9:34pm)
+        function formatDisplayTime(dateObj) {
+            let hours = dateObj.getHours();
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${hours}:${minutes}${ampm}`;
+        }
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPreferences();
+            initRoomSync();
+            initTimers();
+            setupEventListeners();
+            updateDateControls();
+            renderAll();
+        });
+
+        // 1. Preferences & Storage
+        function loadPreferences() {
+            const savedUnit = localStorage.getItem('bt_unit');
+            if (savedUnit) AppState.unit = savedUnit;
+
+            const savedGoal = localStorage.getItem('bt_daily_goal');
+            if (savedGoal) AppState.dailyFeedGoalMl = parseFloat(savedGoal) || 750;
+
+            const savedBabyName = localStorage.getItem('bt_baby_name');
+            if (savedBabyName) AppState.babyName = savedBabyName;
+
+            const savedBirthDate = localStorage.getItem('bt_baby_birthdate');
+            if (savedBirthDate) AppState.babyBirthDate = savedBirthDate;
+
+            // Load logs
+            const savedLogs = localStorage.getItem('bt_logs');
+            if (savedLogs) {
+                try {
+                    AppState.logs = JSON.parse(savedLogs);
+                } catch(e) {
+                    AppState.logs = [];
+                }
+            } else {
+                // Initial demo mock logs corresponding to wireframe
+                createSeedLogs();
+            }
+
+            updateUnitUI();
+            updateBabyProfileHeader();
+        }
+
+        function saveLogsToStorage() {
+            localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
+            broadcastSync();
+        }
+
+        // Seed logs matching the wireframe in the prompt
+        function createSeedLogs() {
+            const today = getTodayDateString();
+            AppState.logs = [
+                {
+                    id: 'seed-1',
+                    category: 'diaper',
+                    subType: 'poop',
+                    size: 'medium',
+                    poopTexture: 'normal',
+                    dateStr: today,
+                    timeStr: '9:34pm',
+                    timestamp: new Date(`${today}T21:34:00`).getTime(),
+                    notes: 'Mustard colored, normal digestion',
+                    updatedAt: Date.now()
+                },
+                {
+                    id: 'seed-2',
+                    category: 'feeding',
+                    subType: 'formula',
+                    amountMl: 35,
+                    durationMinutes: 15,
+                    dateStr: today,
+                    timeStr: '7:34pm',
+                    timestamp: new Date(`${today}T19:34:00`).getTime(),
+                    notes: 'Drank comfortably, burped well',
+                    updatedAt: Date.now()
+                },
+                {
+                    id: 'seed-3',
+                    category: 'feeding',
+                    subType: 'breastmilk',
+                    amountMl: 50,
+                    durationMinutes: 20,
+                    dateStr: today,
+                    timeStr: '5:34pm',
+                    timestamp: new Date(`${today}T17:34:00`).getTime(),
+                    notes: 'Bottle of pumped milk',
+                    updatedAt: Date.now()
+                },
+                {
+                    id: 'seed-4',
+                    category: 'diaper',
+                    subType: 'pee',
+                    size: 'small',
+                    dateStr: today,
+                    timeStr: '3:34pm',
+                    timestamp: new Date(`${today}T15:34:00`).getTime(),
+                    notes: 'Wet diaper',
+                    updatedAt: Date.now()
+                },
+                {
+                    id: 'seed-5',
+                    category: 'sleep',
+                    durationMinutes: 90,
+                    dateStr: today,
+                    timeStr: '1:00pm',
+                    timestamp: new Date(`${today}T13:00:00`).getTime(),
+                    notes: 'Crib nap in nursery',
+                    updatedAt: Date.now()
+                }
+            ];
+            localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
+        }
+
+        // 2. Real-Time Room Sync Architecture (Multi-User Sharing)
+        function initRoomSync() {
+            // Check URL query parameters for ?room=
+            const urlParams = new URLSearchParams(window.location.search);
+            let room = urlParams.get('room');
+
+            if (!room) {
+                room = localStorage.getItem('bt_room_id');
+                if (!room) {
+                    room = 'family-' + Math.random().toString(36).substring(2, 9);
+                    localStorage.setItem('bt_room_id', room);
+                }
+            } else {
+                localStorage.setItem('bt_room_id', room);
+            }
+            AppState.roomId = room;
+            document.getElementById('currentRoomDisplay').textContent = room;
+
+            // BroadcastChannel for instant same-browser cross-tab sync
+            try {
+                localChannel = new BroadcastChannel('babytracker_' + room);
+                localChannel.onmessage = (event) => {
+                    if (event.data && event.data.type === 'SYNC_LOGS') {
+                        mergeRemoteLogs(event.data.logs);
+                    }
+                };
+            } catch(e) {
+                // BroadcastChannel fallback
+            }
+
+            // GunDB Peer & Public Relay initialization
+            try {
+                if (window.Gun) {
+                    gunInstance = Gun({
+                        peers: [
+                            'https://gun-manhattan.herokuapp.com/gun',
+                            'https://peer.wallie.io/gun'
+                        ]
+                    });
+                    gunRoom = gunInstance.get('babytracker_room_' + room);
+
+                    // Listen for remote updates
+                    gunRoom.get('latest_sync').on((data) => {
+                        if (data && data.payload) {
+                            try {
+                                const parsed = JSON.parse(data.payload);
+                                if (Array.isArray(parsed)) {
+                                    mergeRemoteLogs(parsed);
+                                }
+                            } catch(err) {}
+                        }
+                    });
+                }
+            } catch(err) {
+                console.warn('Gun sync initialized locally');
+            }
+        }
+
+        function broadcastSync() {
+            // Broadcast locally to tabs
+            if (localChannel) {
+                localChannel.postMessage({ type: 'SYNC_LOGS', logs: AppState.logs });
+            }
+
+            // Broadcast to GunDB room peers
+            if (gunRoom) {
+                try {
+                    gunRoom.get('latest_sync').put({
+                        payload: JSON.stringify(AppState.logs),
+                        timestamp: Date.now()
+                    });
+                } catch(e) {}
+            }
+        }
+
+        function mergeRemoteLogs(incomingLogs) {
+            if (!Array.isArray(incomingLogs)) return;
+            const logMap = new Map();
+            // Put current logs in map
+            AppState.logs.forEach(item => logMap.set(item.id, item));
+
+            let changed = false;
+            // Merge incoming logs with Last-Write-Wins (LWW)
+            incomingLogs.forEach(incoming => {
+                const existing = logMap.get(incoming.id);
+                if (!existing || (incoming.updatedAt || 0) > (existing.updatedAt || 0)) {
+                    logMap.set(incoming.id, incoming);
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                AppState.logs = Array.from(logMap.values());
+                localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
+                renderAll();
+                showToast('Synced updates from caregiver! 🍼', 'success');
+            }
+        }
+
+        // 3. Render All Views
+        function renderAll() {
+            renderMetrics();
+            renderTimelineRibbon();
+            renderActivityList();
+            renderCalendarGrid();
+        }
+
+        // Metrics Calculation & Rendering
+        function renderMetrics() {
+            const logsForDay = AppState.logs.filter(l => l.dateStr === AppState.selectedDate);
+
+            // Feeding metrics
+            let totalFormulaMl = 0;
+            let totalBreastmilkMl = 0;
+            let feedCount = 0;
+            let lastFeedTime = null;
+
+            // Diaper metrics
+            let peeCount = 0;
+            let poopCount = 0;
+            let totalDiapers = 0;
+            let lastDiaperTime = null;
+
+            // Sleep metrics
+            let totalSleepMinutes = 0;
+            let napCount = 0;
+            let lastSleepTime = null;
+            let tummyMinutes = 0;
+
+            logsForDay.forEach(log => {
+                if (log.category === 'feeding') {
+                    feedCount++;
+                    const amount = parseFloat(log.amountMl) || 0;
+                    if (log.subType === 'formula') {
+                        totalFormulaMl += amount;
+                    } else {
+                        totalBreastmilkMl += amount;
+                    }
+                    if (!lastFeedTime || log.timestamp > lastFeedTime) {
+                        lastFeedTime = log.timestamp;
+                    }
+                } else if (log.category === 'diaper') {
+                    totalDiapers++;
+                    if (log.subType === 'pee' || log.subType === 'both') peeCount++;
+                    if (log.subType === 'poop' || log.subType === 'both') poopCount++;
+                    if (!lastDiaperTime || log.timestamp > lastDiaperTime) {
+                        lastDiaperTime = log.timestamp;
+                    }
+                } else if (log.category === 'sleep') {
+                    napCount++;
+                    totalSleepMinutes += (parseFloat(log.durationMinutes) || 0);
+                    if (!lastSleepTime || log.timestamp > lastSleepTime) {
+                        lastSleepTime = log.timestamp;
+                    }
+                } else if (log.category === 'tummy') {
+                    tummyMinutes += (parseFloat(log.durationMinutes) || 0);
+                }
+            });
+
+            const totalFedMl = totalFormulaMl + totalBreastmilkMl;
+            const isOz = AppState.unit === 'oz';
+
+            // 1. Update Feed Tracker Cards
+            const feedDisplayStr = isOz 
+                ? `${(totalFedMl / ML_PER_OZ).toFixed(1)} oz`
+                : `${Math.round(totalFedMl)} mL`;
+            const feedAlternateStr = isOz 
+                ? `(${Math.round(totalFedMl)} mL)`
+                : `(${(totalFedMl / ML_PER_OZ).toFixed(1)} oz)`;
+
+            document.getElementById('totalFedDisplay').textContent = feedDisplayStr;
+            document.getElementById('totalFedAlternateDisplay').textContent = feedAlternateStr;
+
+            // Formula vs Breastmilk breakdown
+            document.getElementById('formulaTotalDisplay').textContent = isOz 
+                ? `${(totalFormulaMl / ML_PER_OZ).toFixed(1)} oz`
+                : `${Math.round(totalFormulaMl)} mL`;
+            document.getElementById('breastmilkTotalDisplay').textContent = isOz 
+                ? `${(totalBreastmilkMl / ML_PER_OZ).toFixed(1)} oz`
+                : `${Math.round(totalBreastmilkMl)} mL`;
+
+            // Progress Bar
+            const goalTargetStr = isOz 
+                ? `Goal: ${(AppState.dailyFeedGoalMl / ML_PER_OZ).toFixed(1)} oz`
+                : `Goal: ${AppState.dailyFeedGoalMl} mL`;
+            document.getElementById('feedGoalTargetDisplay').textContent = goalTargetStr;
+
+            const feedPercent = Math.min(100, Math.round((totalFedMl / AppState.dailyFeedGoalMl) * 100));
+            document.getElementById('feedGoalPercentDisplay').textContent = `${feedPercent}%`;
+            document.getElementById('feedingProgressBar').style.width = `${feedPercent}%`;
+
+            // Feed Count & Time Ago
+            document.getElementById('totalFeedCount').textContent = `${feedCount} sessions today`;
+            document.getElementById('lastFeedTimeAgo').textContent = lastFeedTime 
+                ? `Last Fed: ${formatTimeAgo(lastFeedTime)}`
+                : 'No feeds logged today';
+
+            // 2. Diaper Tracker Card
+            document.getElementById('totalDiapersDisplay').textContent = totalDiapers;
+            document.getElementById('totalPeeDisplay').textContent = peeCount;
+            document.getElementById('totalPoopDisplay').textContent = poopCount;
+            document.getElementById('lastDiaperTimeAgo').textContent = lastDiaperTime 
+                ? `Last Change: ${formatTimeAgo(lastDiaperTime)}`
+                : 'No changes today';
+
+            const hydrationBadge = document.getElementById('hydrationStatusBadge');
+            if (peeCount >= 6) {
+                hydrationBadge.textContent = 'Great Hydration ✨';
+                hydrationBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300';
+            } else if (peeCount >= 3) {
+                hydrationBadge.textContent = 'Hydrated 💧';
+                hydrationBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300';
+            } else {
+                hydrationBadge.textContent = 'Tracking... 🟡';
+                hydrationBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300';
+            }
+
+            // 3. Sleep Tracker Card
+            const sleepHours = Math.floor(totalSleepMinutes / 60);
+            const sleepRemMins = totalSleepMinutes % 60;
+            document.getElementById('totalSleepHoursDisplay').textContent = `${sleepHours}h ${sleepRemMins}m`;
+            document.getElementById('napCountDisplay').textContent = `${napCount} Naps Today`;
+            document.getElementById('tummyTimeSummary').textContent = `🐢 ${tummyMinutes}m Tummy`;
+
+            const sleepPercent = Math.min(100, Math.round((totalSleepMinutes / (15 * 60)) * 100));
+            document.getElementById('sleepProgressBar').style.width = `${sleepPercent}%`;
+            document.getElementById('lastSleepTimeAgo').textContent = lastSleepTime 
+                ? `Last Nap: ${formatTimeAgo(lastSleepTime)}`
+                : 'No naps today';
+        }
+
+        // Helper: Format Time Ago (e.g. 1h 45m ago)
+        function formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const diffMs = now - timestamp;
+            if (diffMs < 60000) return 'Just now';
+            const diffMins = Math.floor(diffMs / 60000);
+            if (diffMins < 60) return `${diffMins}m ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            const remainingMins = diffMins % 60;
+            return `${diffHours}h ${remainingMins}m ago`;
+        }
+
+        // 24-Hour Timeline Ribbon
+        function renderTimelineRibbon() {
+            const container = document.getElementById('timelineEventsContainer');
+            container.innerHTML = '';
+
+            const logsForDay = AppState.logs.filter(l => l.dateStr === AppState.selectedDate);
+            if (logsForDay.length === 0) return;
+
+            logsForDay.forEach(log => {
+                const date = new Date(log.timestamp);
+                const minutesFromMidnight = date.getHours() * 60 + date.getMinutes();
+                const percent = (minutesFromMidnight / 1440) * 100;
+
+                let icon = '🍼';
+                let colorClass = 'bg-sky-400';
+                if (log.category === 'feeding') {
+                    if (log.subType === 'formula') {
+                        icon = '🍼';
+                        colorClass = 'bg-sky-400';
+                    } else {
+                        icon = '🤱';
+                        colorClass = 'bg-rose-400';
+                    }
+                } else if (log.category === 'diaper') {
+                    if (log.subType === 'pee') {
+                        icon = '🟡';
+                        colorClass = 'bg-amber-400';
+                    } else if (log.subType === 'poop') {
+                        icon = '💩';
+                        colorClass = 'bg-amber-700';
+                    } else {
+                        icon = '🚼';
+                        colorClass = 'bg-orange-500';
+                    }
+                } else if (log.category === 'sleep') {
+                    icon = '😴';
+                    colorClass = 'bg-indigo-400';
+                } else if (log.category === 'tummy') {
+                    icon = '🐢';
+                    colorClass = 'bg-emerald-500';
+                }
+
+                const marker = document.createElement('div');
+                marker.className = `absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md border-2 border-white dark:border-nightCard cursor-pointer hover:scale-125 transition-transform z-10 ${colorClass}`;
+                marker.style.left = `${percent}%`;
+                marker.title = `${log.timeStr} - ${log.category}: ${getLogSummaryText(log)}`;
+                marker.innerHTML = `<span>${icon}</span>`;
+                marker.onclick = () => editLog(log.id);
+                container.appendChild(marker);
+            });
+        }
+
+        // Render Tracked Activity List (From Wireframe layout)
+        function renderActivityList() {
+            const listContent = document.getElementById('activityListContent');
+            const emptyState = document.getElementById('noActivityState');
+            const searchVal = (document.getElementById('logSearchInput').value || '').toLowerCase();
+            const catFilter = document.getElementById('categoryFilter').value;
+
+            listContent.innerHTML = '';
+
+            let logs = AppState.logs
+                .filter(l => l.dateStr === AppState.selectedDate)
+                .sort((a, b) => b.timestamp - a.timestamp); // latest first
+
+            // Apply category filter
+            if (catFilter !== 'all') {
+                logs = logs.filter(l => {
+                    if (catFilter === 'feeding') return l.category === 'feeding';
+                    if (catFilter === 'formula') return l.category === 'feeding' && l.subType === 'formula';
+                    if (catFilter === 'breastmilk') return l.category === 'feeding' && l.subType !== 'formula';
+                    if (catFilter === 'diaper') return l.category === 'diaper';
+                    if (catFilter === 'pee') return l.category === 'diaper' && (l.subType === 'pee' || l.subType === 'both');
+                    if (catFilter === 'poop') return l.category === 'diaper' && (l.subType === 'poop' || l.subType === 'both');
+                    if (catFilter === 'sleep') return l.category === 'sleep';
+                    if (catFilter === 'tummy') return l.category === 'tummy';
+                    return true;
+                });
+            }
+
+            // Apply search notes filter
+            if (searchVal) {
+                logs = logs.filter(l => {
+                    const desc = getLogSummaryText(l).toLowerCase();
+                    const notes = (l.notes || '').toLowerCase();
+                    return desc.includes(searchVal) || notes.includes(searchVal);
+                });
+            }
+
+            document.getElementById('activityCountBadge').textContent = `${logs.length} items`;
+
+            if (logs.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            logs.forEach(log => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'group p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 dark:bg-nightBg/60 border border-slate-200/70 dark:border-nightBorder hover:border-amber-300 dark:hover:border-amber-700/60 transition-all flex items-center justify-between gap-3';
+
+                // Category details and badge
+                const { badgeHtml, titleHtml } = getLogDisplayElements(log);
+
+                itemDiv.innerHTML = `
+                    <div class="flex items-center space-x-3 min-w-0">
+                        ${badgeHtml}
+                        <div class="min-w-0">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
+                                    ${log.timeStr}
+                                </span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                                    ${titleHtml}
+                                </span>
+                            </div>
+                            ${log.notes ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">📝 ${escapeHtml(log.notes)}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button onclick="editLog('${log.id}')" class="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" title="Edit Log">
+                            ✏️
+                        </button>
+                        <button onclick="deleteLog('${log.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" title="Delete Log">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                listContent.appendChild(itemDiv);
+            });
+        }
+
+        function getLogDisplayElements(log) {
+            const isOz = AppState.unit === 'oz';
+            let badgeHtml = '';
+            let titleHtml = '';
+
+            if (log.category === 'feeding') {
+                const amountMl = parseFloat(log.amountMl) || 0;
+                const formattedAmount = isOz 
+                    ? `${(amountMl / ML_PER_OZ).toFixed(1)} oz`
+                    : `${amountMl} mL`;
+
+                if (log.subType === 'formula') {
+                    badgeHtml = `<div class="w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 flex items-center justify-center text-lg shrink-0">🍼</div>`;
+                    titleHtml = `Feeding: Formula (${formattedAmount})`;
+                } else {
+                    badgeHtml = `<div class="w-9 h-9 rounded-xl bg-pink-100 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 flex items-center justify-center text-lg shrink-0">🤱</div>`;
+                    titleHtml = `Feeding: Breastmilk (${formattedAmount})`;
+                }
+                if (log.durationMinutes) titleHtml += ` • ${log.durationMinutes}m`;
+
+            } else if (log.category === 'diaper') {
+                const sizeLabel = log.size ? capitalize(log.size) : 'Medium';
+
+                if (log.subType === 'pee') {
+                    badgeHtml = `<div class="w-9 h-9 rounded-xl bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300 flex items-center justify-center text-lg shrink-0">🟡</div>`;
+                    titleHtml = `${sizeLabel} Pee`;
+                } else if (log.subType === 'poop') {
+                    badgeHtml = `<div class="w-9 h-9 rounded-xl bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 flex items-center justify-center text-lg shrink-0">💩</div>`;
+                    titleHtml = `${sizeLabel} Poop`;
+                    if (log.poopTexture) titleHtml += ` (${capitalize(log.poopTexture)})`;
+                } else {
+                    badgeHtml = `<div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 flex items-center justify-center text-lg shrink-0">🟡💩</div>`;
+                    titleHtml = `${sizeLabel} Wet & Dirty Diaper`;
+                }
+
+            } else if (log.category === 'sleep') {
+                badgeHtml = `<div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-lg shrink-0">😴</div>`;
+                titleHtml = `Nap / Sleep (${log.durationMinutes || 0} mins)`;
+
+            } else if (log.category === 'tummy') {
+                badgeHtml = `<div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg shrink-0">🐢</div>`;
+                titleHtml = `Tummy Time (${log.durationMinutes || 0} mins)`;
+            }
+
+            return { badgeHtml, titleHtml };
+        }
+
+        function getLogSummaryText(log) {
+            const isOz = AppState.unit === 'oz';
+            if (log.category === 'feeding') {
+                const amount = isOz 
+                    ? `${((parseFloat(log.amountMl) || 0) / ML_PER_OZ).toFixed(1)} oz`
+                    : `${log.amountMl || 0} mL`;
+                return `${log.subType === 'formula' ? 'Formula' : 'Breastmilk'} (${amount})`;
+            }
+            if (log.category === 'diaper') {
+                const s = capitalize(log.size || 'Medium');
+                if (log.subType === 'pee') return `${s} Pee 🟡`;
+                if (log.subType === 'poop') return `${s} Poop 💩`;
+                return `${s} Wet & Poop 🟡💩`;
+            }
+            if (log.category === 'sleep') return `Nap (${log.durationMinutes || 0} mins) 😴`;
+            if (log.category === 'tummy') return `Tummy Time (${log.durationMinutes || 0} mins) 🐢`;
+            return log.category;
+        }
+
+        // Calendar View Generator (Wireframe Calendar View)
+        function renderCalendarGrid() {
+            const container = document.getElementById('calendarGrid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const month = AppState.calendarViewMonth;
+            const year = AppState.calendarViewYear;
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calMonthYearTitle').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Blank filler days
+            for (let i = 0; i < firstDayIndex; i++) {
+                const blank = document.createElement('div');
+                blank.className = 'h-14 sm:h-16 rounded-xl bg-slate-50/40 dark:bg-nightBg/40 border border-transparent';
+                container.appendChild(blank);
+            }
+
+            // Days of current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isSelected = dayDateStr === AppState.selectedDate;
+                const isToday = dayDateStr === getTodayDateString();
+
+                const logsForThisDay = AppState.logs.filter(l => l.dateStr === dayDateStr);
+                const hasFeeding = logsForThisDay.some(l => l.category === 'feeding');
+                const hasDiaper = logsForThisDay.some(l => l.category === 'diaper');
+                const hasSleep = logsForThisDay.some(l => l.category === 'sleep');
+
+                const cell = document.createElement('div');
+                cell.className = `h-14 sm:h-16 p-1.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all ${
+                    isSelected 
+                        ? 'bg-amber-100/80 dark:bg-amber-900/40 border-amber-500 shadow-xs' 
+                        : isToday 
+                            ? 'bg-white dark:bg-nightCard border-sky-400 font-bold' 
+                            : 'bg-white dark:bg-nightCard border-slate-200/60 dark:border-nightBorder hover:border-amber-300'
+                }`;
+
+                cell.onclick = () => {
+                    AppState.selectedDate = dayDateStr;
+                    document.getElementById('selectedDateInput').value = dayDateStr;
+                    renderAll();
+                };
+
+                let dotsHtml = '<div class="flex gap-1 justify-center">';
+                if (hasFeeding) dotsHtml += '<span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>';
+                if (hasDiaper) dotsHtml += '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>';
+                if (hasSleep) dotsHtml += '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
+                dotsHtml += '</div>';
+
+                cell.innerHTML = `
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="${isSelected ? 'font-black text-amber-800 dark:text-amber-200' : 'text-slate-700 dark:text-slate-300'}">${day}</span>
+                        ${logsForThisDay.length > 0 ? `<span class="text-[9px] px-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">${logsForThisDay.length}</span>` : ''}
+                    </div>
+                    ${dotsHtml}
+                `;
+                container.appendChild(cell);
+            }
+        }
+
+        // 4. Quick Logging Shortcuts
+        function quickLog(type) {
+            const now = new Date();
+            const dateStr = getTodayDateString();
+            const timeStr = formatDisplayTime(now);
+
+            let newLog = {
+                id: 'log-' + Date.now(),
+                dateStr,
+                timeStr,
+                timestamp: now.getTime(),
+                updatedAt: Date.now()
+            };
+
+            if (type === 'pee') {
+                newLog.category = 'diaper';
+                newLog.subType = 'pee';
+                newLog.size = 'medium';
+                newLog.notes = 'Quick logged wet diaper';
+            } else if (type === 'poop') {
+                newLog.category = 'diaper';
+                newLog.subType = 'poop';
+                newLog.size = 'medium';
+                newLog.poopTexture = 'normal';
+                newLog.notes = 'Quick logged dirty diaper';
+            } else if (type === 'formula') {
+                newLog.category = 'feeding';
+                newLog.subType = 'formula';
+                newLog.amountMl = 45;
+                newLog.durationMinutes = 15;
+                newLog.notes = 'Quick logged formula feed (45 mL)';
+            } else if (type === 'breastmilk') {
+                newLog.category = 'feeding';
+                newLog.subType = 'breastmilk';
+                newLog.amountMl = 50;
+                newLog.durationMinutes = 20;
+                newLog.notes = 'Quick logged breastmilk bottle (50 mL)';
+            } else if (type === 'sleep') {
+                newLog.category = 'sleep';
+                newLog.durationMinutes = 60;
+                newLog.notes = 'Quick logged 1 hr nap';
+            }
+
+            AppState.logs.push(newLog);
+            saveLogsToStorage();
+            renderAll();
+            showToast(`Logged ${getLogSummaryText(newLog)}! ✨`, 'success');
+        }
+
+        // 5. Timers Implementation (Persistent Nursing & Sleep)
+        function initTimers() {
+            // Restore any running timers from localStorage
+            const savedTimers = localStorage.getItem('bt_timers');
+            if (savedTimers) {
+                try {
+                    const parsed = JSON.parse(savedTimers);
+                    if (parsed.sleep && parsed.sleep.active) {
+                        AppState.timers.sleep.active = true;
+                        AppState.timers.sleep.startTime = parsed.sleep.startTime;
+                        startSleepInterval();
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // Nursing Dual Stopwatch
+        const timerLeftBtn = document.getElementById('timerLeftBtn');
+        const timerRightBtn = document.getElementById('timerRightBtn');
+        const stopNursingBtn = document.getElementById('stopNursingBtn');
+        const nursingTimerDisplay = document.getElementById('nursingTimerDisplay');
+        const nursingSideBadge = document.getElementById('nursingSideBadge');
+
+        timerLeftBtn.onclick = () => switchNursingBreast('left');
+        timerRightBtn.onclick = () => switchNursingBreast('right');
+
+        function switchNursingBreast(side) {
+            if (AppState.timers.nursing.activeSide === side) {
+                // Pause current breast
+                pauseNursingTimer();
+                return;
+            }
+
+            // Start or switch to new breast
+            AppState.timers.nursing.activeSide = side;
+            nursingSideBadge.textContent = side.toUpperCase();
+            timerLeftBtn.className = side === 'left' 
+                ? 'flex-1 py-1.5 px-2 rounded-lg bg-rose-500 text-white text-xs font-bold' 
+                : 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+            timerRightBtn.className = side === 'right' 
+                ? 'flex-1 py-1.5 px-2 rounded-lg bg-rose-500 text-white text-xs font-bold' 
+                : 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+
+            if (!AppState.timers.nursing.intervalId) {
+                AppState.timers.nursing.intervalId = setInterval(() => {
+                    if (AppState.timers.nursing.activeSide === 'left') {
+                        AppState.timers.nursing.leftSeconds++;
+                    } else if (AppState.timers.nursing.activeSide === 'right') {
+                        AppState.timers.nursing.rightSeconds++;
+                    }
+                    updateNursingDisplay();
+                }, 1000);
+            }
+        }
+
+        function pauseNursingTimer() {
+            AppState.timers.nursing.activeSide = null;
+            nursingSideBadge.textContent = 'Paused';
+            if (AppState.timers.nursing.intervalId) {
+                clearInterval(AppState.timers.nursing.intervalId);
+                AppState.timers.nursing.intervalId = null;
+            }
+            timerLeftBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+            timerRightBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+        }
+
+        function updateNursingDisplay() {
+            const totalSecs = AppState.timers.nursing.leftSeconds + AppState.timers.nursing.rightSeconds;
+            const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
+            const secs = String(totalSecs % 60).padStart(2, '0');
+            nursingTimerDisplay.textContent = `${mins}:${secs}`;
+            timerLeftBtn.textContent = `Left (${Math.floor(AppState.timers.nursing.leftSeconds / 60)}m)`;
+            timerRightBtn.textContent = `Right (${Math.floor(AppState.timers.nursing.rightSeconds / 60)}m)`;
+        }
+
+        stopNursingBtn.onclick = () => {
+            const leftMins = Math.round(AppState.timers.nursing.leftSeconds / 60);
+            const rightMins = Math.round(AppState.timers.nursing.rightSeconds / 60);
+            const totalMins = leftMins + rightMins;
+
+            if (totalMins === 0 && AppState.timers.nursing.leftSeconds === 0 && AppState.timers.nursing.rightSeconds === 0) {
+                showToast('Start nursing timer first', 'info');
+                return;
+            }
+
+            pauseNursingTimer();
+            // Open modal pre-filled with nursing details
+            openLogModal('feeding');
+            document.querySelector('input[name="feedTypeRadio"][value="nursing"]').checked = true;
+            document.getElementById('feedDurationInput').value = Math.max(1, totalMins);
+            document.getElementById('modalNotesInput').value = `Direct nursing: ${leftMins}m Left breast, ${rightMins}m Right breast`;
+
+            // Reset stopwatch
+            AppState.timers.nursing.leftSeconds = 0;
+            AppState.timers.nursing.rightSeconds = 0;
+            updateNursingDisplay();
+        };
+
+        // Sleep Stopwatch
+        const toggleSleepTimerBtn = document.getElementById('toggleSleepTimerBtn');
+        const sleepTimerDisplay = document.getElementById('sleepTimerDisplay');
+        const sleepTimerText = document.getElementById('sleepTimerText');
+        const cancelSleepTimerBtn = document.getElementById('cancelSleepTimerBtn');
+
+        toggleSleepTimerBtn.onclick = () => {
+            if (!AppState.timers.sleep.active) {
+                // Start nap
+                AppState.timers.sleep.active = true;
+                AppState.timers.sleep.startTime = Date.now();
+                AppState.timers.sleep.seconds = 0;
+                localStorage.setItem('bt_timers', JSON.stringify({ sleep: { active: true, startTime: AppState.timers.sleep.startTime } }));
+                startSleepInterval();
+                showToast('Nap timer started 😴', 'info');
+            } else {
+                // Stop nap & log
+                const elapsedMins = Math.max(1, Math.round(AppState.timers.sleep.seconds / 60));
+                clearInterval(AppState.timers.sleep.intervalId);
+                AppState.timers.sleep.active = false;
+                localStorage.removeItem('bt_timers');
+                sleepTimerText.textContent = 'Start Nap';
+                toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
+                sleepTimerDisplay.textContent = '00:00:00';
+
+                // Automatically log nap
+                const now = new Date();
+                const newNapLog = {
+                    id: 'log-' + Date.now(),
+                    category: 'sleep',
+                    durationMinutes: elapsedMins,
+                    dateStr: getTodayDateString(),
+                    timeStr: formatDisplayTime(new Date(AppState.timers.sleep.startTime)),
+                    timestamp: AppState.timers.sleep.startTime,
+                    notes: `Woke up at ${formatDisplayTime(now)} (${elapsedMins} mins duration)`,
+                    updatedAt: Date.now()
+                };
+                AppState.logs.push(newNapLog);
+                saveLogsToStorage();
+                renderAll();
+                showToast(`Logged ${elapsedMins}m Nap! 😴`, 'success');
+            }
+        };
+
+        function startSleepInterval() {
+            sleepTimerText.textContent = 'Wake Up & Save';
+            toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+
+            AppState.timers.sleep.intervalId = setInterval(() => {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.sleep.startTime) / 1000);
+                AppState.timers.sleep.seconds = diffSecs;
+                const hrs = String(Math.floor(diffSecs / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((diffSecs % 3600) / 60)).padStart(2, '0');
+                const secs = String(diffSecs % 60).padStart(2, '0');
+                sleepTimerDisplay.textContent = `${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+
+        cancelSleepTimerBtn.onclick = () => {
+            if (AppState.timers.sleep.intervalId) clearInterval(AppState.timers.sleep.intervalId);
+            AppState.timers.sleep.active = false;
+            localStorage.removeItem('bt_timers');
+            sleepTimerText.textContent = 'Start Nap';
+            toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
+            sleepTimerDisplay.textContent = '00:00:00';
+        };
+
+        // Tummy Time Stopwatch
+        const toggleTummyTimerBtn = document.getElementById('toggleTummyTimerBtn');
+        const tummyTimerDisplay = document.getElementById('tummyTimerDisplay');
+        const tummyTimerText = document.getElementById('tummyTimerText');
+        const cancelTummyTimerBtn = document.getElementById('cancelTummyTimerBtn');
+
+        toggleTummyTimerBtn.onclick = () => {
+            if (!AppState.timers.tummy.active) {
+                AppState.timers.tummy.active = true;
+                AppState.timers.tummy.startTime = Date.now();
+                AppState.timers.tummy.seconds = 0;
+                tummyTimerText.textContent = 'Done & Save';
+                toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+
+                AppState.timers.tummy.intervalId = setInterval(() => {
+                    AppState.timers.tummy.seconds++;
+                    const mins = String(Math.floor(AppState.timers.tummy.seconds / 60)).padStart(2, '0');
+                    const secs = String(AppState.timers.tummy.seconds % 60).padStart(2, '0');
+                    tummyTimerDisplay.textContent = `${mins}:${secs}`;
+                }, 1000);
+            } else {
+                const elapsedMins = Math.max(1, Math.round(AppState.timers.tummy.seconds / 60));
+                clearInterval(AppState.timers.tummy.intervalId);
+                AppState.timers.tummy.active = false;
+                tummyTimerText.textContent = 'Start Tummy Time';
+                toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
+                tummyTimerDisplay.textContent = '00:00';
+
+                const now = new Date();
+                const newTummyLog = {
+                    id: 'log-' + Date.now(),
+                    category: 'tummy',
+                    durationMinutes: elapsedMins,
+                    dateStr: getTodayDateString(),
+                    timeStr: formatDisplayTime(now),
+                    timestamp: now.getTime(),
+                    notes: `Great head lifting and tummy exercise (${elapsedMins} mins)`,
+                    updatedAt: Date.now()
+                };
+                AppState.logs.push(newTummyLog);
+                saveLogsToStorage();
+                renderAll();
+                showToast(`Logged ${elapsedMins}m Tummy Time! 🐢`, 'success');
+            }
+        };
+
+        cancelTummyTimerBtn.onclick = () => {
+            if (AppState.timers.tummy.intervalId) clearInterval(AppState.timers.tummy.intervalId);
+            AppState.timers.tummy.active = false;
+            tummyTimerText.textContent = 'Start Tummy Time';
+            toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
+            tummyTimerDisplay.textContent = '00:00';
+        };
+
+        // 6. Log Activity Modal Functions & Event Handlers
+        const logActivityModal = document.getElementById('logActivityModal');
+        const openLogModalBtn = document.getElementById('openLogModalBtn');
+        const closeLogModalBtn = document.getElementById('closeLogModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const activityForm = document.getElementById('activityForm');
+
+        openLogModalBtn.onclick = () => openLogModal('feeding');
+        closeLogModalBtn.onclick = () => logActivityModal.classList.add('hidden');
+        cancelModalBtn.onclick = () => logActivityModal.classList.add('hidden');
+
+        function openLogModal(defaultCategory = 'feeding') {
+            document.getElementById('editLogId').value = '';
+            document.getElementById('modalTitleText').textContent = 'Log Activity';
+            
+            // Set default date & time to current moment
+            const now = new Date();
+            document.getElementById('modalDateInput').value = AppState.selectedDate || getTodayDateString();
+            document.getElementById('modalTimeInput').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            // Reset form inputs
+            document.getElementById('feedAmountInput').value = '';
+            document.getElementById('feedDurationInput').value = '';
+            document.getElementById('sleepDurationInput').value = '';
+            document.getElementById('tummyDurationInput').value = '';
+            document.getElementById('modalNotesInput').value = '';
+            
+            selectCategoryTab(defaultCategory);
+            logActivityModal.classList.remove('hidden');
+        }
+
+        // Category Tab Switcher
+        document.querySelectorAll('.cat-select-btn').forEach(btn => {
+            btn.onclick = () => {
+                const cat = btn.getAttribute('data-cat');
+                selectCategoryTab(cat);
+            };
+        });
+
+        function selectCategoryTab(cat) {
+            document.querySelectorAll('.cat-select-btn').forEach(b => {
+                const isSelected = b.getAttribute('data-cat') === cat;
+                b.className = isSelected 
+                    ? 'cat-select-btn p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all bg-amber-50 dark:bg-amber-950/40 border-amber-400 text-amber-900 dark:text-amber-200 shadow-xs'
+                    : 'cat-select-btn p-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold flex flex-col items-center gap-1 transition-all hover:bg-slate-50 dark:hover:bg-slate-800';
+            });
+
+            // Toggle dynamic fields
+            document.getElementById('feedingFields').classList.toggle('hidden', cat !== 'feeding');
+            document.getElementById('diaperFields').classList.toggle('hidden', cat !== 'diaper');
+            document.getElementById('sleepFields').classList.toggle('hidden', cat !== 'sleep');
+            document.getElementById('tummyFields').classList.toggle('hidden', cat !== 'tummy');
+        }
+
+        document.getElementById('setNowBtn').onclick = () => {
+            const now = new Date();
+            document.getElementById('modalDateInput').value = getTodayDateString();
+            document.getElementById('modalTimeInput').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        };
+
+        function setFeedAmount(amountMl) {
+            if (AppState.unit === 'oz') {
+                document.getElementById('feedAmountInput').value = (amountMl / ML_PER_OZ).toFixed(1);
+            } else {
+                document.getElementById('feedAmountInput').value = amountMl;
+            }
+        }
+
+        function setSleepDuration(minutes) {
+            document.getElementById('sleepDurationInput').value = minutes;
+        }
+
+        // Handle Save Activity Form Submit
+        activityForm.onsubmit = (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('editLogId').value;
+            const dateStr = document.getElementById('modalDateInput').value;
+            const timeRaw = document.getElementById('modalTimeInput').value;
+            const notes = document.getElementById('modalNotesInput').value.trim();
+
+            // Determine active category
+            let selectedCat = 'feeding';
+            document.querySelectorAll('.cat-select-btn').forEach(b => {
+                if (b.classList.contains('border-amber-400')) selectedCat = b.getAttribute('data-cat');
+            });
+
+            // Parse timestamp
+            const [hours, mins] = timeRaw.split(':').map(Number);
+            const dateObj = new Date(`${dateStr}T${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`);
+            const timeDisplayStr = formatDisplayTime(dateObj);
+
+            let logData = {
+                id: editId || ('log-' + Date.now()),
+                category: selectedCat,
+                dateStr,
+                timeStr: timeDisplayStr,
+                timestamp: dateObj.getTime(),
+                notes,
+                updatedAt: Date.now()
+            };
+
+            if (selectedCat === 'feeding') {
+                const feedType = document.querySelector('input[name="feedTypeRadio"]:checked').value;
+                const rawAmount = parseFloat(document.getElementById('feedAmountInput').value) || 0;
+                const duration = parseFloat(document.getElementById('feedDurationInput').value) || null;
+                
+                // Convert to mL for standard storage
+                const amountMl = AppState.unit === 'oz' ? Math.round(rawAmount * ML_PER_OZ) : rawAmount;
+                logData.subType = feedType;
+                logData.amountMl = amountMl;
+                if (duration) logData.durationMinutes = duration;
+
+            } else if (selectedCat === 'diaper') {
+                const diaperType = document.querySelector('input[name="diaperTypeRadio"]:checked').value;
+                const diaperSize = document.querySelector('input[name="diaperSizeRadio"]:checked').value;
+                const texture = document.getElementById('poopTextureSelect').value;
+
+                logData.subType = diaperType;
+                logData.size = diaperSize;
+                if (diaperType === 'poop' || diaperType === 'both') {
+                    logData.poopTexture = texture;
+                }
+
+            } else if (selectedCat === 'sleep') {
+                logData.durationMinutes = parseFloat(document.getElementById('sleepDurationInput').value) || 30;
+
+            } else if (selectedCat === 'tummy') {
+                logData.durationMinutes = parseFloat(document.getElementById('tummyDurationInput').value) || 5;
+            }
+
+            if (editId) {
+                // Update existing
+                const index = AppState.logs.findIndex(l => l.id === editId);
+                if (index !== -1) AppState.logs[index] = logData;
+                showToast('Activity updated! ✏️', 'success');
+            } else {
+                // Add new
+                AppState.logs.push(logData);
+                showToast('Activity logged! 🍼', 'success');
+            }
+
+            saveLogsToStorage();
+            logActivityModal.classList.add('hidden');
+            renderAll();
+        };
+
+        // Edit Existing Log
+        window.editLog = (id) => {
+            const log = AppState.logs.find(l => l.id === id);
+            if (!log) return;
+
+            document.getElementById('editLogId').value = log.id;
+            document.getElementById('modalTitleText').textContent = 'Edit Tracked Activity';
+            document.getElementById('modalDateInput').value = log.dateStr;
+
+            const d = new Date(log.timestamp);
+            document.getElementById('modalTimeInput').value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('modalNotesInput').value = log.notes || '';
+
+            selectCategoryTab(log.category);
+
+            if (log.category === 'feeding') {
+                const radio = document.querySelector(`input[name="feedTypeRadio"][value="${log.subType}"]`);
+                if (radio) radio.checked = true;
+                const displayAmount = AppState.unit === 'oz' 
+                    ? ((log.amountMl || 0) / ML_PER_OZ).toFixed(1) 
+                    : (log.amountMl || '');
+                document.getElementById('feedAmountInput').value = displayAmount;
+                document.getElementById('feedDurationInput').value = log.durationMinutes || '';
+
+            } else if (log.category === 'diaper') {
+                const typeRadio = document.querySelector(`input[name="diaperTypeRadio"][value="${log.subType}"]`);
+                if (typeRadio) typeRadio.checked = true;
+                const sizeRadio = document.querySelector(`input[name="diaperSizeRadio"][value="${log.size || 'medium'}"]`);
+                if (sizeRadio) sizeRadio.checked = true;
+                if (log.poopTexture) document.getElementById('poopTextureSelect').value = log.poopTexture;
+
+            } else if (log.category === 'sleep') {
+                document.getElementById('sleepDurationInput').value = log.durationMinutes || '';
+
+            } else if (log.category === 'tummy') {
+                document.getElementById('tummyDurationInput').value = log.durationMinutes || '';
+            }
+
+            logActivityModal.classList.remove('hidden');
+        };
+
+        // Delete Log
+        window.deleteLog = (id) => {
+            if (confirm('Delete this logged activity?')) {
+                AppState.logs = AppState.logs.filter(l => l.id !== id);
+                saveLogsToStorage();
+                renderAll();
+                showToast('Log removed', 'info');
+            }
+        };
+
+        // 7. Unit Switching (mL <-> oz)
+        const unitMlBtn = document.getElementById('unitMlBtn');
+        const unitOzBtn = document.getElementById('unitOzBtn');
+
+        unitMlBtn.onclick = () => setUnit('mL');
+        unitOzBtn.onclick = () => setUnit('oz');
+
+        function setUnit(unit) {
+            AppState.unit = unit;
+            localStorage.setItem('bt_unit', unit);
+            updateUnitUI();
+            renderAll();
+        }
+
+        function updateUnitUI() {
+            const isMl = AppState.unit === 'mL';
+            unitMlBtn.className = isMl 
+                ? 'px-2.5 py-1 rounded-lg transition-colors bg-amber-500 text-white shadow-xs font-bold' 
+                : 'px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold';
+            unitOzBtn.className = !isMl 
+                ? 'px-2.5 py-1 rounded-lg transition-colors bg-amber-500 text-white shadow-xs font-bold' 
+                : 'px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold';
+
+            document.getElementById('modalVolumeUnitLabel').textContent = AppState.unit;
+            document.getElementById('feedAmountUnitSuffix').textContent = AppState.unit;
+            document.getElementById('goalUnitLabel').textContent = AppState.unit;
+
+            // Update chips
+            const chipContainer = document.getElementById('quickVolumeChips');
+            if (AppState.unit === 'oz') {
+                chipContainer.innerHTML = `
+                    <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">0.5 oz</button>
+                    <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1 oz</button>
+                    <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1.5 oz</button>
+                    <button type="button" onclick="setFeedAmount(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">2 oz</button>
+                    <button type="button" onclick="setFeedAmount(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">3 oz</button>
+                `;
+            } else {
+                chipContainer.innerHTML = `
+                    <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">15 mL</button>
+                    <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">30 mL (1oz)</button>
+                    <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">45 mL (1.5oz)</button>
+                    <button type="button" onclick="setFeedAmount(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">60 mL (2oz)</button>
+                    <button type="button" onclick="setFeedAmount(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">90 mL (3oz)</button>
+                `;
+            }
+        }
+
+        document.getElementById('toggleModalVolumeUnitBtn').onclick = () => {
+            setUnit(AppState.unit === 'mL' ? 'oz' : 'mL');
+        };
+
+        // 8. Apple Notes Clean Export Feature
+        const exportNotesBtn = document.getElementById('exportNotesBtn');
+        const exportNotesModal = document.getElementById('exportNotesModal');
+        const closeExportModalBtn = document.getElementById('closeExportModalBtn');
+        const copyNotesTextBtn = document.getElementById('copyNotesTextBtn');
+        const nativeShareNotesBtn = document.getElementById('nativeShareNotesBtn');
+        const notesPreviewTextarea = document.getElementById('notesPreviewTextarea');
+
+        exportNotesBtn.onclick = () => {
+            const formattedNote = generateAppleNotesFormat(AppState.selectedDate);
+            notesPreviewTextarea.value = formattedNote;
+            exportNotesModal.classList.remove('hidden');
+        };
+
+        closeExportModalBtn.onclick = () => exportNotesModal.classList.add('hidden');
+
+        copyNotesTextBtn.onclick = () => {
+            const text = notesPreviewTextarea.value;
+            navigator.clipboard.writeText(text).then(() => {
+                document.getElementById('copyNotesBtnText').textContent = 'Copied to Clipboard! ✓';
+                setTimeout(() => {
+                    document.getElementById('copyNotesBtnText').textContent = 'Copy to Clipboard';
+                }, 2000);
+                showToast('Copied! Ready to paste in Apple Notes 📋', 'success');
+            }).catch(() => {
+                notesPreviewTextarea.select();
+                document.execCommand('copy');
+                showToast('Copied to Clipboard! 📋', 'success');
+            });
+        };
+
+        nativeShareNotesBtn.onclick = () => {
+            const text = notesPreviewTextarea.value;
+            if (navigator.share) {
+                navigator.share({
+                    title: `${AppState.babyName} Log - ${AppState.selectedDate}`,
+                    text: text
+                }).catch(() => {});
+            } else {
+                copyNotesTextBtn.click();
+            }
+        };
+
+        function generateAppleNotesFormat(dateStr) {
+            const dateObj = new Date(dateStr + 'T12:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDateHeader = dateObj.toLocaleDateString('en-US', options);
+
+            const logsForDay = AppState.logs
+                .filter(l => l.dateStr === dateStr)
+                .sort((a, b) => a.timestamp - b.timestamp); // chronological
+
+            let totalFormulaMl = 0;
+            let totalBreastmilkMl = 0;
+            let wetCount = 0;
+            let dirtyCount = 0;
+            let totalSleepMins = 0;
+            let napCount = 0;
+
+            logsForDay.forEach(l => {
+                if (l.category === 'feeding') {
+                    if (l.subType === 'formula') totalFormulaMl += (l.amountMl || 0);
+                    else totalBreastmilkMl += (l.amountMl || 0);
+                } else if (l.category === 'diaper') {
+                    if (l.subType === 'pee' || l.subType === 'both') wetCount++;
+                    if (l.subType === 'poop' || l.subType === 'both') dirtyCount++;
+                } else if (l.category === 'sleep') {
+                    totalSleepMins += (l.durationMinutes || 0);
+                    napCount++;
+                }
+            });
+
+            const totalFedMl = totalFormulaMl + totalBreastmilkMl;
+            const totalFedOz = (totalFedMl / ML_PER_OZ).toFixed(1);
+            const sleepHrs = Math.floor(totalSleepMins / 60);
+            const sleepMins = totalSleepMins % 60;
+
+            let out = `🍼 ${AppState.babyName} Daily Log — ${formattedDateHeader}\n`;
+            out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            out += `📊 SUMMARY\n`;
+            out += `• Total Fed: ${totalFedMl} mL (${totalFedOz} oz)\n`;
+            out += `  └ Formula: ${totalFormulaMl} mL | Breastmilk: ${totalBreastmilkMl} mL\n`;
+            out += `• Diapers: ${wetCount + dirtyCount} total (${wetCount} Wet 🟡, ${dirtyCount} Poop 💩)\n`;
+            out += `• Total Sleep: ${sleepHrs}h ${sleepMins}m (${napCount} naps)\n\n`;
+
+            out += `🕒 ACTIVITY TIMELINE\n`;
+            if (logsForDay.length === 0) {
+                out += `• No logged activities recorded.\n`;
+            } else {
+                logsForDay.forEach(l => {
+                    out += `• ${l.timeStr} — `;
+                    if (l.category === 'feeding') {
+                        const amountStr = AppState.unit === 'oz' 
+                            ? `${((l.amountMl || 0) / ML_PER_OZ).toFixed(1)} oz (${l.amountMl} mL)`
+                            : `${l.amountMl} mL`;
+                        out += `${l.subType === 'formula' ? '🍼 Formula' : '🤱 Breastmilk'}: ${amountStr}`;
+                        if (l.durationMinutes) out += ` (${l.durationMinutes}m)`;
+                    } else if (l.category === 'diaper') {
+                        const sz = capitalize(l.size || 'Medium');
+                        if (l.subType === 'pee') out += `🟡 Wet Diaper (${sz} Pee)`;
+                        else if (l.subType === 'poop') out += `💩 Dirty Diaper (${sz} Poop${l.poopTexture ? ` - ${l.poopTexture}` : ''})`;
+                        else out += `🟡💩 Wet & Dirty Diaper (${sz})`;
+                    } else if (l.category === 'sleep') {
+                        out += `😴 Nap (${l.durationMinutes || 0} mins)`;
+                    } else if (l.category === 'tummy') {
+                        out += `🐢 Tummy Time (${l.durationMinutes || 0} mins)`;
+                    }
+                    if (l.notes) out += `\n  Notes: "${l.notes}"`;
+                    out += `\n`;
+                });
+            }
+
+            out += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            out += `Generated by BabyTracker • https://nonsenseian.github.io/babytracker`;
+            return out;
+        }
+
+        // 9. Partner Sharing Modal & QR Code Generation
+        const sharePartnerBtn = document.getElementById('sharePartnerBtn');
+        const sharePartnerModal = document.getElementById('sharePartnerModal');
+        const closeShareModalBtn = document.getElementById('closeShareModalBtn');
+        const copyShareUrlBtn = document.getElementById('copyShareUrlBtn');
+        const createNewRoomBtn = document.getElementById('createNewRoomBtn');
+        const shareUrlInput = document.getElementById('shareUrlInput');
+
+        sharePartnerBtn.onclick = () => {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('room', AppState.roomId);
+            const fullShareUrl = currentUrl.toString();
+
+            shareUrlInput.value = fullShareUrl;
+
+            // Generate QR Code
+            const qrContainer = document.getElementById('qrcodeContainer');
+            qrContainer.innerHTML = '';
+            if (window.QRCode) {
+                new QRCode(qrContainer, {
+                    text: fullShareUrl,
+                    width: 150,
+                    height: 150,
+                    colorDark : "#0f172a",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+
+            sharePartnerModal.classList.remove('hidden');
+        };
+
+        closeShareModalBtn.onclick = () => sharePartnerModal.classList.add('hidden');
+
+        copyShareUrlBtn.onclick = () => {
+            navigator.clipboard.writeText(shareUrlInput.value).then(() => {
+                copyShareUrlBtn.textContent = 'Copied! ✓';
+                setTimeout(() => copyShareUrlBtn.textContent = 'Copy', 2000);
+                showToast('Private link copied! Share with partner 🔗', 'success');
+            });
+        };
+
+        createNewRoomBtn.onclick = () => {
+            if (confirm('Generate a brand new private sync room? (Both parents must open the new link to connect)')) {
+                const newRoom = 'family-' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem('bt_room_id', newRoom);
+                const url = new URL(window.location.href);
+                url.searchParams.set('room', newRoom);
+                window.location.href = url.toString();
+            }
+        };
+
+        // 10. Date Navigation Controls
+        const prevDayBtn = document.getElementById('prevDayBtn');
+        const nextDayBtn = document.getElementById('nextDayBtn');
+        const todayBtn = document.getElementById('todayBtn');
+        const selectedDateInput = document.getElementById('selectedDateInput');
+
+        selectedDateInput.onchange = (e) => {
+            AppState.selectedDate = e.target.value;
+            renderAll();
+        };
+
+        prevDayBtn.onclick = () => offsetSelectedDate(-1);
+        nextDayBtn.onclick = () => offsetSelectedDate(1);
+        todayBtn.onclick = () => {
+            AppState.selectedDate = getTodayDateString();
+            selectedDateInput.value = AppState.selectedDate;
+            renderAll();
+        };
+
+        function offsetSelectedDate(days) {
+            const current = new Date(AppState.selectedDate + 'T12:00:00');
+            current.setDate(current.getDate() + days);
+            const year = current.getFullYear();
+            const month = String(current.getMonth() + 1).padStart(2, '0');
+            const day = String(current.getDate()).padStart(2, '0');
+            AppState.selectedDate = `${year}-${month}-${day}`;
+            selectedDateInput.value = AppState.selectedDate;
+            renderAll();
+        }
+
+        function updateDateControls() {
+            selectedDateInput.value = AppState.selectedDate;
+        }
+
+        // Calendar Month Navigation
+        document.getElementById('calPrevMonthBtn').onclick = () => {
+            AppState.calendarViewMonth--;
+            if (AppState.calendarViewMonth < 0) {
+                AppState.calendarViewMonth = 11;
+                AppState.calendarViewYear--;
+            }
+            renderCalendarGrid();
+        };
+
+        document.getElementById('calNextMonthBtn').onclick = () => {
+            AppState.calendarViewMonth++;
+            if (AppState.calendarViewMonth > 11) {
+                AppState.calendarViewMonth = 0;
+                AppState.calendarViewYear++;
+            }
+            renderCalendarGrid();
+        };
+
+        const toggleCalendarViewBtn = document.getElementById('toggleCalendarViewBtn');
+        const calendarViewContainer = document.getElementById('calendarViewContainer');
+        const calendarToggleLabel = document.getElementById('calendarToggleLabel');
+
+        toggleCalendarViewBtn.onclick = () => {
+            const isHidden = calendarViewContainer.classList.contains('hidden');
+            calendarViewContainer.classList.toggle('hidden', !isHidden);
+            calendarToggleLabel.textContent = isHidden ? 'Hide Calendar View' : 'Show Calendar View';
+        };
+
+        // Category Filter & Search
+        document.getElementById('categoryFilter').onchange = () => renderActivityList();
+        document.getElementById('logSearchInput').oninput = () => renderActivityList();
+
+        // Clear Day Logs
+        document.getElementById('clearDayLogsBtn').onclick = () => {
+            if (confirm(`Delete all activities for ${AppState.selectedDate}?`)) {
+                AppState.logs = AppState.logs.filter(l => l.dateStr !== AppState.selectedDate);
+                saveLogsToStorage();
+                renderAll();
+                showToast('Cleared logs for this day', 'info');
+            }
+        };
+
+        // 11. Feed Goal Modal
+        const setFeedGoalBtn = document.getElementById('setFeedGoalBtn');
+        const setGoalModal = document.getElementById('setGoalModal');
+        const closeGoalModalBtn = document.getElementById('closeGoalModalBtn');
+        const saveGoalBtn = document.getElementById('saveGoalBtn');
+        const goalAmountInput = document.getElementById('goalAmountInput');
+
+        setFeedGoalBtn.onclick = () => {
+            const isOz = AppState.unit === 'oz';
+            goalAmountInput.value = isOz 
+                ? (AppState.dailyFeedGoalMl / ML_PER_OZ).toFixed(1)
+                : AppState.dailyFeedGoalMl;
+            setGoalModal.classList.remove('hidden');
+        };
+
+        closeGoalModalBtn.onclick = () => setGoalModal.classList.add('hidden');
+
+        saveGoalBtn.onclick = () => {
+            const val = parseFloat(goalAmountInput.value);
+            if (val > 0) {
+                AppState.dailyFeedGoalMl = AppState.unit === 'oz' ? Math.round(val * ML_PER_OZ) : Math.round(val);
+                localStorage.setItem('bt_daily_goal', AppState.dailyFeedGoalMl);
+                setGoalModal.classList.add('hidden');
+                renderMetrics();
+                showToast('Daily feeding goal updated! 🎯', 'success');
+            }
+        };
+
+        // 12. Baby Profile Customization
+        document.getElementById('editBabyBtn').onclick = () => {
+            const newName = prompt('Enter Baby\'s Name:', AppState.babyName);
+            if (newName && newName.trim()) {
+                AppState.babyName = newName.trim();
+                localStorage.setItem('bt_baby_name', AppState.babyName);
+            }
+            const newBirth = prompt('Enter Birthdate (YYYY-MM-DD):', AppState.babyBirthDate);
+            if (newBirth && !isNaN(new Date(newBirth).getTime())) {
+                AppState.babyBirthDate = newBirth;
+                localStorage.setItem('bt_baby_birthdate', AppState.babyBirthDate);
+            }
+            updateBabyProfileHeader();
+        };
+
+        function updateBabyProfileHeader() {
+            const birth = new Date(AppState.babyBirthDate);
+            const now = new Date();
+            const diffDays = Math.floor((now - birth) / (1000 * 60 * 60 * 24));
+            
+            let ageStr = `${diffDays} Days Old`;
+            if (diffDays >= 60) {
+                const months = Math.floor(diffDays / 30.4);
+                ageStr = `${months} Months Old`;
+            } else if (diffDays >= 14) {
+                const weeks = Math.floor(diffDays / 7);
+                ageStr = `${weeks} Weeks Old`;
+            }
+
+            const birthFormatted = birth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('babyStatusSubtitle').textContent = `${AppState.babyName} • Born ${birthFormatted} (${ageStr})`;
+        }
+
+        // 13. Night Vision (3 AM Red Feed Mode) & Theme Toggle
+        const nightFeedToggle = document.getElementById('nightFeedToggle');
+        nightFeedToggle.onclick = () => {
+            document.body.classList.toggle('night-vision');
+            const isRed = document.body.classList.contains('night-vision');
+            nightFeedToggle.textContent = isRed ? '🔴' : '🌙';
+            showToast(isRed ? '3 AM Red Night-Vision enabled 🌙' : 'Night-Vision disabled', 'info');
+        };
+
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        themeToggleBtn.onclick = () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('bt_theme', isDark ? 'dark' : 'light');
+            themeToggleBtn.textContent = isDark ? '🌙' : '☀️';
+        };
+
+        if (localStorage.getItem('bt_theme') === 'dark' || (!('bt_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleBtn.textContent = '🌙';
+        }
+
+        // 14. Data Backup & Restore (JSON)
+        document.getElementById('backupJsonBtn').onclick = () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.logs, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `babytracker_backup_${AppState.selectedDate}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Backup JSON downloaded! 💾', 'success');
+        };
+
+        document.getElementById('restoreJsonBtn').onclick = () => {
+            document.getElementById('restoreFileInput').click();
+        };
+
+        document.getElementById('restoreFileInput').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if (Array.isArray(parsed)) {
+                        AppState.logs = parsed;
+                        saveLogsToStorage();
+                        renderAll();
+                        showToast('Backup data restored successfully! 📂', 'success');
+                    } else {
+                        alert('Invalid JSON file format.');
+                    }
+                } catch(err) {
+                    alert('Error parsing JSON backup file.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        // Utility: Toast Notifications
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const msgSpan = document.getElementById('toastMessage');
+            const iconSpan = document.getElementById('toastIcon');
+
+            msgSpan.textContent = message;
+            if (type === 'success') {
+                iconSpan.textContent = '✨';
+                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 transition-all duration-300';
+            } else {
+                iconSpan.textContent = 'ℹ️';
+                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-amber-500 text-white transition-all duration-300';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function setupEventListeners() {
+            // Escape key closes modals
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.fixed.z-50').forEach(m => m.classList.add('hidden'));
+                }
+            });
+        }
+
+        function capitalize(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
