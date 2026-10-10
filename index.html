@@ -44,9 +44,6 @@
             }
         }
     </script>
-
-    <!-- GunDB for Peer-to-Peer & Relay Realtime Sync -->
-    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     
     <!-- QRCode.js for generating QR codes to share with partner -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -107,6 +104,14 @@
         .timer-active {
             animation: timerPulse 2s infinite ease-in-out;
         }
+
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-active {
+            animation: spinSlow 0.8s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-[#FAF7F2] text-slate-800 dark:bg-nightBg dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-300">
@@ -130,12 +135,12 @@
                                 Newborn
                             </span>
                         </h1>
-                        <button id="editBabyBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs p-1" title="Customize Baby Info">
+                        <button id="editBabyBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs p-1 rounded-lg hover:bg-amber-100 dark:hover:bg-slate-800 transition-colors" title="Customize Baby Name & Birthdate">
                             ✏️
                         </button>
                     </div>
                     <p id="babyStatusSubtitle" class="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        Baby Ian • Born Oct 1, 2026 (9 Days Old)
+                        Baby Ian • Born Sep 2, 2026 (5 Weeks Old)
                     </p>
                 </div>
             </div>
@@ -152,11 +157,17 @@
                     </button>
                 </div>
 
+                <!-- Instant Cloud Sync Button -->
+                <button id="syncNowBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/50 active:scale-95 transition-all" title="Force sync latest updates with cloud">
+                    <span id="syncSpinIcon" class="text-xs">🔄</span>
+                    <span id="syncBtnLabel">Sync</span>
+                </button>
+
                 <!-- Sync / Partner Sharing Button -->
                 <button id="sharePartnerBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all">
                     <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Share Room</span>
-                    <span id="roomCodeBadge" class="hidden sm:inline text-[10px] bg-sky-200/60 dark:bg-sky-800/60 px-1.5 py-0.5 rounded-md">P2P</span>
+                    <span id="roomCodeBadge" class="hidden sm:inline text-[10px] bg-sky-200/60 dark:bg-sky-800/60 px-1.5 py-0.5 rounded-md font-mono">Live</span>
                 </button>
 
                 <!-- Export to Apple Notes -->
@@ -277,7 +288,7 @@
                     </button>
                     <div class="hidden lg:block text-left">
                         <div class="text-xs font-bold text-slate-800 dark:text-slate-200">One-Tap Quick Logging</div>
-                        <div class="text-[11px] text-slate-500 dark:text-slate-400">Timestamps automatically recorded</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">Timestamps & partner sync automatic</div>
                     </div>
                 </div>
 
@@ -884,15 +895,19 @@
                         Share with Partner
                     </h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400">
-                        Live real-time sync between caregivers
+                        Real-time cloud sync across phones & browsers
                     </p>
                 </div>
             </div>
 
             <div class="space-y-4 text-xs">
                 <div class="p-3 bg-sky-50 dark:bg-sky-950/30 border border-sky-200/60 dark:border-sky-900/40 rounded-2xl space-y-1.5">
-                    <p class="text-slate-700 dark:text-slate-300 font-medium">
-                        Share this private link or QR code with your partner or nanny. The page will <strong>update in real-time for both of you</strong>, and nobody else can see it without this link!
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-700 dark:text-slate-300">Cloud Status:</span>
+                        <span id="cloudStatusIndicator" class="font-bold text-emerald-600">🟢 Active & Connected</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400">
+                        Share this private link or QR code with your partner. The page will <strong>update instantly on both phones</strong> and keep progress synced whenever either person refreshes.
                     </p>
                 </div>
 
@@ -909,10 +924,20 @@
                     </label>
                     <div class="flex gap-2">
                         <input type="text" id="shareUrlInput" readonly class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
-                        <button id="copyShareUrlBtn" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-xs whitespace-nowrap">
+                        <button id="copyShareUrlBtn" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-xs whitespace-nowrap active:scale-95 transition-all">
                             Copy
                         </button>
                     </div>
+                </div>
+
+                <!-- Sync Actions -->
+                <div class="flex gap-2 pt-1">
+                    <button id="testSyncBtn" class="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors">
+                        🔔 Test Sync Ping
+                    </button>
+                    <button id="modalSyncNowBtn" class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors">
+                        🔄 Pull Latest Data
+                    </button>
                 </div>
 
                 <!-- Room Key -->
@@ -952,7 +977,7 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <button id="copyNotesTextBtn" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5">
+                    <button id="copyNotesTextBtn" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
                         <span>📋</span>
                         <span id="copyNotesBtnText">Copy to Clipboard</span>
                     </button>
@@ -992,8 +1017,53 @@
         </div>
     </div>
 
+    <!-- 5. Edit Baby Profile Modal (Name & Accurate Calendar Birthdate) -->
+    <div id="editBabyModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-sm w-full shadow-2xl p-6 relative">
+            <button id="closeEditBabyModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+                ✕
+            </button>
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-xl">
+                    👶
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold font-outfit text-slate-900 dark:text-white">
+                        Baby Profile
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Update name and date of birth
+                    </p>
+                </div>
+            </div>
+            <form id="editBabyForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Baby's Name
+                    </label>
+                    <input type="text" id="babyNameInput" required class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Date of Birth
+                    </label>
+                    <input type="date" id="babyBirthDateInput" required class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <p class="text-[11px] text-slate-400 mt-1">Calendar date is strictly preserved without timezone shifts.</p>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" id="cancelBabyModalBtn" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold text-slate-600 dark:text-slate-300">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md">
+                        Save & Sync
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toast Notification Overlay -->
-    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold">
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold pointer-events-none">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">Success</span>
     </div>
@@ -1001,28 +1071,32 @@
     <!-- Application Logic -->
     <script>
         /**
-         * BabyTracker Core Application Logic
-         * Comprehensive Newborn Activity & Feeding Log with Realtime Sync
+         * BabyTracker Application Logic
+         * High-Reliability Cloud Sync & Accurate Timezone Handling
          */
+
+        // Unique device ID for this phone/browser to avoid echo loops
+        const deviceId = localStorage.getItem('bt_device_id') || ('dev-' + Math.random().toString(36).substring(2, 9));
+        localStorage.setItem('bt_device_id', deviceId);
 
         // App State
         const AppState = {
+            deviceId,
             unit: 'mL', // 'mL' or 'oz'
             selectedDate: getTodayDateString(),
             calendarViewMonth: new Date().getMonth(),
             calendarViewYear: new Date().getFullYear(),
             dailyFeedGoalMl: 750,
             babyName: 'Baby Ian',
-            babyBirthDate: '2026-10-01',
+            babyBirthDate: '2026-09-02', // Default to Sep 2, 2026
             roomId: '',
             logs: [],
             timers: {
                 nursing: {
-                    activeSide: null, // 'left' or 'right' or null
+                    activeSide: null,
                     leftSeconds: 0,
                     rightSeconds: 0,
-                    intervalId: null,
-                    lastStartTime: null
+                    intervalId: null
                 },
                 sleep: {
                     active: false,
@@ -1039,15 +1113,34 @@
             }
         };
 
-        // Realtime Sync Engine (GunDB + BroadcastChannel)
-        let gunInstance = null;
-        let gunRoom = null;
         let localChannel = null;
-
-        // Constants
         const ML_PER_OZ = 29.5735;
 
-        // Helper: Format Date to YYYY-MM-DD
+        // ==================== DATE UTILITIES (TIMEZONE-SAFE) ====================
+
+        /**
+         * Safely parse a YYYY-MM-DD date string in local calendar time (noon).
+         * Prevents the classic JavaScript ISO UTC off-by-one day rollback in North America/Western timezones!
+         */
+        function parseLocalDate(dateStr) {
+            if (!dateStr) return new Date();
+            if (typeof dateStr === 'string' && dateStr.includes('-')) {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const y = parseInt(parts[0], 10);
+                    const m = parseInt(parts[1], 10) - 1; // 0-indexed month
+                    const d = parseInt(parts[2], 10);
+                    return new Date(y, m, d, 12, 0, 0); // Noon completely prevents DST/UTC shifts
+                }
+            }
+            return new Date(dateStr);
+        }
+
+        function formatDisplayDate(dateStr) {
+            const d = parseLocalDate(dateStr);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
         function getTodayDateString() {
             const now = new Date();
             const year = now.getFullYear();
@@ -1056,7 +1149,6 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Helper: Format Time string for display (e.g. 9:34pm)
         function formatDisplayTime(dateObj) {
             let hours = dateObj.getHours();
             const minutes = String(dateObj.getMinutes()).padStart(2, '0');
@@ -1066,17 +1158,296 @@
             return `${hours}:${minutes}${ampm}`;
         }
 
-        // Initialize Application
+        function calculateAgeInDays(birthDateStr) {
+            const birth = parseLocalDate(birthDateStr);
+            const now = new Date();
+            const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+            const diffMs = todayNoon.getTime() - birth.getTime();
+            return Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+        }
+
+        function getBabyAgeString(birthDateStr) {
+            const diffDays = calculateAgeInDays(birthDateStr);
+            if (diffDays >= 60) {
+                const months = Math.floor(diffDays / 30.4375);
+                return `${months} Months Old`;
+            } else if (diffDays >= 14) {
+                const weeks = Math.floor(diffDays / 7);
+                return `${weeks} Weeks Old`;
+            } else if (diffDays === 0) {
+                return 'Born Today! 👶';
+            } else {
+                return `${diffDays} Day${diffDays === 1 ? '' : 's'} Old`;
+            }
+        }
+
+        // ==================== REAL-TIME CLOUD SYNC ENGINE ====================
+
+        const SyncEngine = {
+            eventSource: null,
+            pollInterval: null,
+            topic: '',
+
+            init() {
+                // Ensure room ID from query param or storage
+                const urlParams = new URLSearchParams(window.location.search);
+                let room = urlParams.get('room');
+
+                if (!room) {
+                    room = localStorage.getItem('bt_room_id');
+                    if (!room) {
+                        room = 'family-' + Math.random().toString(36).substring(2, 9);
+                        localStorage.setItem('bt_room_id', room);
+                    }
+                } else {
+                    localStorage.setItem('bt_room_id', room);
+                }
+                AppState.roomId = room;
+                document.getElementById('currentRoomDisplay').textContent = room;
+                this.topic = 'babytracker_room_' + room;
+
+                // 1. Cross-tab BroadcastChannel for same device
+                try {
+                    localChannel = new BroadcastChannel('bt_channel_' + room);
+                    localChannel.onmessage = (e) => {
+                        if (e.data && e.data.type === 'STATE_UPDATE' && e.data.senderId !== AppState.deviceId) {
+                            this.applyRemoteState(e.data);
+                        }
+                    };
+                } catch(err) {}
+
+                // 2. Real-time Server-Sent Events (SSE) via ntfy.sh
+                this.connectSSE();
+
+                // 3. Immediately pull latest state from cloud on load / refresh
+                this.pullLatest(false);
+
+                // 4. Background heartbeat poll every 25 seconds
+                if (this.pollInterval) clearInterval(this.pollInterval);
+                this.pollInterval = setInterval(() => {
+                    this.pullLatest(false);
+                }, 25000);
+
+                // 5. Visibility change (when switching back to phone browser)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        this.pullLatest(false);
+                        if (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED) {
+                            this.connectSSE();
+                        }
+                    }
+                });
+            },
+
+            connectSSE() {
+                try {
+                    if (this.eventSource) this.eventSource.close();
+                    this.eventSource = new EventSource(`https://ntfy.sh/${this.topic}/sse`);
+                    
+                    this.eventSource.onopen = () => {
+                        this.updateSyncUI('connected');
+                    };
+
+                    this.eventSource.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.event === 'message' && data.message) {
+                                const payload = JSON.parse(data.message);
+                                if (payload.type === 'PING') {
+                                    showToast('Partner sent a test sync ping! 🔔', 'info');
+                                    return;
+                                }
+                                if (payload.senderId !== AppState.deviceId) {
+                                    this.applyRemoteState(payload, true);
+                                }
+                            }
+                        } catch(e) {}
+                    };
+
+                    this.eventSource.onerror = () => {
+                        this.updateSyncUI('offline');
+                        setTimeout(() => {
+                            if (document.visibilityState === 'visible') {
+                                this.connectSSE();
+                            }
+                        }, 5000);
+                    };
+                } catch(err) {
+                    this.updateSyncUI('offline');
+                }
+            },
+
+            async pullLatest(showToastNotify = false) {
+                try {
+                    this.updateSyncUI('syncing');
+                    const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=24h`);
+                    if (!res.ok) {
+                        this.updateSyncUI('connected');
+                        return;
+                    }
+                    const text = await res.text();
+                    const lines = text.trim().split('\n');
+                    let latestRemote = null;
+
+                    lines.forEach(line => {
+                        if (!line) return;
+                        try {
+                            const obj = JSON.parse(line);
+                            if (obj.event === 'message' && obj.message) {
+                                const payload = JSON.parse(obj.message);
+                                if (payload && payload.timestamp) {
+                                    if (!latestRemote || payload.timestamp > latestRemote.timestamp) {
+                                        latestRemote = payload;
+                                    }
+                                }
+                            }
+                        } catch(e) {}
+                    });
+
+                    if (latestRemote && latestRemote.senderId !== AppState.deviceId) {
+                        this.applyRemoteState(latestRemote, showToastNotify);
+                    }
+                    this.updateSyncUI('connected');
+                } catch(err) {
+                    this.updateSyncUI('offline');
+                }
+            },
+
+            async broadcast() {
+                const payload = {
+                    type: 'STATE_UPDATE',
+                    senderId: AppState.deviceId,
+                    roomId: AppState.roomId,
+                    babyName: AppState.babyName,
+                    babyBirthDate: AppState.babyBirthDate,
+                    dailyFeedGoalMl: AppState.dailyFeedGoalMl,
+                    logs: AppState.logs,
+                    timestamp: Date.now()
+                };
+
+                // Same-device tabs
+                if (localChannel) {
+                    try { localChannel.postMessage(payload); } catch(e) {}
+                }
+
+                // Cloud Relay
+                try {
+                    this.updateSyncUI('syncing');
+                    const res = await fetch(`https://ntfy.sh/${this.topic}`, {
+                        method: 'POST',
+                        headers: {
+                            'Title': `BabyTracker - ${AppState.babyName}`,
+                            'Priority': 'default'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        this.updateSyncUI('connected');
+                    }
+                } catch(err) {
+                    this.updateSyncUI('offline');
+                }
+            },
+
+            async sendTestPing() {
+                try {
+                    await fetch(`https://ntfy.sh/${this.topic}`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            type: 'PING',
+                            senderId: AppState.deviceId,
+                            timestamp: Date.now()
+                        })
+                    });
+                    showToast('Ping sent to partner! 🔔', 'success');
+                } catch(e) {
+                    showToast('Error sending ping', 'info');
+                }
+            },
+
+            applyRemoteState(remote, notify = false) {
+                if (!remote) return;
+                let changed = false;
+
+                // Sync baby metadata
+                if (remote.babyName && remote.babyName !== AppState.babyName) {
+                    AppState.babyName = remote.babyName;
+                    localStorage.setItem('bt_baby_name', AppState.babyName);
+                    changed = true;
+                }
+                if (remote.babyBirthDate && remote.babyBirthDate !== AppState.babyBirthDate) {
+                    AppState.babyBirthDate = remote.babyBirthDate;
+                    localStorage.setItem('bt_baby_birthdate', AppState.babyBirthDate);
+                    changed = true;
+                }
+                if (remote.dailyFeedGoalMl && remote.dailyFeedGoalMl !== AppState.dailyFeedGoalMl) {
+                    AppState.dailyFeedGoalMl = remote.dailyFeedGoalMl;
+                    localStorage.setItem('bt_daily_goal', AppState.dailyFeedGoalMl);
+                    changed = true;
+                }
+
+                // Sync logs with Last-Write-Wins (LWW)
+                if (Array.isArray(remote.logs)) {
+                    const logMap = new Map();
+                    AppState.logs.forEach(l => logMap.set(l.id, l));
+
+                    remote.logs.forEach(remLog => {
+                        const local = logMap.get(remLog.id);
+                        if (!local || (remLog.updatedAt || 0) >= (local.updatedAt || 0)) {
+                            logMap.set(remLog.id, remLog);
+                            changed = true;
+                        }
+                    });
+
+                    AppState.logs = Array.from(logMap.values());
+                    localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
+                }
+
+                if (changed) {
+                    updateBabyProfileHeader();
+                    renderAll();
+                    if (notify) {
+                        showToast('Synced updates from partner! 🍼', 'success');
+                    }
+                }
+            },
+
+            updateSyncUI(status) {
+                const dot = document.getElementById('syncStatusDot');
+                const badge = document.getElementById('roomCodeBadge');
+                const spin = document.getElementById('syncSpinIcon');
+                const modalStatus = document.getElementById('cloudStatusIndicator');
+
+                if (status === 'connected') {
+                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                    if (badge) badge.textContent = 'Cloud';
+                    if (spin) spin.classList.remove('spin-active');
+                    if (modalStatus) modalStatus.innerHTML = '<span class="text-emerald-500 font-bold">🟢 Active & Connected</span>';
+                } else if (status === 'syncing') {
+                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+                    if (badge) badge.textContent = 'Syncing...';
+                    if (spin) spin.classList.add('spin-active');
+                    if (modalStatus) modalStatus.innerHTML = '<span class="text-amber-500 font-bold">🔄 Syncing Cloud Data...</span>';
+                } else {
+                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+                    if (badge) badge.textContent = 'Offline';
+                    if (spin) spin.classList.remove('spin-active');
+                    if (modalStatus) modalStatus.innerHTML = '<span class="text-slate-400 font-bold">🟡 Offline (Local Storage)</span>';
+                }
+            }
+        };
+
+        // ==================== APP INITIALIZATION ====================
+
         document.addEventListener('DOMContentLoaded', () => {
             loadPreferences();
-            initRoomSync();
+            SyncEngine.init();
             initTimers();
             setupEventListeners();
             updateDateControls();
             renderAll();
         });
 
-        // 1. Preferences & Storage
         function loadPreferences() {
             const savedUnit = localStorage.getItem('bt_unit');
             if (savedUnit) AppState.unit = savedUnit;
@@ -1090,7 +1461,7 @@
             const savedBirthDate = localStorage.getItem('bt_baby_birthdate');
             if (savedBirthDate) AppState.babyBirthDate = savedBirthDate;
 
-            // Load logs
+            // Load logs from localStorage
             const savedLogs = localStorage.getItem('bt_logs');
             if (savedLogs) {
                 try {
@@ -1099,8 +1470,13 @@
                     AppState.logs = [];
                 }
             } else {
-                // Initial demo mock logs corresponding to wireframe
-                createSeedLogs();
+                // Check if user came from a shared room link
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.get('room')) {
+                    createSeedLogs();
+                } else {
+                    AppState.logs = [];
+                }
             }
 
             updateUnitUI();
@@ -1109,10 +1485,9 @@
 
         function saveLogsToStorage() {
             localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
-            broadcastSync();
+            SyncEngine.broadcast();
         }
 
-        // Seed logs matching the wireframe in the prompt
         function createSeedLogs() {
             const today = getTodayDateString();
             AppState.logs = [
@@ -1177,106 +1552,8 @@
             localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
         }
 
-        // 2. Real-Time Room Sync Architecture (Multi-User Sharing)
-        function initRoomSync() {
-            // Check URL query parameters for ?room=
-            const urlParams = new URLSearchParams(window.location.search);
-            let room = urlParams.get('room');
+        // ==================== RENDER VIEWS ====================
 
-            if (!room) {
-                room = localStorage.getItem('bt_room_id');
-                if (!room) {
-                    room = 'family-' + Math.random().toString(36).substring(2, 9);
-                    localStorage.setItem('bt_room_id', room);
-                }
-            } else {
-                localStorage.setItem('bt_room_id', room);
-            }
-            AppState.roomId = room;
-            document.getElementById('currentRoomDisplay').textContent = room;
-
-            // BroadcastChannel for instant same-browser cross-tab sync
-            try {
-                localChannel = new BroadcastChannel('babytracker_' + room);
-                localChannel.onmessage = (event) => {
-                    if (event.data && event.data.type === 'SYNC_LOGS') {
-                        mergeRemoteLogs(event.data.logs);
-                    }
-                };
-            } catch(e) {
-                // BroadcastChannel fallback
-            }
-
-            // GunDB Peer & Public Relay initialization
-            try {
-                if (window.Gun) {
-                    gunInstance = Gun({
-                        peers: [
-                            'https://gun-manhattan.herokuapp.com/gun',
-                            'https://peer.wallie.io/gun'
-                        ]
-                    });
-                    gunRoom = gunInstance.get('babytracker_room_' + room);
-
-                    // Listen for remote updates
-                    gunRoom.get('latest_sync').on((data) => {
-                        if (data && data.payload) {
-                            try {
-                                const parsed = JSON.parse(data.payload);
-                                if (Array.isArray(parsed)) {
-                                    mergeRemoteLogs(parsed);
-                                }
-                            } catch(err) {}
-                        }
-                    });
-                }
-            } catch(err) {
-                console.warn('Gun sync initialized locally');
-            }
-        }
-
-        function broadcastSync() {
-            // Broadcast locally to tabs
-            if (localChannel) {
-                localChannel.postMessage({ type: 'SYNC_LOGS', logs: AppState.logs });
-            }
-
-            // Broadcast to GunDB room peers
-            if (gunRoom) {
-                try {
-                    gunRoom.get('latest_sync').put({
-                        payload: JSON.stringify(AppState.logs),
-                        timestamp: Date.now()
-                    });
-                } catch(e) {}
-            }
-        }
-
-        function mergeRemoteLogs(incomingLogs) {
-            if (!Array.isArray(incomingLogs)) return;
-            const logMap = new Map();
-            // Put current logs in map
-            AppState.logs.forEach(item => logMap.set(item.id, item));
-
-            let changed = false;
-            // Merge incoming logs with Last-Write-Wins (LWW)
-            incomingLogs.forEach(incoming => {
-                const existing = logMap.get(incoming.id);
-                if (!existing || (incoming.updatedAt || 0) > (existing.updatedAt || 0)) {
-                    logMap.set(incoming.id, incoming);
-                    changed = true;
-                }
-            });
-
-            if (changed) {
-                AppState.logs = Array.from(logMap.values());
-                localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
-                renderAll();
-                showToast('Synced updates from caregiver! 🍼', 'success');
-            }
-        }
-
-        // 3. Render All Views
         function renderAll() {
             renderMetrics();
             renderTimelineRibbon();
@@ -1284,23 +1561,19 @@
             renderCalendarGrid();
         }
 
-        // Metrics Calculation & Rendering
         function renderMetrics() {
             const logsForDay = AppState.logs.filter(l => l.dateStr === AppState.selectedDate);
 
-            // Feeding metrics
             let totalFormulaMl = 0;
             let totalBreastmilkMl = 0;
             let feedCount = 0;
             let lastFeedTime = null;
 
-            // Diaper metrics
             let peeCount = 0;
             let poopCount = 0;
             let totalDiapers = 0;
             let lastDiaperTime = null;
 
-            // Sleep metrics
             let totalSleepMinutes = 0;
             let napCount = 0;
             let lastSleepTime = null;
@@ -1339,7 +1612,7 @@
             const totalFedMl = totalFormulaMl + totalBreastmilkMl;
             const isOz = AppState.unit === 'oz';
 
-            // 1. Update Feed Tracker Cards
+            // Feed Display
             const feedDisplayStr = isOz 
                 ? `${(totalFedMl / ML_PER_OZ).toFixed(1)} oz`
                 : `${Math.round(totalFedMl)} mL`;
@@ -1350,7 +1623,6 @@
             document.getElementById('totalFedDisplay').textContent = feedDisplayStr;
             document.getElementById('totalFedAlternateDisplay').textContent = feedAlternateStr;
 
-            // Formula vs Breastmilk breakdown
             document.getElementById('formulaTotalDisplay').textContent = isOz 
                 ? `${(totalFormulaMl / ML_PER_OZ).toFixed(1)} oz`
                 : `${Math.round(totalFormulaMl)} mL`;
@@ -1368,13 +1640,12 @@
             document.getElementById('feedGoalPercentDisplay').textContent = `${feedPercent}%`;
             document.getElementById('feedingProgressBar').style.width = `${feedPercent}%`;
 
-            // Feed Count & Time Ago
             document.getElementById('totalFeedCount').textContent = `${feedCount} sessions today`;
             document.getElementById('lastFeedTimeAgo').textContent = lastFeedTime 
                 ? `Last Fed: ${formatTimeAgo(lastFeedTime)}`
                 : 'No feeds logged today';
 
-            // 2. Diaper Tracker Card
+            // Diaper Display
             document.getElementById('totalDiapersDisplay').textContent = totalDiapers;
             document.getElementById('totalPeeDisplay').textContent = peeCount;
             document.getElementById('totalPoopDisplay').textContent = poopCount;
@@ -1394,7 +1665,7 @@
                 hydrationBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300';
             }
 
-            // 3. Sleep Tracker Card
+            // Sleep Display
             const sleepHours = Math.floor(totalSleepMinutes / 60);
             const sleepRemMins = totalSleepMinutes % 60;
             document.getElementById('totalSleepHoursDisplay').textContent = `${sleepHours}h ${sleepRemMins}m`;
@@ -1408,7 +1679,6 @@
                 : 'No naps today';
         }
 
-        // Helper: Format Time Ago (e.g. 1h 45m ago)
         function formatTimeAgo(timestamp) {
             const now = Date.now();
             const diffMs = now - timestamp;
@@ -1420,7 +1690,6 @@
             return `${diffHours}h ${remainingMins}m ago`;
         }
 
-        // 24-Hour Timeline Ribbon
         function renderTimelineRibbon() {
             const container = document.getElementById('timelineEventsContainer');
             container.innerHTML = '';
@@ -1472,7 +1741,6 @@
             });
         }
 
-        // Render Tracked Activity List (From Wireframe layout)
         function renderActivityList() {
             const listContent = document.getElementById('activityListContent');
             const emptyState = document.getElementById('noActivityState');
@@ -1483,9 +1751,8 @@
 
             let logs = AppState.logs
                 .filter(l => l.dateStr === AppState.selectedDate)
-                .sort((a, b) => b.timestamp - a.timestamp); // latest first
+                .sort((a, b) => b.timestamp - a.timestamp);
 
-            // Apply category filter
             if (catFilter !== 'all') {
                 logs = logs.filter(l => {
                     if (catFilter === 'feeding') return l.category === 'feeding';
@@ -1500,7 +1767,6 @@
                 });
             }
 
-            // Apply search notes filter
             if (searchVal) {
                 logs = logs.filter(l => {
                     const desc = getLogSummaryText(l).toLowerCase();
@@ -1521,7 +1787,6 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'group p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 dark:bg-nightBg/60 border border-slate-200/70 dark:border-nightBorder hover:border-amber-300 dark:hover:border-amber-700/60 transition-all flex items-center justify-between gap-3';
 
-                // Category details and badge
                 const { badgeHtml, titleHtml } = getLogDisplayElements(log);
 
                 itemDiv.innerHTML = `
@@ -1618,7 +1883,6 @@
             return log.category;
         }
 
-        // Calendar View Generator (Wireframe Calendar View)
         function renderCalendarGrid() {
             const container = document.getElementById('calendarGrid');
             if (!container) return;
@@ -1633,14 +1897,12 @@
             const firstDayIndex = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            // Blank filler days
             for (let i = 0; i < firstDayIndex; i++) {
                 const blank = document.createElement('div');
                 blank.className = 'h-14 sm:h-16 rounded-xl bg-slate-50/40 dark:bg-nightBg/40 border border-transparent';
                 container.appendChild(blank);
             }
 
-            // Days of current month
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dayDateStr === AppState.selectedDate;
@@ -1683,7 +1945,8 @@
             }
         }
 
-        // 4. Quick Logging Shortcuts
+        // ==================== QUICK LOGGING ====================
+
         function quickLog(type) {
             const now = new Date();
             const dateStr = getTodayDateString();
@@ -1732,9 +1995,9 @@
             showToast(`Logged ${getLogSummaryText(newLog)}! ✨`, 'success');
         }
 
-        // 5. Timers Implementation (Persistent Nursing & Sleep)
+        // ==================== TIMERS IMPLEMENTATION ====================
+
         function initTimers() {
-            // Restore any running timers from localStorage
             const savedTimers = localStorage.getItem('bt_timers');
             if (savedTimers) {
                 try {
@@ -1748,7 +2011,6 @@
             }
         }
 
-        // Nursing Dual Stopwatch
         const timerLeftBtn = document.getElementById('timerLeftBtn');
         const timerRightBtn = document.getElementById('timerRightBtn');
         const stopNursingBtn = document.getElementById('stopNursingBtn');
@@ -1760,12 +2022,10 @@
 
         function switchNursingBreast(side) {
             if (AppState.timers.nursing.activeSide === side) {
-                // Pause current breast
                 pauseNursingTimer();
                 return;
             }
 
-            // Start or switch to new breast
             AppState.timers.nursing.activeSide = side;
             nursingSideBadge.textContent = side.toUpperCase();
             timerLeftBtn.className = side === 'left' 
@@ -1818,13 +2078,11 @@
             }
 
             pauseNursingTimer();
-            // Open modal pre-filled with nursing details
             openLogModal('feeding');
             document.querySelector('input[name="feedTypeRadio"][value="nursing"]').checked = true;
             document.getElementById('feedDurationInput').value = Math.max(1, totalMins);
             document.getElementById('modalNotesInput').value = `Direct nursing: ${leftMins}m Left breast, ${rightMins}m Right breast`;
 
-            // Reset stopwatch
             AppState.timers.nursing.leftSeconds = 0;
             AppState.timers.nursing.rightSeconds = 0;
             updateNursingDisplay();
@@ -1838,7 +2096,6 @@
 
         toggleSleepTimerBtn.onclick = () => {
             if (!AppState.timers.sleep.active) {
-                // Start nap
                 AppState.timers.sleep.active = true;
                 AppState.timers.sleep.startTime = Date.now();
                 AppState.timers.sleep.seconds = 0;
@@ -1846,7 +2103,6 @@
                 startSleepInterval();
                 showToast('Nap timer started 😴', 'info');
             } else {
-                // Stop nap & log
                 const elapsedMins = Math.max(1, Math.round(AppState.timers.sleep.seconds / 60));
                 clearInterval(AppState.timers.sleep.intervalId);
                 AppState.timers.sleep.active = false;
@@ -1855,7 +2111,6 @@
                 toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                 sleepTimerDisplay.textContent = '00:00:00';
 
-                // Automatically log nap
                 const now = new Date();
                 const newNapLog = {
                     id: 'log-' + Date.now(),
@@ -1951,7 +2206,8 @@
             tummyTimerDisplay.textContent = '00:00';
         };
 
-        // 6. Log Activity Modal Functions & Event Handlers
+        // ==================== LOG ACTIVITY MODAL ====================
+
         const logActivityModal = document.getElementById('logActivityModal');
         const openLogModalBtn = document.getElementById('openLogModalBtn');
         const closeLogModalBtn = document.getElementById('closeLogModalBtn');
@@ -1966,12 +2222,10 @@
             document.getElementById('editLogId').value = '';
             document.getElementById('modalTitleText').textContent = 'Log Activity';
             
-            // Set default date & time to current moment
             const now = new Date();
             document.getElementById('modalDateInput').value = AppState.selectedDate || getTodayDateString();
             document.getElementById('modalTimeInput').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
-            // Reset form inputs
             document.getElementById('feedAmountInput').value = '';
             document.getElementById('feedDurationInput').value = '';
             document.getElementById('sleepDurationInput').value = '';
@@ -1982,11 +2236,9 @@
             logActivityModal.classList.remove('hidden');
         }
 
-        // Category Tab Switcher
         document.querySelectorAll('.cat-select-btn').forEach(btn => {
             btn.onclick = () => {
-                const cat = btn.getAttribute('data-cat');
-                selectCategoryTab(cat);
+                selectCategoryTab(btn.getAttribute('data-cat'));
             };
         });
 
@@ -1998,7 +2250,6 @@
                     : 'cat-select-btn p-2.5 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold flex flex-col items-center gap-1 transition-all hover:bg-slate-50 dark:hover:bg-slate-800';
             });
 
-            // Toggle dynamic fields
             document.getElementById('feedingFields').classList.toggle('hidden', cat !== 'feeding');
             document.getElementById('diaperFields').classList.toggle('hidden', cat !== 'diaper');
             document.getElementById('sleepFields').classList.toggle('hidden', cat !== 'sleep');
@@ -2023,7 +2274,6 @@
             document.getElementById('sleepDurationInput').value = minutes;
         }
 
-        // Handle Save Activity Form Submit
         activityForm.onsubmit = (e) => {
             e.preventDefault();
             const editId = document.getElementById('editLogId').value;
@@ -2031,13 +2281,11 @@
             const timeRaw = document.getElementById('modalTimeInput').value;
             const notes = document.getElementById('modalNotesInput').value.trim();
 
-            // Determine active category
             let selectedCat = 'feeding';
             document.querySelectorAll('.cat-select-btn').forEach(b => {
                 if (b.classList.contains('border-amber-400')) selectedCat = b.getAttribute('data-cat');
             });
 
-            // Parse timestamp
             const [hours, mins] = timeRaw.split(':').map(Number);
             const dateObj = new Date(`${dateStr}T${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`);
             const timeDisplayStr = formatDisplayTime(dateObj);
@@ -2057,7 +2305,6 @@
                 const rawAmount = parseFloat(document.getElementById('feedAmountInput').value) || 0;
                 const duration = parseFloat(document.getElementById('feedDurationInput').value) || null;
                 
-                // Convert to mL for standard storage
                 const amountMl = AppState.unit === 'oz' ? Math.round(rawAmount * ML_PER_OZ) : rawAmount;
                 logData.subType = feedType;
                 logData.amountMl = amountMl;
@@ -2082,12 +2329,10 @@
             }
 
             if (editId) {
-                // Update existing
                 const index = AppState.logs.findIndex(l => l.id === editId);
                 if (index !== -1) AppState.logs[index] = logData;
                 showToast('Activity updated! ✏️', 'success');
             } else {
-                // Add new
                 AppState.logs.push(logData);
                 showToast('Activity logged! 🍼', 'success');
             }
@@ -2097,7 +2342,6 @@
             renderAll();
         };
 
-        // Edit Existing Log
         window.editLog = (id) => {
             const log = AppState.logs.find(l => l.id === id);
             if (!log) return;
@@ -2138,7 +2382,6 @@
             logActivityModal.classList.remove('hidden');
         };
 
-        // Delete Log
         window.deleteLog = (id) => {
             if (confirm('Delete this logged activity?')) {
                 AppState.logs = AppState.logs.filter(l => l.id !== id);
@@ -2148,7 +2391,8 @@
             }
         };
 
-        // 7. Unit Switching (mL <-> oz)
+        // ==================== UNIT SWITCHING (mL <-> oz) ====================
+
         const unitMlBtn = document.getElementById('unitMlBtn');
         const unitOzBtn = document.getElementById('unitOzBtn');
 
@@ -2175,7 +2419,6 @@
             document.getElementById('feedAmountUnitSuffix').textContent = AppState.unit;
             document.getElementById('goalUnitLabel').textContent = AppState.unit;
 
-            // Update chips
             const chipContainer = document.getElementById('quickVolumeChips');
             if (AppState.unit === 'oz') {
                 chipContainer.innerHTML = `
@@ -2200,7 +2443,8 @@
             setUnit(AppState.unit === 'mL' ? 'oz' : 'mL');
         };
 
-        // 8. Apple Notes Clean Export Feature
+        // ==================== APPLE NOTES EXPORT ====================
+
         const exportNotesBtn = document.getElementById('exportNotesBtn');
         const exportNotesModal = document.getElementById('exportNotesModal');
         const closeExportModalBtn = document.getElementById('closeExportModalBtn');
@@ -2244,13 +2488,13 @@
         };
 
         function generateAppleNotesFormat(dateStr) {
-            const dateObj = new Date(dateStr + 'T12:00:00');
+            const dateObj = parseLocalDate(dateStr);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const formattedDateHeader = dateObj.toLocaleDateString('en-US', options);
 
             const logsForDay = AppState.logs
                 .filter(l => l.dateStr === dateStr)
-                .sort((a, b) => a.timestamp - b.timestamp); // chronological
+                .sort((a, b) => a.timestamp - b.timestamp);
 
             let totalFormulaMl = 0;
             let totalBreastmilkMl = 0;
@@ -2317,13 +2561,28 @@
             return out;
         }
 
-        // 9. Partner Sharing Modal & QR Code Generation
+        // ==================== PARTNER SHARING & CLOUD SYNC ====================
+
         const sharePartnerBtn = document.getElementById('sharePartnerBtn');
         const sharePartnerModal = document.getElementById('sharePartnerModal');
         const closeShareModalBtn = document.getElementById('closeShareModalBtn');
         const copyShareUrlBtn = document.getElementById('copyShareUrlBtn');
         const createNewRoomBtn = document.getElementById('createNewRoomBtn');
         const shareUrlInput = document.getElementById('shareUrlInput');
+        const syncNowBtn = document.getElementById('syncNowBtn');
+        const modalSyncNowBtn = document.getElementById('modalSyncNowBtn');
+        const testSyncBtn = document.getElementById('testSyncBtn');
+
+        // Header Sync Now Button
+        syncNowBtn.onclick = () => {
+            SyncEngine.pullLatest(true);
+        };
+        modalSyncNowBtn.onclick = () => {
+            SyncEngine.pullLatest(true);
+        };
+        testSyncBtn.onclick = () => {
+            SyncEngine.sendTestPing();
+        };
 
         sharePartnerBtn.onclick = () => {
             const currentUrl = new URL(window.location.href);
@@ -2332,7 +2591,6 @@
 
             shareUrlInput.value = fullShareUrl;
 
-            // Generate QR Code
             const qrContainer = document.getElementById('qrcodeContainer');
             qrContainer.innerHTML = '';
             if (window.QRCode) {
@@ -2369,7 +2627,8 @@
             }
         };
 
-        // 10. Date Navigation Controls
+        // ==================== DATE NAVIGATION ====================
+
         const prevDayBtn = document.getElementById('prevDayBtn');
         const nextDayBtn = document.getElementById('nextDayBtn');
         const todayBtn = document.getElementById('todayBtn');
@@ -2389,7 +2648,7 @@
         };
 
         function offsetSelectedDate(days) {
-            const current = new Date(AppState.selectedDate + 'T12:00:00');
+            const current = parseLocalDate(AppState.selectedDate);
             current.setDate(current.getDate() + days);
             const year = current.getFullYear();
             const month = String(current.getMonth() + 1).padStart(2, '0');
@@ -2403,7 +2662,7 @@
             selectedDateInput.value = AppState.selectedDate;
         }
 
-        // Calendar Month Navigation
+        // Calendar Month Controls
         document.getElementById('calPrevMonthBtn').onclick = () => {
             AppState.calendarViewMonth--;
             if (AppState.calendarViewMonth < 0) {
@@ -2432,11 +2691,9 @@
             calendarToggleLabel.textContent = isHidden ? 'Hide Calendar View' : 'Show Calendar View';
         };
 
-        // Category Filter & Search
         document.getElementById('categoryFilter').onchange = () => renderActivityList();
         document.getElementById('logSearchInput').oninput = () => renderActivityList();
 
-        // Clear Day Logs
         document.getElementById('clearDayLogsBtn').onclick = () => {
             if (confirm(`Delete all activities for ${AppState.selectedDate}?`)) {
                 AppState.logs = AppState.logs.filter(l => l.dateStr !== AppState.selectedDate);
@@ -2446,7 +2703,8 @@
             }
         };
 
-        // 11. Feed Goal Modal
+        // ==================== FEED GOAL MODAL ====================
+
         const setFeedGoalBtn = document.getElementById('setFeedGoalBtn');
         const setGoalModal = document.getElementById('setGoalModal');
         const closeGoalModalBtn = document.getElementById('closeGoalModalBtn');
@@ -2469,45 +2727,59 @@
                 AppState.dailyFeedGoalMl = AppState.unit === 'oz' ? Math.round(val * ML_PER_OZ) : Math.round(val);
                 localStorage.setItem('bt_daily_goal', AppState.dailyFeedGoalMl);
                 setGoalModal.classList.add('hidden');
+                SyncEngine.broadcast();
                 renderMetrics();
                 showToast('Daily feeding goal updated! 🎯', 'success');
             }
         };
 
-        // 12. Baby Profile Customization
-        document.getElementById('editBabyBtn').onclick = () => {
-            const newName = prompt('Enter Baby\'s Name:', AppState.babyName);
-            if (newName && newName.trim()) {
-                AppState.babyName = newName.trim();
+        // ==================== BABY PROFILE (ACCURATE DATE & MODAL) ====================
+
+        const editBabyBtn = document.getElementById('editBabyBtn');
+        const editBabyModal = document.getElementById('editBabyModal');
+        const closeEditBabyModalBtn = document.getElementById('closeEditBabyModalBtn');
+        const cancelBabyModalBtn = document.getElementById('cancelBabyModalBtn');
+        const editBabyForm = document.getElementById('editBabyForm');
+        const babyNameInput = document.getElementById('babyNameInput');
+        const babyBirthDateInput = document.getElementById('babyBirthDateInput');
+
+        editBabyBtn.onclick = () => {
+            babyNameInput.value = AppState.babyName;
+            babyBirthDateInput.value = AppState.babyBirthDate;
+            editBabyModal.classList.remove('hidden');
+        };
+
+        closeEditBabyModalBtn.onclick = () => editBabyModal.classList.add('hidden');
+        cancelBabyModalBtn.onclick = () => editBabyModal.classList.add('hidden');
+
+        editBabyForm.onsubmit = (e) => {
+            e.preventDefault();
+            const newName = babyNameInput.value.trim();
+            const newBirth = babyBirthDateInput.value;
+
+            if (newName) {
+                AppState.babyName = newName;
                 localStorage.setItem('bt_baby_name', AppState.babyName);
             }
-            const newBirth = prompt('Enter Birthdate (YYYY-MM-DD):', AppState.babyBirthDate);
-            if (newBirth && !isNaN(new Date(newBirth).getTime())) {
+            if (newBirth) {
                 AppState.babyBirthDate = newBirth;
                 localStorage.setItem('bt_baby_birthdate', AppState.babyBirthDate);
             }
+
+            editBabyModal.classList.add('hidden');
             updateBabyProfileHeader();
+            SyncEngine.broadcast();
+            showToast('Baby profile updated & synced! 👶', 'success');
         };
 
         function updateBabyProfileHeader() {
-            const birth = new Date(AppState.babyBirthDate);
-            const now = new Date();
-            const diffDays = Math.floor((now - birth) / (1000 * 60 * 60 * 24));
-            
-            let ageStr = `${diffDays} Days Old`;
-            if (diffDays >= 60) {
-                const months = Math.floor(diffDays / 30.4);
-                ageStr = `${months} Months Old`;
-            } else if (diffDays >= 14) {
-                const weeks = Math.floor(diffDays / 7);
-                ageStr = `${weeks} Weeks Old`;
-            }
-
-            const birthFormatted = birth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const birthFormatted = formatDisplayDate(AppState.babyBirthDate);
+            const ageStr = getBabyAgeString(AppState.babyBirthDate);
             document.getElementById('babyStatusSubtitle').textContent = `${AppState.babyName} • Born ${birthFormatted} (${ageStr})`;
         }
 
-        // 13. Night Vision (3 AM Red Feed Mode) & Theme Toggle
+        // ==================== NIGHT VISION & THEME ====================
+
         const nightFeedToggle = document.getElementById('nightFeedToggle');
         nightFeedToggle.onclick = () => {
             document.body.classList.toggle('night-vision');
@@ -2528,9 +2800,16 @@
             themeToggleBtn.textContent = '🌙';
         }
 
-        // 14. Data Backup & Restore (JSON)
+        // ==================== BACKUP & RESTORE ====================
+
         document.getElementById('backupJsonBtn').onclick = () => {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.logs, null, 2));
+            const backupPayload = {
+                babyName: AppState.babyName,
+                babyBirthDate: AppState.babyBirthDate,
+                dailyFeedGoalMl: AppState.dailyFeedGoalMl,
+                logs: AppState.logs
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
             downloadAnchor.setAttribute("download", `babytracker_backup_${AppState.selectedDate}.json`);
@@ -2553,12 +2832,16 @@
                     const parsed = JSON.parse(event.target.result);
                     if (Array.isArray(parsed)) {
                         AppState.logs = parsed;
-                        saveLogsToStorage();
-                        renderAll();
-                        showToast('Backup data restored successfully! 📂', 'success');
-                    } else {
-                        alert('Invalid JSON file format.');
+                    } else if (parsed && Array.isArray(parsed.logs)) {
+                        AppState.logs = parsed.logs;
+                        if (parsed.babyName) AppState.babyName = parsed.babyName;
+                        if (parsed.babyBirthDate) AppState.babyBirthDate = parsed.babyBirthDate;
+                        if (parsed.dailyFeedGoalMl) AppState.dailyFeedGoalMl = parsed.dailyFeedGoalMl;
                     }
+                    saveLogsToStorage();
+                    updateBabyProfileHeader();
+                    renderAll();
+                    showToast('Backup data restored successfully! 📂', 'success');
                 } catch(err) {
                     alert('Error parsing JSON backup file.');
                 }
@@ -2566,7 +2849,7 @@
             reader.readAsText(file);
         };
 
-        // Utility: Toast Notifications
+        // Utility: Toast
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toastNotification');
             const msgSpan = document.getElementById('toastMessage');
@@ -2575,10 +2858,10 @@
             msgSpan.textContent = message;
             if (type === 'success') {
                 iconSpan.textContent = '✨';
-                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 transition-all duration-300';
+                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 transition-all duration-300 pointer-events-none';
             } else {
                 iconSpan.textContent = 'ℹ️';
-                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-amber-500 text-white transition-all duration-300';
+                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-amber-500 text-white transition-all duration-300 pointer-events-none';
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
@@ -2588,7 +2871,6 @@
         }
 
         function setupEventListeners() {
-            // Escape key closes modals
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.fixed.z-50').forEach(m => m.classList.add('hidden'));
