@@ -1308,12 +1308,24 @@
                     </div>
                 </div>
 
+                <div class="pt-2 border-t border-slate-100 dark:border-nightBorder">
+                    <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">
+                        Connect to Existing Room Code
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="manualRoomCodeInput" placeholder="e.g. family-xyz123 or paste link" class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
+                        <button id="joinRoomCodeBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs whitespace-nowrap active:scale-95 transition-all">
+                            Join Room
+                        </button>
+                    </div>
+                </div>
+
                 <div class="flex gap-2 pt-1">
                     <button id="testSyncBtn" class="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors">
                         🔔 Test Sync Ping
                     </button>
                     <button id="modalSyncNowBtn" class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors">
-                        🔄 Pull Latest Data
+                        🔄 Sync Now (Push & Pull)
                     </button>
                 </div>
 
@@ -1788,9 +1800,16 @@
                     }
                 } else {
                     localStorage.setItem('bt_room_id', room);
+                    // Keep URL clean with room parameter intact without reload
+                    try {
+                        const cleanUrl = new URL(window.location.href);
+                        cleanUrl.searchParams.set('room', room);
+                        window.history.replaceState({}, '', cleanUrl.toString());
+                    } catch(e) {}
                 }
                 AppState.roomId = room;
-                document.getElementById('currentRoomDisplay').textContent = room;
+                const roomDisp = document.getElementById('currentRoomDisplay');
+                if (roomDisp) roomDisp.textContent = room;
                 this.topic = 'babytracker_room_' + room;
 
                 try {
@@ -1798,17 +1817,28 @@
                     localChannel.onmessage = (e) => {
                         if (e.data && e.data.type === 'STATE_UPDATE' && e.data.senderId !== AppState.deviceId) {
                             this.applyRemoteState(e.data);
+                        } else if (e.data && e.data.type === 'SYNC_REQUEST' && e.data.senderId !== AppState.deviceId) {
+                            if (AppState.logs && AppState.logs.length > 0) {
+                                this.broadcast();
+                            }
                         }
                     };
                 } catch(err) {}
 
                 this.connectSSE();
-                this.pullLatest(false);
+
+                // If joining via shared room link, proactively request sync and pull
+                if (urlParams.has('room')) {
+                    this.sendSyncRequest();
+                    this.pullLatest(false);
+                } else {
+                    this.pullLatest(false);
+                }
 
                 if (this.pollInterval) clearInterval(this.pollInterval);
                 this.pollInterval = setInterval(() => {
                     this.pullLatest(false);
-                }, 25000);
+                }, 20000);
 
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'visible') {
@@ -1820,6 +1850,25 @@
                 });
             },
 
+            async extractPayload(obj) {
+                if (!obj) return null;
+                // Handle ntfy file attachments (which happen when payload > 4KB)
+                if (obj.attachment && obj.attachment.url) {
+                    try {
+                        const attRes = await fetch(obj.attachment.url);
+                        if (attRes.ok) {
+                            return await attRes.json();
+                        }
+                    } catch(e) {}
+                }
+                if (obj.message) {
+                    try {
+                        return JSON.parse(obj.message);
+                    } catch(e) {}
+                }
+                return null;
+            },
+
             connectSSE() {
                 try {
                     if (this.eventSource) this.eventSource.close();
@@ -1829,13 +1878,21 @@
                         this.updateSyncUI('connected');
                     };
 
-                    this.eventSource.onmessage = (event) => {
+                    this.eventSource.onmessage = async (event) => {
                         try {
                             const data = JSON.parse(event.data);
-                            if (data.event === 'message' && data.message) {
-                                const payload = JSON.parse(data.message);
+                            if (data.event === 'message') {
+                                const payload = await this.extractPayload(data);
+                                if (!payload) return;
+
                                 if (payload.type === 'PING') {
                                     showToast('Partner sent a test sync ping! 🔔', 'info');
+                                    return;
+                                }
+                                if (payload.type === 'SYNC_REQUEST') {
+                                    if (payload.senderId !== AppState.deviceId && AppState.logs && AppState.logs.length > 0) {
+                                        this.broadcast();
+                                    }
                                     return;
                                 }
                                 if (payload.senderId !== AppState.deviceId) {
@@ -1858,11 +1915,30 @@
                 }
             },
 
+            async sendSyncRequest() {
+                if (!this.topic) return;
+                const ping = {
+                    type: 'SYNC_REQUEST',
+                    senderId: AppState.deviceId,
+                    roomId: AppState.roomId,
+                    timestamp: Date.now()
+                };
+                if (localChannel) {
+                    try { localChannel.postMessage(ping); } catch(e) {}
+                }
+                try {
+                    await fetch(`https://ntfy.sh/${this.topic}`, {
+                        method: 'POST',
+                        body: JSON.stringify(ping)
+                    });
+                } catch(e) {}
+            },
+
             async pullLatest(showToastNotify = false) {
                 if (!this.topic) return;
                 try {
                     this.updateSyncUI('syncing');
-                    const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=24h`);
+                    const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=all`);
                     if (!res.ok) {
                         this.updateSyncUI('connected');
                         return;
@@ -1871,18 +1947,18 @@
                     const lines = text.trim().split('\n');
                     
                     let remotePayloads = [];
-                    lines.forEach(line => {
-                        if (!line) return;
+                    for (const line of lines) {
+                        if (!line) continue;
                         try {
                             const obj = JSON.parse(line);
-                            if (obj.event === 'message' && obj.message) {
-                                const payload = JSON.parse(obj.message);
+                            if (obj.event === 'message') {
+                                const payload = await this.extractPayload(obj);
                                 if (payload && (payload.logs || payload.timestamp)) {
                                     remotePayloads.push(payload);
                                 }
                             }
                         } catch(e) {}
-                    });
+                    }
 
                     // Sort chronologically so oldest updates are applied first, latest last
                     remotePayloads.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
@@ -1894,10 +1970,12 @@
                     });
 
                     if (anyLogsChanged || showToastNotify) {
-                        // Broadcast back the unified master state to ensure all devices converge
-                        this.broadcast();
+                        // Re-broadcast merged state if logs changed and we have items
+                        if (anyLogsChanged && AppState.logs && AppState.logs.length > 0) {
+                            this.broadcast();
+                        }
                         if (showToastNotify) {
-                            showToast(anyLogsChanged ? 'Synced & appended all partner activities! 🍼' : 'Synced with partner! Master log up to date. ✨', 'success');
+                            showToast(anyLogsChanged ? `Synced & updated ${AppState.logs.length} activities! 🍼` : `Synced with room! ${AppState.logs.length} activities up to date. ✨`, 'success');
                         }
                     }
 
@@ -1907,7 +1985,41 @@
                 }
             },
 
+            async syncAll(showToast = true) {
+                this.updateSyncUI('syncing');
+                // 1. If we have local logs, broadcast our local master first
+                if (AppState.logs && AppState.logs.length > 0) {
+                    await this.broadcast();
+                }
+                // 2. Proactively ping peers in case partner device is live
+                this.sendSyncRequest();
+                // 3. Pull latest from cloud
+                await this.pullLatest(showToast);
+            },
+
             async broadcast() {
+                if (!this.topic) return;
+                // Compact non-null fields to keep payload lightweight
+                const cleanLogs = (AppState.logs || []).map(l => {
+                    const clean = {
+                        id: l.id,
+                        timestamp: l.timestamp,
+                        dateStr: l.dateStr,
+                        timeStr: l.timeStr,
+                        category: l.category,
+                        subType: l.subType,
+                        updatedAt: l.updatedAt || l.timestamp
+                    };
+                    if (l.amountMl !== undefined && l.amountMl !== null) clean.amountMl = l.amountMl;
+                    if (l.leftAmountMl !== undefined && l.leftAmountMl !== null) clean.leftAmountMl = l.leftAmountMl;
+                    if (l.rightAmountMl !== undefined && l.rightAmountMl !== null) clean.rightAmountMl = l.rightAmountMl;
+                    if (l.durationMinutes !== undefined && l.durationMinutes !== null) clean.durationMinutes = l.durationMinutes;
+                    if (l.notes) clean.notes = l.notes;
+                    if (l.size) clean.size = l.size;
+                    if (l.poopTexture) clean.poopTexture = l.poopTexture;
+                    return clean;
+                });
+
                 const payload = {
                     type: 'STATE_UPDATE',
                     senderId: AppState.deviceId,
@@ -1925,7 +2037,7 @@
                         intervalHours: AppState.pumpReminder.intervalHours,
                         nextPumpTargetTime: AppState.pumpReminder.nextPumpTargetTime
                     },
-                    logs: AppState.logs,
+                    logs: cleanLogs,
                     timestamp: Date.now()
                 };
 
@@ -1935,12 +2047,9 @@
 
                 try {
                     this.updateSyncUI('syncing');
+                    // Plain POST with no custom headers to avoid CORS preflight failures on mobile WebKit
                     const res = await fetch(`https://ntfy.sh/${this.topic}`, {
                         method: 'POST',
-                        headers: {
-                            'Title': `BabyTracker - ${AppState.babyName}`,
-                            'Priority': 'default'
-                        },
                         body: JSON.stringify(payload)
                     });
                     if (res.ok) {
@@ -4702,16 +4811,21 @@
         const testSyncBtn = document.getElementById('testSyncBtn');
 
         syncNowBtn.onclick = () => {
-            SyncEngine.pullLatest(true);
+            SyncEngine.syncAll(true);
         };
         modalSyncNowBtn.onclick = () => {
-            SyncEngine.pullLatest(true);
+            SyncEngine.syncAll(true);
         };
         testSyncBtn.onclick = () => {
             SyncEngine.sendTestPing();
         };
 
         sharePartnerBtn.onclick = () => {
+            // Proactively broadcast local state so room is warm for joining peer
+            if (AppState.logs && AppState.logs.length > 0) {
+                SyncEngine.broadcast();
+            }
+
             const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('room', AppState.roomId);
             const fullShareUrl = currentUrl.toString();
@@ -4733,6 +4847,28 @@
 
             sharePartnerModal.classList.remove('hidden');
         };
+
+        const joinRoomCodeBtn = document.getElementById('joinRoomCodeBtn');
+        const manualRoomCodeInput = document.getElementById('manualRoomCodeInput');
+        if (joinRoomCodeBtn && manualRoomCodeInput) {
+            joinRoomCodeBtn.onclick = () => {
+                let code = manualRoomCodeInput.value.trim();
+                if (!code) {
+                    showToast('Please enter a room code or link', 'warning');
+                    return;
+                }
+                if (code.includes('?room=') || code.includes('&room=')) {
+                    try {
+                        const parsed = new URL(code.startsWith('http') ? code : 'https://dummy.com/' + code);
+                        code = parsed.searchParams.get('room') || code;
+                    } catch(e) {}
+                }
+                localStorage.setItem('bt_room_id', code);
+                const url = new URL(window.location.href);
+                url.searchParams.set('room', code);
+                window.location.href = url.toString();
+            };
+        }
 
         closeShareModalBtn.onclick = () => sharePartnerModal.classList.add('hidden');
 
