@@ -120,6 +120,25 @@
         .spin-active {
             animation: spinSlow 0.8s linear infinite;
         }
+
+        /* Active Timer Card Expansion & Prominence */
+        .timer-card-active {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+            border-width: 2px !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        .timer-card-active .font-mono {
+            font-size: 1.65rem !important;
+            line-height: 2rem !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.025em;
+        }
+        @media (min-width: 640px) {
+            .timer-card-active .font-mono {
+                font-size: 1.85rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-[#FAF7F2] text-slate-800 dark:bg-nightBg dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-300">
@@ -224,20 +243,25 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 
                 <!-- 0. Live Bottle / Feed Stopwatch Timer with 59m Discard Milk Alert -->
-                <div id="feedTimerCard" class="p-3.5 rounded-xl bg-gradient-to-br from-sky-50/80 to-blue-50/50 dark:from-sky-950/20 dark:to-blue-950/10 border border-sky-200/60 dark:border-sky-900/40 flex flex-col justify-between transition-all">
-                    <div class="flex items-center justify-between mb-2">
+                <div id="feedTimerCard" class="relative p-3.5 rounded-xl bg-gradient-to-br from-sky-50/80 to-blue-50/50 dark:from-sky-950/20 dark:to-blue-950/10 border border-sky-200/60 dark:border-sky-900/40 flex flex-col justify-between transition-all">
+                    <button id="cancelFeedTimerBtn" class="absolute top-2.5 right-2.5 text-[10px] font-bold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline transition-colors cursor-pointer" title="Reset feed stopwatch">
+                        Reset
+                    </button>
+                    <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                             🍼 Feed Timer
                             <span id="feedLiveBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase">Ready</span>
                         </span>
-                        <span id="feedTimerDisplay" class="font-mono text-base font-bold text-sky-900 dark:text-sky-200">
+                    </div>
+                    <div class="flex items-center justify-center my-1">
+                        <span id="feedTimerDisplay" class="font-mono text-xl sm:text-2xl font-bold text-sky-900 dark:text-sky-200 transition-all">
                             00:00
                         </span>
                     </div>
                     <div id="discardMilkAlertBanner" class="hidden mb-1.5 text-[10px] font-extrabold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800/80 rounded-md px-1.5 py-0.5 text-center animate-pulse">
                         ⚠️ 59m: Discard Milk Soon!
                     </div>
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-1.5">
                         <button id="toggleFeedTimerBtn" class="flex-1 py-1.5 px-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1">
                             <span id="feedTimerIcon">▶️</span>
                             <span id="feedTimerText">Start</span>
@@ -245,23 +269,25 @@
                         <button id="pauseFeedTimerBtn" class="hidden py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors" title="Pause for burping/break">
                             ⏸️
                         </button>
-                        <button id="cancelFeedTimerBtn" class="py-1.5 px-1.5 rounded-lg bg-white dark:bg-nightBg border border-sky-200 dark:border-sky-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                            Reset
-                        </button>
-                        <button id="saveFeedTimerBtn" class="py-1.5 px-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-xs transition-colors" title="Finish and log feed">
+                        <button id="saveFeedTimerBtn" class="py-1.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-xs transition-colors" title="Finish and log feed">
                             Save
                         </button>
                     </div>
                 </div>
 
                 <!-- 1. Nursing Timer (Left & Right Breast) -->
-                <div class="p-3.5 rounded-xl bg-gradient-to-br from-rose-50/80 to-pink-50/50 dark:from-rose-950/20 dark:to-pink-950/10 border border-rose-200/60 dark:border-rose-900/40 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
+                <div id="nursingTimerCard" class="relative p-3.5 rounded-xl bg-gradient-to-br from-rose-50/80 to-pink-50/50 dark:from-rose-950/20 dark:to-pink-950/10 border border-rose-200/60 dark:border-rose-900/40 flex flex-col justify-between transition-all">
+                    <button id="cancelNursingTimerBtn" class="absolute top-2.5 right-2.5 text-[10px] font-bold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline transition-colors cursor-pointer" title="Reset nursing timer">
+                        Reset
+                    </button>
+                    <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
                             🤱 Nursing Timer
                             <span id="nursingSideBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-extrabold uppercase">L & R</span>
                         </span>
-                        <span id="nursingTimerDisplay" class="font-mono text-base font-bold text-rose-800 dark:text-rose-200">
+                    </div>
+                    <div class="flex items-center justify-center my-1">
+                        <span id="nursingTimerDisplay" class="font-mono text-xl sm:text-2xl font-bold text-rose-800 dark:text-rose-200 transition-all">
                             00:00
                         </span>
                     </div>
@@ -279,13 +305,18 @@
                 </div>
 
                 <!-- 2. Pumping Stopwatch Timer -->
-                <div class="p-3.5 rounded-xl bg-gradient-to-br from-amber-50/80 to-purple-50/50 dark:from-amber-950/20 dark:to-purple-950/10 border border-amber-200/60 dark:border-purple-900/40 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
+                <div id="pumpingTimerCard" class="relative p-3.5 rounded-xl bg-gradient-to-br from-amber-50/80 to-purple-50/50 dark:from-amber-950/20 dark:to-purple-950/10 border border-amber-200/60 dark:border-purple-900/40 flex flex-col justify-between transition-all">
+                    <button id="cancelPumpingTimerBtn" class="absolute top-2.5 right-2.5 text-[10px] font-bold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline transition-colors cursor-pointer" title="Reset pump timer">
+                        Reset
+                    </button>
+                    <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                             🥛 Pump Stopwatch
                             <span id="pumpingLiveBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase">Ready</span>
                         </span>
-                        <span id="pumpingTimerDisplay" class="font-mono text-base font-bold text-amber-900 dark:text-amber-200">
+                    </div>
+                    <div class="flex items-center justify-center my-1">
+                        <span id="pumpingTimerDisplay" class="font-mono text-xl sm:text-2xl font-bold text-amber-900 dark:text-amber-200 transition-all">
                             00:00
                         </span>
                     </div>
@@ -294,19 +325,21 @@
                             <span id="pumpingTimerIcon">▶️</span>
                             <span id="pumpingTimerText">Start Pump</span>
                         </button>
-                        <button id="cancelPumpingTimerBtn" class="py-1.5 px-2.5 rounded-lg bg-white dark:bg-nightBg border border-amber-200 dark:border-amber-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                            Reset
-                        </button>
                     </div>
                 </div>
 
                 <!-- 3. Sleep / Nap Timer -->
-                <div class="p-3.5 rounded-xl bg-gradient-to-br from-indigo-50/80 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/10 border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
+                <div id="sleepTimerCard" class="relative p-3.5 rounded-xl bg-gradient-to-br from-indigo-50/80 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/10 border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col justify-between transition-all">
+                    <button id="cancelSleepTimerBtn" class="absolute top-2.5 right-2.5 text-[10px] font-bold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline transition-colors cursor-pointer" title="Reset nap timer">
+                        Reset
+                    </button>
+                    <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
                             😴 Nap / Sleep Timer
                         </span>
-                        <span id="sleepTimerDisplay" class="font-mono text-base font-bold text-indigo-800 dark:text-indigo-200">
+                    </div>
+                    <div class="flex items-center justify-center my-1">
+                        <span id="sleepTimerDisplay" class="font-mono text-xl sm:text-2xl font-bold text-indigo-800 dark:text-indigo-200 transition-all">
                             00:00:00
                         </span>
                     </div>
@@ -315,19 +348,21 @@
                             <span id="sleepTimerIcon">▶️</span>
                             <span id="sleepTimerText">Start Nap</span>
                         </button>
-                        <button id="cancelSleepTimerBtn" class="py-1.5 px-3 rounded-lg bg-white dark:bg-nightBg border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                            Reset
-                        </button>
                     </div>
                 </div>
 
                 <!-- 4. Tummy Time Timer -->
-                <div class="p-3.5 rounded-xl bg-gradient-to-br from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/60 dark:border-emerald-900/40 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
+                <div id="tummyTimerCard" class="relative p-3.5 rounded-xl bg-gradient-to-br from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/60 dark:border-emerald-900/40 flex flex-col justify-between transition-all">
+                    <button id="cancelTummyTimerBtn" class="absolute top-2.5 right-2.5 text-[10px] font-bold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline transition-colors cursor-pointer" title="Reset tummy time timer">
+                        Reset
+                    </button>
+                    <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
                             🐢 Tummy Time
                         </span>
-                        <span id="tummyTimerDisplay" class="font-mono text-base font-bold text-emerald-800 dark:text-emerald-200">
+                    </div>
+                    <div class="flex items-center justify-center my-1">
+                        <span id="tummyTimerDisplay" class="font-mono text-xl sm:text-2xl font-bold text-emerald-800 dark:text-emerald-200 transition-all">
                             00:00
                         </span>
                     </div>
@@ -335,9 +370,6 @@
                         <button id="toggleTummyTimerBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5">
                             <span id="tummyTimerIcon">▶️</span>
                             <span id="tummyTimerText">Start Tummy</span>
-                        </button>
-                        <button id="cancelTummyTimerBtn" class="py-1.5 px-3 rounded-lg bg-white dark:bg-nightBg border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                            Reset
                         </button>
                     </div>
                 </div>
@@ -349,22 +381,22 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             
             <!-- 1. NEXT FEED REMINDER & COUNTDOWN WIDGET (~3 Hours Interval from End of Last Feed) -->
-            <section id="feedCountdownCard" class="bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-indigo-500/10 border border-sky-300/80 dark:border-sky-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+            <section id="feedCountdownCard" class="bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-indigo-500/10 border border-sky-300/80 dark:border-sky-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 w-full min-w-0">
                     
                     <!-- Left: Info & Description -->
-                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <div class="flex items-center space-x-3 w-full md:w-auto min-w-0">
                         <div class="w-12 h-12 rounded-2xl bg-sky-200/80 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
                             🍼
                         </div>
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <div class="min-w-0">
+                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 shrink-0">
                                     Next Feed Reminder
-                                    <span id="feedStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300">
-                                        In 3h 00m
-                                    </span>
                                 </h3>
+                                <span id="feedStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300 shrink-0">
+                                    In 3h 00m
+                                </span>
                             </div>
                             <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="feedTargetTimeDesc">
                                 3h from end of last feed
@@ -373,15 +405,15 @@
                     </div>
 
                     <!-- Right: Countdown Display & Interval Selector -->
-                    <div class="flex items-center justify-between sm:justify-end space-x-3 w-full sm:w-auto">
-                        <div class="text-right">
+                    <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto shrink-0">
+                        <div class="text-left md:text-right">
                             <div class="font-mono text-xl sm:text-2xl font-black text-sky-900 dark:text-sky-200 tracking-tight" id="feedCountdownDisplay">
                                 03:00:00
                             </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Until Next Feed</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Time Until Next Feed</span>
                         </div>
 
-                        <div class="flex items-center space-x-1.5">
+                        <div class="flex items-center gap-1.5 shrink-0">
                             <select id="feedIntervalSelect" class="px-2 py-1.5 bg-white dark:bg-nightBg border border-sky-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" title="Change Feed Interval">
                                 <option value="2">Every 2h</option>
                                 <option value="2.5">Every 2.5h</option>
@@ -389,7 +421,7 @@
                                 <option value="3.5">Every 3.5h</option>
                                 <option value="4">Every 4h</option>
                             </select>
-                            <button id="logFeedNowBtn" class="px-2.5 py-1.5 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap">
+                            <button id="logFeedNowBtn" class="px-3 py-1.5 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap shrink-0">
                                 Log Feed
                             </button>
                         </div>
@@ -399,22 +431,22 @@
             </section>
 
             <!-- 2. NEXT PUMP REMINDER & COUNTDOWN WIDGET (~3 Hours Interval) -->
-            <section id="pumpCountdownCard" class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+            <section id="pumpCountdownCard" class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 w-full min-w-0">
                     
                     <!-- Left: Info & Description -->
-                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <div class="flex items-center space-x-3 w-full md:w-auto min-w-0">
                         <div class="w-12 h-12 rounded-2xl bg-amber-200/80 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
                             🥛
                         </div>
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <div class="min-w-0">
+                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 shrink-0">
                                     Next Pump Reminder
-                                    <span id="pumpStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300">
-                                        In 2h 45m
-                                    </span>
                                 </h3>
+                                <span id="pumpStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300 shrink-0">
+                                    In 2h 45m
+                                </span>
                             </div>
                             <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="pumpTargetTimeDesc">
                                 Scheduled for 02:30 AM • Based on last pump start
@@ -423,15 +455,15 @@
                     </div>
 
                     <!-- Right: Countdown Display & Interval Selector -->
-                    <div class="flex items-center justify-between sm:justify-end space-x-3 w-full sm:w-auto">
-                        <div class="text-right">
+                    <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto shrink-0">
+                        <div class="text-left md:text-right">
                             <div class="font-mono text-xl sm:text-2xl font-black text-amber-900 dark:text-amber-200 tracking-tight" id="pumpCountdownDisplay">
                                 02:45:00
                             </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Until Next Pump</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Time Until Next Pump</span>
                         </div>
 
-                        <div class="flex items-center space-x-1.5">
+                        <div class="flex items-center gap-1.5 shrink-0">
                             <select id="pumpIntervalSelect" class="px-2 py-1.5 bg-white dark:bg-nightBg border border-amber-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500" title="Change Pump Interval">
                                 <option value="2">Every 2h</option>
                                 <option value="2.5">Every 2.5h</option>
@@ -439,7 +471,7 @@
                                 <option value="3.5">Every 3.5h</option>
                                 <option value="4">Every 4h</option>
                             </select>
-                            <button id="logPumpNowBtn" class="px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap">
+                            <button id="logPumpNowBtn" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap shrink-0">
                                 Log Pump
                             </button>
                         </div>
@@ -529,10 +561,10 @@
                 </button>
 
                 <!-- 7. Vitamins -->
-                <button onclick="quickLogWithFeedback('vitamins', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-teal-50/90 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/40 border-2 border-teal-200/90 dark:border-teal-800/60 active:scale-95 active:border-teal-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log Daily Vitamins (15 mL milk, 20m)">
+                <button onclick="quickLogWithFeedback('vitamins', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-teal-50/90 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/40 border-2 border-teal-200/90 dark:border-teal-800/60 active:scale-95 active:border-teal-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log Daily Vitamins (20 mL milk, 20m)">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">💊</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-teal-900 dark:text-teal-100 tracking-tight">Vitamins</span>
-                    <span id="quickVitaminsLabel" class="text-[11px] font-semibold text-teal-700 dark:text-teal-300/80">15 mL (20m)</span>
+                    <span id="quickVitaminsLabel" class="text-[11px] font-semibold text-teal-700 dark:text-teal-300/80">20 mL (20m)</span>
                 </button>
 
                 <!-- 8. Tummy Time -->
@@ -1827,6 +1859,7 @@
             },
 
             async pullLatest(showToastNotify = false) {
+                if (!this.topic) return;
                 try {
                     this.updateSyncUI('syncing');
                     const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=24h`);
@@ -1836,26 +1869,38 @@
                     }
                     const text = await res.text();
                     const lines = text.trim().split('\n');
-                    let latestRemote = null;
-
+                    
+                    let remotePayloads = [];
                     lines.forEach(line => {
                         if (!line) return;
                         try {
                             const obj = JSON.parse(line);
                             if (obj.event === 'message' && obj.message) {
                                 const payload = JSON.parse(obj.message);
-                                if (payload && payload.timestamp) {
-                                    if (!latestRemote || payload.timestamp > latestRemote.timestamp) {
-                                        latestRemote = payload;
-                                    }
+                                if (payload && (payload.logs || payload.timestamp)) {
+                                    remotePayloads.push(payload);
                                 }
                             }
                         } catch(e) {}
                     });
 
-                    if (latestRemote && latestRemote.senderId !== AppState.deviceId) {
-                        this.applyRemoteState(latestRemote, showToastNotify);
+                    // Sort chronologically so oldest updates are applied first, latest last
+                    remotePayloads.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                    let anyLogsChanged = false;
+                    remotePayloads.forEach(payload => {
+                        const changed = this.applyRemoteState(payload, false);
+                        if (changed) anyLogsChanged = true;
+                    });
+
+                    if (anyLogsChanged || showToastNotify) {
+                        // Broadcast back the unified master state to ensure all devices converge
+                        this.broadcast();
+                        if (showToastNotify) {
+                            showToast(anyLogsChanged ? 'Synced & appended all partner activities! 🍼' : 'Synced with partner! Master log up to date. ✨', 'success');
+                        }
                     }
+
                     this.updateSyncUI('connected');
                 } catch(err) {
                     this.updateSyncUI('offline');
@@ -1923,7 +1968,7 @@
             },
 
             applyRemoteState(remote, notify = false) {
-                if (!remote) return;
+                if (!remote) return false;
                 let changed = false;
 
                 if (remote.babyName && remote.babyName !== AppState.babyName) {
@@ -1944,8 +1989,9 @@
 
                 // Sync Feed Reminder interval & target
                 if (remote.feedReminder) {
-                    if (remote.feedReminder.lastFeedEndTime) {
+                    if (remote.feedReminder.lastFeedEndTime && (!AppState.feedReminder.lastFeedEndTime || remote.feedReminder.lastFeedEndTime > AppState.feedReminder.lastFeedEndTime)) {
                         AppState.feedReminder.lastFeedEndTime = remote.feedReminder.lastFeedEndTime;
+                        changed = true;
                     }
                     if (remote.feedReminder.intervalHours) {
                         AppState.feedReminder.intervalHours = parseFloat(remote.feedReminder.intervalHours) || 3.0;
@@ -1961,12 +2007,14 @@
 
                 // Sync Pump Reminder interval & target
                 if (remote.pumpReminder) {
-                    if (remote.pumpReminder.lastPumpStartTime) {
+                    if (remote.pumpReminder.lastPumpStartTime && (!AppState.pumpReminder.lastPumpStartTime || remote.pumpReminder.lastPumpStartTime > AppState.pumpReminder.lastPumpStartTime)) {
                         AppState.pumpReminder.lastPumpStartTime = remote.pumpReminder.lastPumpStartTime;
+                        changed = true;
                     }
                     if (remote.pumpReminder.intervalHours) {
                         AppState.pumpReminder.intervalHours = parseFloat(remote.pumpReminder.intervalHours) || 3.0;
-                        document.getElementById('pumpIntervalSelect').value = String(AppState.pumpReminder.intervalHours);
+                        const pSel = document.getElementById('pumpIntervalSelect');
+                        if (pSel) pSel.value = String(AppState.pumpReminder.intervalHours);
                     }
                     if (remote.pumpReminder.nextPumpTargetTime) {
                         AppState.pumpReminder.nextPumpTargetTime = remote.pumpReminder.nextPumpTargetTime;
@@ -1975,19 +2023,30 @@
                     updatePumpCountdownUI();
                 }
 
+                // Strictly append & merge logs (Union by UUID/ID)
                 if (Array.isArray(remote.logs)) {
                     const logMap = new Map();
-                    AppState.logs.forEach(l => logMap.set(l.id, l));
+                    // Always retain all existing local logs
+                    AppState.logs.forEach(l => {
+                        if (l && l.id) logMap.set(l.id, l);
+                    });
 
                     remote.logs.forEach(remLog => {
+                        if (!remLog || !remLog.id) return;
                         const local = logMap.get(remLog.id);
-                        if (!local || (remLog.updatedAt || 0) >= (local.updatedAt || 0)) {
+                        if (!local) {
+                            // Append new log from remote
+                            logMap.set(remLog.id, remLog);
+                            changed = true;
+                        } else if ((remLog.updatedAt || 0) > (local.updatedAt || 0)) {
+                            // Update existing log only if remote is newer
                             logMap.set(remLog.id, remLog);
                             changed = true;
                         }
                     });
 
                     AppState.logs = Array.from(logMap.values());
+                    AppState.logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                     localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
                 }
 
@@ -1995,9 +2054,10 @@
                     updateBabyProfileHeader();
                     renderAll();
                     if (notify) {
-                        showToast('Synced updates from partner! 🍼', 'success');
+                        showToast('Synced & appended updates from partner! 🍼', 'success');
                     }
                 }
+                return changed;
             },
 
             updateSyncUI(status) {
@@ -2281,6 +2341,7 @@
                         toggleFeedTimerBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1 timer-active';
                         pauseFeedTimerBtn.classList.remove('hidden');
                         pauseFeedTimerBtn.textContent = '⏸️';
+                        document.getElementById('feedTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-sky-400');
 
                         AppState.timers.feed.intervalId = setInterval(() => {
                             if (!AppState.timers.feed.isPaused) {
@@ -2333,6 +2394,9 @@
 
             if (cancelFeedTimerBtn) {
                 cancelFeedTimerBtn.onclick = () => {
+                    if (AppState.timers.feed.seconds > 0 || AppState.timers.feed.active) {
+                        if (!confirm('Are you sure you want to reset the Feed timer? Any elapsed time will be discarded.')) return;
+                    }
                     if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
                     AppState.timers.feed.active = false;
                     AppState.timers.feed.isPaused = false;
@@ -2349,6 +2413,7 @@
                     pauseFeedTimerBtn.classList.add('hidden');
                     pauseFeedTimerBtn.textContent = '⏸️';
                     discardAlert?.classList.add('hidden');
+                    document.getElementById('feedTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-sky-400');
                 };
             }
 
@@ -2357,7 +2422,23 @@
                     const elapsedMins = Math.max(1, Math.round(AppState.timers.feed.seconds / 60));
                     const feedStartTime = AppState.timers.feed.startTime || (Date.now() - (AppState.timers.feed.seconds * 1000));
                     
-                    cancelFeedTimerBtn.click();
+                    if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
+                    AppState.timers.feed.active = false;
+                    AppState.timers.feed.isPaused = false;
+                    AppState.timers.feed.seconds = 0;
+                    AppState.timers.feed.startTime = null;
+                    AppState.timers.feed.discardWarned = false;
+
+                    feedTimerDisplay.textContent = '00:00';
+                    feedTimerIcon.textContent = '▶️';
+                    feedTimerText.textContent = 'Start';
+                    feedLiveBadge.textContent = 'Ready';
+                    feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase';
+                    toggleFeedTimerBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1';
+                    pauseFeedTimerBtn.classList.add('hidden');
+                    pauseFeedTimerBtn.textContent = '⏸️';
+                    discardAlert?.classList.add('hidden');
+                    document.getElementById('feedTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-sky-400');
 
                     // Open log modal with duration prefilled and 50 mL default
                     openLogModal('feeding');
@@ -2417,6 +2498,7 @@
                         document.getElementById('pumpingLiveBadge').textContent = 'Pumping...';
                         document.getElementById('pumpingLiveBadge').className = 'text-[10px] px-1.5 py-0.2 rounded bg-rose-200 text-rose-800 font-extrabold uppercase animate-pulse';
                         togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+                        document.getElementById('pumpingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-amber-400');
 
                         AppState.pumpReminder.intervalId = setInterval(() => {
                             AppState.pumpReminder.pumpingSeconds++;
@@ -2437,6 +2519,7 @@
                         document.getElementById('pumpingLiveBadge').className = 'text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase';
                         togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                         document.getElementById('pumpingTimerDisplay').textContent = '00:00';
+                        document.getElementById('pumpingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-amber-400');
 
                         // Open log modal with pumping selected, duration prefilled, and start time
                         openLogModal('pumping');
@@ -2450,12 +2533,17 @@
 
             if (cancelPumpingTimerBtn) {
                 cancelPumpingTimerBtn.onclick = () => {
+                    if (AppState.pumpReminder.pumpingSeconds > 0 || AppState.pumpReminder.isPumping) {
+                        if (!confirm('Are you sure you want to reset the Pumping stopwatch? Any elapsed time will be discarded.')) return;
+                    }
                     if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
                     AppState.pumpReminder.isPumping = false;
+                    AppState.pumpReminder.pumpingSeconds = 0;
                     document.getElementById('pumpingTimerText').textContent = 'Start Pump';
                     document.getElementById('pumpingLiveBadge').textContent = 'Ready';
                     togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                     document.getElementById('pumpingTimerDisplay').textContent = '00:00';
+                    document.getElementById('pumpingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-amber-400');
                 };
             }
         }
@@ -3125,9 +3213,9 @@
             } else if (type === 'vitamins') {
                 newLog.category = 'feeding';
                 newLog.subType = 'vitamins';
-                newLog.amountMl = 15;
+                newLog.amountMl = 20;
                 newLog.durationMinutes = 20;
-                newLog.notes = 'Quick logged daily vitamins (15 mL, 20m)';
+                newLog.notes = 'Quick logged daily vitamins (20 mL, 20m)';
             } else if (type === 'pump') {
                 newLog.category = 'pumping';
                 newLog.leftAmountMl = 50;
@@ -3698,7 +3786,7 @@
 
                 if (command.includes('vitamins') || command.includes('vitamin')) {
                     quickLog('vitamins');
-                    this.speak('Logged daily vitamins: 15 mL.');
+                    this.speak('Logged daily vitamins: 20 mL.');
                     AudioSynth.playChime('success');
                     return;
                 }
@@ -3904,6 +3992,7 @@
                         AppState.timers.sleep.active = true;
                         AppState.timers.sleep.startTime = parsed.sleep.startTime;
                         startSleepInterval();
+                        document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
                     }
                 } catch(e) {}
             }
@@ -3912,6 +4001,7 @@
         const timerLeftBtn = document.getElementById('timerLeftBtn');
         const timerRightBtn = document.getElementById('timerRightBtn');
         const stopNursingBtn = document.getElementById('stopNursingBtn');
+        const cancelNursingTimerBtn = document.getElementById('cancelNursingTimerBtn');
         const nursingTimerDisplay = document.getElementById('nursingTimerDisplay');
         const nursingSideBadge = document.getElementById('nursingSideBadge');
 
@@ -3932,6 +4022,7 @@
             timerRightBtn.className = side === 'right' 
                 ? 'flex-1 py-1.5 px-2 rounded-lg bg-rose-500 text-white text-xs font-bold' 
                 : 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+            document.getElementById('nursingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-rose-400');
 
             if (!AppState.timers.nursing.intervalId) {
                 AppState.timers.nursing.intervalId = setInterval(() => {
@@ -3965,6 +4056,20 @@
             timerRightBtn.textContent = `Right (${Math.floor(AppState.timers.nursing.rightSeconds / 60)}m)`;
         }
 
+        if (cancelNursingTimerBtn) {
+            cancelNursingTimerBtn.onclick = () => {
+                if (AppState.timers.nursing.leftSeconds > 0 || AppState.timers.nursing.rightSeconds > 0 || AppState.timers.nursing.activeSide) {
+                    if (!confirm('Are you sure you want to reset the Nursing timer? Elapsed nursing time will be discarded.')) return;
+                }
+                pauseNursingTimer();
+                AppState.timers.nursing.leftSeconds = 0;
+                AppState.timers.nursing.rightSeconds = 0;
+                nursingSideBadge.textContent = 'L & R';
+                updateNursingDisplay();
+                document.getElementById('nursingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-rose-400');
+            };
+        }
+
         stopNursingBtn.onclick = () => {
             const leftMins = Math.round(AppState.timers.nursing.leftSeconds / 60);
             const rightMins = Math.round(AppState.timers.nursing.rightSeconds / 60);
@@ -3976,6 +4081,7 @@
             }
 
             pauseNursingTimer();
+            document.getElementById('nursingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-rose-400');
             openLogModal('feeding');
             document.querySelector('input[name="feedTypeRadio"][value="nursing"]').checked = true;
             document.getElementById('feedDurationInput').value = Math.max(1, totalMins);
@@ -3999,6 +4105,7 @@
                 AppState.timers.sleep.seconds = 0;
                 localStorage.setItem('bt_timers', JSON.stringify({ sleep: { active: true, startTime: AppState.timers.sleep.startTime } }));
                 startSleepInterval();
+                document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
                 showToast('Nap timer started 😴', 'info');
             } else {
                 const elapsedMins = Math.max(1, Math.round(AppState.timers.sleep.seconds / 60));
@@ -4008,6 +4115,7 @@
                 sleepTimerText.textContent = 'Start Nap';
                 toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                 sleepTimerDisplay.textContent = '00:00:00';
+                document.getElementById('sleepTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-indigo-400');
 
                 const now = new Date();
                 const newNapLog = {
@@ -4030,6 +4138,7 @@
         function startSleepInterval() {
             sleepTimerText.textContent = 'Wake Up & Save';
             toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+            document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
 
             AppState.timers.sleep.intervalId = setInterval(() => {
                 const diffSecs = Math.floor((Date.now() - AppState.timers.sleep.startTime) / 1000);
@@ -4042,12 +4151,17 @@
         }
 
         cancelSleepTimerBtn.onclick = () => {
+            if (AppState.timers.sleep.seconds > 0 || AppState.timers.sleep.active) {
+                if (!confirm('Are you sure you want to reset the Nap timer? Elapsed sleep time will be discarded.')) return;
+            }
             if (AppState.timers.sleep.intervalId) clearInterval(AppState.timers.sleep.intervalId);
             AppState.timers.sleep.active = false;
+            AppState.timers.sleep.seconds = 0;
             localStorage.removeItem('bt_timers');
             sleepTimerText.textContent = 'Start Nap';
             toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
             sleepTimerDisplay.textContent = '00:00:00';
+            document.getElementById('sleepTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-indigo-400');
         };
 
         // Tummy Time Stopwatch
@@ -4063,6 +4177,7 @@
                 AppState.timers.tummy.seconds = 0;
                 tummyTimerText.textContent = 'Done & Save';
                 toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+                document.getElementById('tummyTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-emerald-400');
 
                 AppState.timers.tummy.intervalId = setInterval(() => {
                     AppState.timers.tummy.seconds++;
@@ -4077,6 +4192,7 @@
                 tummyTimerText.textContent = 'Start Tummy';
                 toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                 tummyTimerDisplay.textContent = '00:00';
+                document.getElementById('tummyTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-emerald-400');
 
                 const now = new Date();
                 const newTummyLog = {
@@ -4097,11 +4213,16 @@
         };
 
         cancelTummyTimerBtn.onclick = () => {
+            if (AppState.timers.tummy.seconds > 0 || AppState.timers.tummy.active) {
+                if (!confirm('Are you sure you want to reset the Tummy Time timer? Elapsed time will be discarded.')) return;
+            }
             if (AppState.timers.tummy.intervalId) clearInterval(AppState.timers.tummy.intervalId);
             AppState.timers.tummy.active = false;
+            AppState.timers.tummy.seconds = 0;
             tummyTimerText.textContent = 'Start Tummy';
             toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
             tummyTimerDisplay.textContent = '00:00';
+            document.getElementById('tummyTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-emerald-400');
         };
 
         // ==================== LOG ACTIVITY MODAL ====================
@@ -4399,6 +4520,7 @@
             if (AppState.unit === 'oz') {
                 chipContainer.innerHTML = `
                     <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">0.5 oz</button>
+                    <button type="button" onclick="setFeedAmount(20)" class="px-2 py-1 bg-white dark:bg-nightCard border border-teal-300 dark:border-teal-700 text-teal-800 dark:text-teal-200 rounded-lg text-[11px] font-bold" title="20 mL Vitamins/Feed">0.7 oz</button>
                     <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1 oz</button>
                     <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1.5 oz</button>
                     <button type="button" onclick="setFeedAmount(50)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1.7 oz</button>
@@ -4408,6 +4530,7 @@
             } else {
                 chipContainer.innerHTML = `
                     <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">15 mL</button>
+                    <button type="button" onclick="setFeedAmount(20)" class="px-2 py-1 bg-white dark:bg-nightCard border border-teal-300 dark:border-teal-700 text-teal-800 dark:text-teal-200 rounded-lg text-[11px] font-bold" title="20 mL Vitamins/Feed">20 mL</button>
                     <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">30 mL (1oz)</button>
                     <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">45 mL (1.5oz)</button>
                     <button type="button" onclick="setFeedAmount(50)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">50 mL (~1.7oz)</button>
@@ -4423,7 +4546,7 @@
             if (fLabel) fLabel.textContent = isMl ? '50 mL (30m)' : '1.7 oz (30m)';
             if (bLabel) bLabel.textContent = isMl ? '50 mL (30m)' : '1.7 oz (30m)';
             if (pLabel) pLabel.textContent = isMl ? '100 mL Total' : '3.4 oz Total';
-            if (vLabel) vLabel.textContent = isMl ? '15 mL (20m)' : '0.5 oz (20m)';
+            if (vLabel) vLabel.textContent = isMl ? '20 mL (20m)' : '0.7 oz (20m)';
 
             updatePumpTotalDisplay();
         }
