@@ -221,8 +221,39 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 
+                <!-- 0. Live Bottle / Feed Stopwatch Timer with 59m Discard Milk Alert -->
+                <div id="feedTimerCard" class="p-3.5 rounded-xl bg-gradient-to-br from-sky-50/80 to-blue-50/50 dark:from-sky-950/20 dark:to-blue-950/10 border border-sky-200/60 dark:border-sky-900/40 flex flex-col justify-between transition-all">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
+                            🍼 Feed Timer
+                            <span id="feedLiveBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase">Ready</span>
+                        </span>
+                        <span id="feedTimerDisplay" class="font-mono text-base font-bold text-sky-900 dark:text-sky-200">
+                            00:00
+                        </span>
+                    </div>
+                    <div id="discardMilkAlertBanner" class="hidden mb-1.5 text-[10px] font-extrabold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800/80 rounded-md px-1.5 py-0.5 text-center animate-pulse">
+                        ⚠️ 59m: Discard Milk Soon!
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button id="toggleFeedTimerBtn" class="flex-1 py-1.5 px-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1">
+                            <span id="feedTimerIcon">▶️</span>
+                            <span id="feedTimerText">Start</span>
+                        </button>
+                        <button id="pauseFeedTimerBtn" class="hidden py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors" title="Pause for burping/break">
+                            ⏸️
+                        </button>
+                        <button id="cancelFeedTimerBtn" class="py-1.5 px-1.5 rounded-lg bg-white dark:bg-nightBg border border-sky-200 dark:border-sky-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            Reset
+                        </button>
+                        <button id="saveFeedTimerBtn" class="py-1.5 px-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-xs transition-colors" title="Finish and log feed">
+                            Save
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 1. Nursing Timer (Left & Right Breast) -->
                 <div class="p-3.5 rounded-xl bg-gradient-to-br from-rose-50/80 to-pink-50/50 dark:from-rose-950/20 dark:to-pink-950/10 border border-rose-200/60 dark:border-rose-900/40 flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
@@ -314,55 +345,110 @@
             </div>
         </section>
 
-        <!-- NEXT PUMP REMINDER & COUNTDOWN WIDGET (~3 Hours Interval) -->
-        <section id="pumpCountdownCard" class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                
-                <!-- Left: Info & Description -->
-                <div class="flex items-center space-x-3.5 w-full md:w-auto">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-200/80 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
-                        🥛
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-                                Next Pump Reminder
-                                <span id="pumpStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300">
-                                    In 2h 45m
-                                </span>
-                            </h3>
+        <!-- FEED & PUMP INTERVAL COUNTDOWN REMINDERS (~3 Hours) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            
+            <!-- 1. NEXT FEED REMINDER & COUNTDOWN WIDGET (~3 Hours Interval from End of Last Feed) -->
+            <section id="feedCountdownCard" class="bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-indigo-500/10 border border-sky-300/80 dark:border-sky-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                    
+                    <!-- Left: Info & Description -->
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-2xl bg-sky-200/80 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
+                            🍼
                         </div>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="pumpTargetTimeDesc">
-                            Scheduled for 02:30 AM • Based on last pump start
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Right: Countdown Display & Interval Selector -->
-                <div class="flex items-center justify-between md:justify-end space-x-4 w-full md:w-auto">
-                    <div class="text-right">
-                        <div class="font-mono text-2xl sm:text-3xl font-black text-amber-900 dark:text-amber-200 tracking-tight" id="pumpCountdownDisplay">
-                            02:45:00
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                                    Next Feed Reminder
+                                    <span id="feedStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300">
+                                        In 3h 00m
+                                    </span>
+                                </h3>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="feedTargetTimeDesc">
+                                3h from end of last feed
+                            </p>
                         </div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Until Next Pump</span>
                     </div>
 
-                    <div class="flex items-center space-x-2">
-                        <select id="pumpIntervalSelect" class="px-2.5 py-2 bg-white dark:bg-nightBg border border-amber-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500" title="Change Interval">
-                            <option value="2">Every 2h</option>
-                            <option value="2.5">Every 2.5h</option>
-                            <option value="3" selected>Every 3h (~Standard)</option>
-                            <option value="3.5">Every 3.5h</option>
-                            <option value="4">Every 4h</option>
-                        </select>
-                        <button id="logPumpNowBtn" class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap">
-                            Log Pump
-                        </button>
+                    <!-- Right: Countdown Display & Interval Selector -->
+                    <div class="flex items-center justify-between sm:justify-end space-x-3 w-full sm:w-auto">
+                        <div class="text-right">
+                            <div class="font-mono text-xl sm:text-2xl font-black text-sky-900 dark:text-sky-200 tracking-tight" id="feedCountdownDisplay">
+                                03:00:00
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Until Next Feed</span>
+                        </div>
+
+                        <div class="flex items-center space-x-1.5">
+                            <select id="feedIntervalSelect" class="px-2 py-1.5 bg-white dark:bg-nightBg border border-sky-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" title="Change Feed Interval">
+                                <option value="2">Every 2h</option>
+                                <option value="2.5">Every 2.5h</option>
+                                <option value="3" selected>Every 3h (~Standard)</option>
+                                <option value="3.5">Every 3.5h</option>
+                                <option value="4">Every 4h</option>
+                            </select>
+                            <button id="logFeedNowBtn" class="px-2.5 py-1.5 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap">
+                                Log Feed
+                            </button>
+                        </div>
                     </div>
+
                 </div>
+            </section>
 
-            </div>
-        </section>
+            <!-- 2. NEXT PUMP REMINDER & COUNTDOWN WIDGET (~3 Hours Interval) -->
+            <section id="pumpCountdownCard" class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                    
+                    <!-- Left: Info & Description -->
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-200/80 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
+                            🥛
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                                    Next Pump Reminder
+                                    <span id="pumpStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300">
+                                        In 2h 45m
+                                    </span>
+                                </h3>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="pumpTargetTimeDesc">
+                                Scheduled for 02:30 AM • Based on last pump start
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Countdown Display & Interval Selector -->
+                    <div class="flex items-center justify-between sm:justify-end space-x-3 w-full sm:w-auto">
+                        <div class="text-right">
+                            <div class="font-mono text-xl sm:text-2xl font-black text-amber-900 dark:text-amber-200 tracking-tight" id="pumpCountdownDisplay">
+                                02:45:00
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Until Next Pump</span>
+                        </div>
+
+                        <div class="flex items-center space-x-1.5">
+                            <select id="pumpIntervalSelect" class="px-2 py-1.5 bg-white dark:bg-nightBg border border-amber-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500" title="Change Pump Interval">
+                                <option value="2">Every 2h</option>
+                                <option value="2.5">Every 2.5h</option>
+                                <option value="3" selected>Every 3h (~Standard)</option>
+                                <option value="3.5">Every 3.5h</option>
+                                <option value="4">Every 4h</option>
+                            </select>
+                            <button id="logPumpNowBtn" class="px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap">
+                                Log Pump
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
 
         <!-- Enhanced Quick Action Pad: Large Tactile Fast Logging & Nightstand Mode -->
         <section class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
@@ -398,49 +484,123 @@
                 </div>
             </div>
 
-            <!-- 6 Large Tactile Quick Logging Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
+            <!-- 8 Large Tactile Quick Logging Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3.5">
                 <!-- 1. Pee -->
-                <button onclick="quickLogWithFeedback('pee', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-2 border-amber-200/90 dark:border-amber-800/60 active:scale-95 active:border-amber-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
+                <button onclick="quickLogWithFeedback('pee', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-2 border-amber-200/90 dark:border-amber-800/60 active:scale-95 active:border-amber-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🟡</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-amber-900 dark:text-amber-100 tracking-tight">Pee</span>
                     <span class="text-[11px] font-semibold text-amber-700 dark:text-amber-300/80">Wet Diaper</span>
                 </button>
 
                 <!-- 2. Poop -->
-                <button onclick="quickLogWithFeedback('poop', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-orange-50/90 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-900/40 border-2 border-orange-200/90 dark:border-orange-800/60 active:scale-95 active:border-orange-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
+                <button onclick="quickLogWithFeedback('poop', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-orange-50/90 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-900/40 border-2 border-orange-200/90 dark:border-orange-800/60 active:scale-95 active:border-orange-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">💩</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-orange-900 dark:text-orange-100 tracking-tight">Poop</span>
                     <span class="text-[11px] font-semibold text-orange-700 dark:text-orange-300/80">Dirty Diaper</span>
                 </button>
 
                 <!-- 3. Formula -->
-                <button onclick="quickLogWithFeedback('formula', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-sky-50/90 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/40 border-2 border-sky-200/90 dark:border-sky-800/60 active:scale-95 active:border-sky-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
+                <button onclick="quickLogWithFeedback('formula', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-sky-50/90 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/40 border-2 border-sky-200/90 dark:border-sky-800/60 active:scale-95 active:border-sky-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🍼</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-sky-900 dark:text-sky-100 tracking-tight">Formula</span>
-                    <span id="quickFormulaLabel" class="text-[11px] font-semibold text-sky-700 dark:text-sky-300/80">45 mL Bottle</span>
+                    <span id="quickFormulaLabel" class="text-[11px] font-semibold text-sky-700 dark:text-sky-300/80">50 mL (30m)</span>
                 </button>
 
                 <!-- 4. Breastmilk -->
-                <button onclick="quickLogWithFeedback('breastmilk', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-pink-50/90 dark:bg-pink-950/30 hover:bg-pink-100 dark:hover:bg-pink-900/40 border-2 border-pink-200/90 dark:border-pink-800/60 active:scale-95 active:border-pink-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
+                <button onclick="quickLogWithFeedback('breastmilk', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-pink-50/90 dark:bg-pink-950/30 hover:bg-pink-100 dark:hover:bg-pink-900/40 border-2 border-pink-200/90 dark:border-pink-800/60 active:scale-95 active:border-pink-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🤱</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-pink-900 dark:text-pink-100 tracking-tight">Breast</span>
-                    <span id="quickBreastLabel" class="text-[11px] font-semibold text-pink-700 dark:text-pink-300/80">50 mL Feed</span>
+                    <span id="quickBreastLabel" class="text-[11px] font-semibold text-pink-700 dark:text-pink-300/80">50 mL (30m)</span>
                 </button>
 
                 <!-- 5. Pump -->
-                <button onclick="quickLogWithFeedback('pump', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-purple-50/90 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 border-2 border-purple-200/90 dark:border-purple-800/60 active:scale-95 active:border-purple-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
+                <button onclick="quickLogWithFeedback('pump', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-purple-50/90 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 border-2 border-purple-200/90 dark:border-purple-800/60 active:scale-95 active:border-purple-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🥛</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-purple-900 dark:text-purple-100 tracking-tight">Pump</span>
                     <span id="quickPumpLabel" class="text-[11px] font-semibold text-purple-700 dark:text-purple-300/80">100 mL Total</span>
                 </button>
 
                 <!-- 6. Sleep -->
-                <button onclick="quickLogWithFeedback('sleep', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border-2 border-indigo-200/90 dark:border-indigo-800/60 active:scale-95 active:border-indigo-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
+                <button onclick="quickLogWithFeedback('sleep', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border-2 border-indigo-200/90 dark:border-indigo-800/60 active:scale-95 active:border-indigo-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
                     <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">😴</span>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-indigo-900 dark:text-indigo-100 tracking-tight">Sleep</span>
                     <span class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300/80">1h Quick Nap</span>
                 </button>
+
+                <!-- 7. Vitamins -->
+                <button onclick="quickLogWithFeedback('vitamins', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-teal-50/90 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/40 border-2 border-teal-200/90 dark:border-teal-800/60 active:scale-95 active:border-teal-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log Daily Vitamins (15 mL milk, 20m)">
+                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">💊</span>
+                    <span class="font-outfit text-sm sm:text-base font-extrabold text-teal-900 dark:text-teal-100 tracking-tight">Vitamins</span>
+                    <span id="quickVitaminsLabel" class="text-[11px] font-semibold text-teal-700 dark:text-teal-300/80">15 mL (20m)</span>
+                </button>
+
+                <!-- 8. Tummy Time -->
+                <button onclick="quickLogWithFeedback('tummy', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border-2 border-emerald-200/90 dark:border-emerald-800/60 active:scale-95 active:border-emerald-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log 1 Minute Tummy Time">
+                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🐢</span>
+                    <span class="font-outfit text-sm sm:text-base font-extrabold text-emerald-900 dark:text-emerald-100 tracking-tight">Tummy</span>
+                    <span class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300/80">1 min</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- NURSERY SOUND MACHINE & LOOPING MUSIC PLAYER -->
+        <section id="soundMachineCard" class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-xl">🎵</span>
+                    <div>
+                        <h3 class="text-sm font-extrabold font-outfit uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+                            Nursery Sound Machine & Music Player
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200 border border-indigo-300">
+                                Infinite Loop
+                            </span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Play looping white noise, calming rain, or Spotify lullabies to soothe baby
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button id="toggleSoundMachineCollapseBtn" class="px-2.5 py-1 rounded-xl border border-slate-200 dark:border-nightBorder text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        Hide Player 🔼
+                    </button>
+                </div>
+            </div>
+
+            <!-- Player Content Body -->
+            <div id="soundMachineContent" class="space-y-3">
+                <!-- Preset Buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Presets:</span>
+                    <button type="button" onclick="loadMusicPreset('whitenoise')" class="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-sky-800 dark:text-sky-200 text-xs font-bold hover:bg-sky-100 transition-all flex items-center gap-1.5 active:scale-95">
+                        <span>🌊</span>
+                        <span>White Noise</span>
+                    </button>
+                    <button type="button" onclick="loadMusicPreset('rain')" class="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-indigo-800 dark:text-indigo-200 text-xs font-bold hover:bg-indigo-100 transition-all flex items-center gap-1.5 active:scale-95">
+                        <span>🌧️</span>
+                        <span>Gentle Rain</span>
+                    </button>
+                    <button type="button" onclick="loadMusicPreset('lullaby')" class="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-xs font-bold hover:bg-rose-100 transition-all flex items-center gap-1.5 active:scale-95">
+                        <span>🎹</span>
+                        <span>Piano Lullabies</span>
+                    </button>
+                </div>
+
+                <!-- Custom URL Input -->
+                <div class="flex items-center gap-2">
+                    <input type="text" id="musicUrlInput" placeholder="Paste YouTube link (e.g. youtube.com/watch?v=...) or Spotify embed link..." class="flex-1 px-3.5 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" id="loadMusicUrlBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5">
+                        <span>▶️</span>
+                        <span>Play Loop</span>
+                    </button>
+                </div>
+
+                <!-- Embedded Iframe Player Container -->
+                <div id="playerContainer" class="w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-nightBorder bg-black aspect-video max-h-60 sm:max-h-64">
+                    <iframe id="nurseryMusicIframe" class="w-full h-full" src="https://www.youtube.com/embed/nMfPqeZjc2c?autoplay=0&loop=1&playlist=nMfPqeZjc2c" title="Nursery Sound Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
             </div>
         </section>
 
@@ -866,6 +1026,10 @@
                                 <span>🤱 Breastmilk</span>
                             </label>
                             <label class="flex items-center space-x-1 cursor-pointer ml-3">
+                                <input type="radio" name="feedTypeRadio" value="vitamins" class="text-amber-500 focus:ring-amber-400">
+                                <span>💊 Vitamins</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer ml-3">
                                 <input type="radio" name="feedTypeRadio" value="nursing" class="text-amber-500 focus:ring-amber-400">
                                 <span>⏱️ Nursing</span>
                             </label>
@@ -882,14 +1046,14 @@
                             </button>
                         </div>
                         <div class="relative">
-                            <input type="number" step="any" min="0" max="1000" id="feedAmountInput" placeholder="e.g. 45" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-amber-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <input type="number" step="any" min="0" max="1000" id="feedAmountInput" placeholder="e.g. 50" class="w-full px-3 py-2 bg-white dark:bg-nightCard border border-amber-200 dark:border-nightBorder rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
                             <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400" id="feedAmountUnitSuffix">mL</span>
                         </div>
                         
                         <div class="flex flex-wrap gap-1.5 mt-2" id="quickVolumeChips">
                             <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">15 mL</button>
                             <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">30 mL (1oz)</button>
-                            <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">45 mL (1.5oz)</button>
+                            <button type="button" onclick="setFeedAmount(50)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">50 mL (~1.7oz)</button>
                             <button type="button" onclick="setFeedAmount(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">60 mL (2oz)</button>
                             <button type="button" onclick="setFeedAmount(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">90 mL (3oz)</button>
                         </div>
@@ -1384,6 +1548,56 @@
                 </div>
             </div>
         </div>
+    <!-- 23-Hour Vitamin Safety Guardrail Modal -->
+    <div id="vitaminSafetyModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-nightCard border-2 border-rose-400 dark:border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-left animate-in fade-in zoom-in-95 duration-150">
+            <!-- Icon & Header -->
+            <div class="flex items-start gap-3.5 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/70 text-rose-600 dark:text-rose-300 flex items-center justify-center text-2xl shrink-0 shadow-sm border border-rose-200 dark:border-rose-800">
+                    ⚠️
+                </div>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-rose-950 dark:text-rose-100 font-outfit">
+                        Vitamin Dose Safety Guardrail
+                    </h3>
+                    <p class="text-xs text-rose-600 dark:text-rose-400 font-bold mt-0.5">
+                        Double-Dose Prevention Warning (&lt; 23 Hours)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Warning Notice -->
+            <div class="p-3.5 bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl mb-4 space-y-2 text-xs text-rose-900 dark:text-rose-200">
+                <p class="font-semibold leading-relaxed">
+                    A dose of baby vitamins was already logged within the last 23 hours!
+                </p>
+                <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
+                    Giving multiple doses of fat-soluble vitamins (such as Vitamin D) or iron supplements within 24 hours can exceed safe daily pediatric limits.
+                </p>
+            </div>
+
+            <!-- Last Dose Info Box -->
+            <div class="p-3 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl mb-5 space-y-1">
+                <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Previous Recorded Dose
+                </div>
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                    <span id="vitaminLastDoseTimeText">Today at --:--</span>
+                    <span id="vitaminLastDoseElapsedText" class="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 text-[10px] font-extrabold">-- ago</span>
+                </div>
+                <div id="vitaminLastDoseNotesText" class="text-[11px] text-slate-500 italic truncate"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button type="button" id="cancelVitaminSafetyBtn" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold transition-colors">
+                    Cancel (Do Not Log)
+                </button>
+                <button type="button" id="confirmVitaminSafetyBtn" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-600 hover:from-rose-600 hover:to-amber-700 text-white text-xs font-extrabold shadow-md transition-all active:scale-95">
+                    Confirm &amp; Log Anyway
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notification Overlay -->
@@ -1410,10 +1624,16 @@
             calendarViewMonth: new Date().getMonth(),
             calendarViewYear: new Date().getFullYear(),
             dailyFeedGoalMl: 750,
-            babyName: 'Baby Ian',
-            babyBirthDate: '2026-09-02',
+            babyName: '',
+            babyBirthDate: '',
             roomId: '',
             logs: [],
+            feedReminder: {
+                intervalHours: 3.0, // Default 3 hours from end of latest feed
+                nextFeedTargetTime: null,
+                lastFeedEndTime: null,
+                chimeFired: false
+            },
             pumpReminder: {
                 lastPumpStartTime: Date.now() - (15 * 60 * 1000), // Default: 15 mins ago
                 intervalHours: 3.0, // Default 3 hours between pump sessions
@@ -1424,6 +1644,14 @@
                 intervalId: null
             },
             timers: {
+                feed: {
+                    active: false,
+                    isPaused: false,
+                    seconds: 0,
+                    startTime: null,
+                    intervalId: null,
+                    discardWarned: false
+                },
                 nursing: {
                     activeSide: null,
                     leftSeconds: 0,
@@ -1642,6 +1870,11 @@
                     babyName: AppState.babyName,
                     babyBirthDate: AppState.babyBirthDate,
                     dailyFeedGoalMl: AppState.dailyFeedGoalMl,
+                    feedReminder: {
+                        lastFeedEndTime: AppState.feedReminder.lastFeedEndTime,
+                        intervalHours: AppState.feedReminder.intervalHours,
+                        nextFeedTargetTime: AppState.feedReminder.nextFeedTargetTime
+                    },
                     pumpReminder: {
                         lastPumpStartTime: AppState.pumpReminder.lastPumpStartTime,
                         intervalHours: AppState.pumpReminder.intervalHours,
@@ -1707,6 +1940,23 @@
                     AppState.dailyFeedGoalMl = remote.dailyFeedGoalMl;
                     localStorage.setItem('bt_daily_goal', AppState.dailyFeedGoalMl);
                     changed = true;
+                }
+
+                // Sync Feed Reminder interval & target
+                if (remote.feedReminder) {
+                    if (remote.feedReminder.lastFeedEndTime) {
+                        AppState.feedReminder.lastFeedEndTime = remote.feedReminder.lastFeedEndTime;
+                    }
+                    if (remote.feedReminder.intervalHours) {
+                        AppState.feedReminder.intervalHours = parseFloat(remote.feedReminder.intervalHours) || 3.0;
+                        const fSel = document.getElementById('feedIntervalSelect');
+                        if (fSel) fSel.value = String(AppState.feedReminder.intervalHours);
+                    }
+                    if (remote.feedReminder.nextFeedTargetTime) {
+                        AppState.feedReminder.nextFeedTargetTime = remote.feedReminder.nextFeedTargetTime;
+                    }
+                    saveFeedReminderLocally();
+                    updateFeedCountdownUI();
                 }
 
                 // Sync Pump Reminder interval & target
@@ -1781,7 +2031,9 @@
             loadPreferences();
             SyncEngine.init();
             initTimers();
+            initFeedReminder();
             initPumpReminder();
+            initSoundMachine();
             VoiceAssistant.init();
             setupEventListeners();
             updateDateControls();
@@ -1801,7 +2053,7 @@
             const savedBirthDate = localStorage.getItem('bt_baby_birthdate');
             if (savedBirthDate) AppState.babyBirthDate = savedBirthDate;
 
-            // Load logs
+            // Load logs (Blank slate default, no mock seed logs)
             const savedLogs = localStorage.getItem('bt_logs');
             if (savedLogs) {
                 try {
@@ -1810,12 +2062,25 @@
                     AppState.logs = [];
                 }
             } else {
-                const urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.get('room')) {
-                    createSeedLogs();
-                } else {
-                    AppState.logs = [];
-                }
+                AppState.logs = [];
+            }
+
+            // Load feed reminder settings
+            const savedFeed = localStorage.getItem('bt_feed_reminder');
+            if (savedFeed) {
+                try {
+                    const parsed = JSON.parse(savedFeed);
+                    if (parsed.lastFeedEndTime) AppState.feedReminder.lastFeedEndTime = parsed.lastFeedEndTime;
+                    if (parsed.intervalHours) AppState.feedReminder.intervalHours = parseFloat(parsed.intervalHours) || 3.0;
+                    if (parsed.nextFeedTargetTime) AppState.feedReminder.nextFeedTargetTime = parsed.nextFeedTargetTime;
+                } catch(e) {}
+            } else {
+                scheduleNextFeed();
+            }
+
+            const feedIntervalSelect = document.getElementById('feedIntervalSelect');
+            if (feedIntervalSelect) {
+                feedIntervalSelect.value = String(AppState.feedReminder.intervalHours);
             }
 
             // Load pump reminder settings
@@ -1834,7 +2099,10 @@
                 savePumpReminderLocally();
             }
 
-            document.getElementById('pumpIntervalSelect').value = String(AppState.pumpReminder.intervalHours);
+            const pumpIntervalSelect = document.getElementById('pumpIntervalSelect');
+            if (pumpIntervalSelect) {
+                pumpIntervalSelect.value = String(AppState.pumpReminder.intervalHours);
+            }
 
             updateUnitUI();
             updateBabyProfileHeader();
@@ -1853,81 +2121,256 @@
             }));
         }
 
-        function createSeedLogs() {
-            const today = getTodayDateString();
-            AppState.logs = [
-                {
-                    id: 'seed-1',
-                    category: 'diaper',
-                    subType: 'poop',
-                    size: 'medium',
-                    poopTexture: 'normal',
-                    dateStr: today,
-                    timeStr: '9:34pm',
-                    timestamp: new Date(`${today}T21:34:00`).getTime(),
-                    notes: 'Mustard colored, normal digestion',
-                    updatedAt: Date.now()
-                },
-                {
-                    id: 'seed-p1',
-                    category: 'pumping',
-                    leftAmountMl: 60,
-                    rightAmountMl: 60,
-                    amountMl: 120,
-                    durationMinutes: 20,
-                    dateStr: today,
-                    timeStr: '8:00pm',
-                    timestamp: new Date(`${today}T20:00:00`).getTime(),
-                    notes: 'Evening pump, comfortable session',
-                    updatedAt: Date.now()
-                },
-                {
-                    id: 'seed-2',
-                    category: 'feeding',
-                    subType: 'formula',
-                    amountMl: 35,
-                    durationMinutes: 15,
-                    dateStr: today,
-                    timeStr: '7:34pm',
-                    timestamp: new Date(`${today}T19:34:00`).getTime(),
-                    notes: 'Drank comfortably, burped well',
-                    updatedAt: Date.now()
-                },
-                {
-                    id: 'seed-3',
-                    category: 'feeding',
-                    subType: 'breastmilk',
-                    amountMl: 50,
-                    durationMinutes: 20,
-                    dateStr: today,
-                    timeStr: '5:34pm',
-                    timestamp: new Date(`${today}T17:34:00`).getTime(),
-                    notes: 'Bottle of pumped milk',
-                    updatedAt: Date.now()
-                },
-                {
-                    id: 'seed-4',
-                    category: 'diaper',
-                    subType: 'pee',
-                    size: 'small',
-                    dateStr: today,
-                    timeStr: '3:34pm',
-                    timestamp: new Date(`${today}T15:34:00`).getTime(),
-                    notes: 'Wet diaper',
-                    updatedAt: Date.now()
-                },
-                {
-                    id: 'seed-5',
-                    category: 'sleep',
-                    durationMinutes: 90,
-                    dateStr: today,
-                    timeStr: '1:00pm',
-                    timestamp: new Date(`${today}T13:00:00`).getTime(),
-                    notes: 'Crib nap in nursery',
-                    updatedAt: Date.now()
+        function saveFeedReminderLocally() {
+            localStorage.setItem('bt_feed_reminder', JSON.stringify({
+                lastFeedEndTime: AppState.feedReminder.lastFeedEndTime,
+                intervalHours: AppState.feedReminder.intervalHours,
+                nextFeedTargetTime: AppState.feedReminder.nextFeedTargetTime
+            }));
+        }
+
+        // ==================== FEED TRACKER & 3-HOUR REMINDER ====================
+
+        function getLatestFeed() {
+            const feedLogs = AppState.logs.filter(l => l.category === 'feeding' || l.category === 'nursing');
+            if (!feedLogs.length) return null;
+            return feedLogs.reduce((latest, current) => {
+                const currentEnd = current.timestamp + ((current.durationMinutes || 0) * 60 * 1000);
+                const latestEnd = latest.timestamp + ((latest.durationMinutes || 0) * 60 * 1000);
+                return currentEnd > latestEnd ? current : latest;
+            }, feedLogs[0]);
+        }
+
+        function scheduleNextFeed(fromEndTime = null) {
+            if (!fromEndTime) {
+                const latest = getLatestFeed();
+                if (latest) {
+                    fromEndTime = latest.timestamp + ((latest.durationMinutes || 0) * 60 * 1000);
+                } else {
+                    fromEndTime = Date.now();
                 }
-            ];
-            localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
+            }
+            AppState.feedReminder.lastFeedEndTime = fromEndTime;
+            AppState.feedReminder.nextFeedTargetTime = fromEndTime + (AppState.feedReminder.intervalHours * 3600 * 1000);
+            AppState.feedReminder.chimeFired = false;
+            saveFeedReminderLocally();
+            SyncEngine.broadcast();
+            updateFeedCountdownUI();
+        }
+
+        function updateFeedCountdownUI() {
+            const now = Date.now();
+            let target = AppState.feedReminder.nextFeedTargetTime;
+            if (!target) {
+                scheduleNextFeed();
+                target = AppState.feedReminder.nextFeedTargetTime;
+            }
+
+            const diffMs = target - now;
+            const countdownDisplay = document.getElementById('feedCountdownDisplay');
+            const statusBadge = document.getElementById('feedStatusBadge');
+            const targetDesc = document.getElementById('feedTargetTimeDesc');
+            const card = document.getElementById('feedCountdownCard');
+
+            if (!countdownDisplay || !statusBadge) return;
+
+            const targetDate = new Date(target);
+            const targetTimeStr = formatDisplayTime(targetDate);
+            let lastEndTimeStr = '';
+            if (AppState.feedReminder.lastFeedEndTime) {
+                lastEndTimeStr = ` (Last feed ended: ${formatDisplayTime(new Date(AppState.feedReminder.lastFeedEndTime))})`;
+            }
+
+            if (targetDesc) {
+                targetDesc.textContent = `Scheduled for ${targetTimeStr}${lastEndTimeStr} • Every ${AppState.feedReminder.intervalHours}h`;
+            }
+
+            if (diffMs > 0) {
+                // Countdown active
+                const totalSecs = Math.floor(diffMs / 1000);
+                const hrs = Math.floor(totalSecs / 3600);
+                const mins = Math.floor((totalSecs % 3600) / 60);
+                const secs = totalSecs % 60;
+
+                countdownDisplay.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                statusBadge.textContent = `In ${hrs}h ${mins}m`;
+                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300';
+                if (card) {
+                    card.classList.remove('feed-due-pulse', 'border-rose-500');
+                }
+            } else {
+                // DUE NOW / OVERDUE
+                const overdueMins = Math.floor(-diffMs / 60000);
+                countdownDisplay.textContent = overdueMins > 0 ? `+${overdueMins}m DUE` : 'DUE NOW!';
+                statusBadge.textContent = '🔔 TIME TO FEED!';
+                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-rose-500 text-white animate-pulse';
+                if (card) {
+                    card.classList.add('feed-due-pulse', 'border-rose-500');
+                }
+
+                // Audio chime reminder when countdown completes
+                if (!AppState.feedReminder.chimeFired) {
+                    AppState.feedReminder.chimeFired = true;
+                    AudioSynth.playAlarm('feed');
+                    if (window.speechSynthesis && AppState.voiceSettings?.speakFeedback) {
+                        VoiceAssistant.speak('Time to feed baby!');
+                    }
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        try {
+                            new Notification('🍼 Time to Feed Baby!', {
+                                body: '3 hours have elapsed since the end of the last feed.',
+                                icon: 'https://nonsenseian.github.io/nonsenseian_logo.png'
+                            });
+                        } catch(e) {}
+                    }
+                    showToast('🔔 Time to feed baby! (3 hours elapsed)', 'warning');
+                }
+            }
+        }
+
+        function initFeedReminder() {
+            updateFeedCountdownUI();
+            setInterval(updateFeedCountdownUI, 1000);
+
+            // Re-check immediately when tab becomes visible after sleep
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    updateFeedCountdownUI();
+                }
+            });
+
+            const feedIntervalSelect = document.getElementById('feedIntervalSelect');
+            if (feedIntervalSelect) {
+                feedIntervalSelect.onchange = (e) => {
+                    const newInterval = parseFloat(e.target.value) || 3.0;
+                    AppState.feedReminder.intervalHours = newInterval;
+                    scheduleNextFeed(AppState.feedReminder.lastFeedEndTime || Date.now());
+                    showToast(`Next feed reminder set to every ${newInterval} hours 🍼`, 'success');
+                };
+            }
+
+            const logFeedNowBtn = document.getElementById('logFeedNowBtn');
+            if (logFeedNowBtn) {
+                logFeedNowBtn.onclick = () => openLogModal('feeding');
+            }
+
+            // Live Feed Stopwatch controls
+            const toggleFeedTimerBtn = document.getElementById('toggleFeedTimerBtn');
+            const pauseFeedTimerBtn = document.getElementById('pauseFeedTimerBtn');
+            const cancelFeedTimerBtn = document.getElementById('cancelFeedTimerBtn');
+            const saveFeedTimerBtn = document.getElementById('saveFeedTimerBtn');
+            const feedTimerDisplay = document.getElementById('feedTimerDisplay');
+            const feedLiveBadge = document.getElementById('feedLiveBadge');
+            const feedTimerIcon = document.getElementById('feedTimerIcon');
+            const feedTimerText = document.getElementById('feedTimerText');
+            const discardAlert = document.getElementById('discardMilkAlertBanner');
+
+            if (toggleFeedTimerBtn) {
+                toggleFeedTimerBtn.onclick = () => {
+                    if (!AppState.timers.feed.active) {
+                        // START Live Feed Timer
+                        AppState.timers.feed.active = true;
+                        AppState.timers.feed.isPaused = false;
+                        AppState.timers.feed.startTime = Date.now() - (AppState.timers.feed.seconds * 1000);
+                        AppState.timers.feed.discardWarned = false;
+
+                        feedTimerIcon.textContent = '⏹️';
+                        feedTimerText.textContent = 'Running';
+                        feedLiveBadge.textContent = 'Feeding...';
+                        feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase animate-pulse';
+                        toggleFeedTimerBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1 timer-active';
+                        pauseFeedTimerBtn.classList.remove('hidden');
+                        pauseFeedTimerBtn.textContent = '⏸️';
+
+                        AppState.timers.feed.intervalId = setInterval(() => {
+                            if (!AppState.timers.feed.isPaused) {
+                                AppState.timers.feed.seconds++;
+                                const mins = String(Math.floor(AppState.timers.feed.seconds / 60)).padStart(2, '0');
+                                const secs = String(AppState.timers.feed.seconds % 60).padStart(2, '0');
+                                feedTimerDisplay.textContent = `${mins}:${secs}`;
+
+                                // 59-Minute Discard Milk Warning Alarm (CDC guidelines)
+                                if (AppState.timers.feed.seconds >= 3540 && !AppState.timers.feed.discardWarned) {
+                                    AppState.timers.feed.discardWarned = true;
+                                    discardAlert?.classList.remove('hidden');
+                                    AudioSynth.playAlarm('alarm');
+                                    showToast('⚠️ 59m Warning: Discard milk 1 hour after feed start per CDC guidelines!', 'warning');
+                                    if ('Notification' in window && Notification.permission === 'granted') {
+                                        try {
+                                            new Notification('⚠️ Discard Milk Warning (59m)', {
+                                                body: 'Milk should be discarded 1 hour after start of feed per CDC safety recommendations.'
+                                            });
+                                        } catch(e) {}
+                                    }
+                                }
+                            }
+                        }, 1000);
+
+                        showToast('Feed stopwatch started! 🍼', 'info');
+                    } else {
+                        cancelFeedTimerBtn.click();
+                    }
+                };
+            }
+
+            if (pauseFeedTimerBtn) {
+                pauseFeedTimerBtn.onclick = () => {
+                    if (!AppState.timers.feed.active) return;
+                    AppState.timers.feed.isPaused = !AppState.timers.feed.isPaused;
+                    if (AppState.timers.feed.isPaused) {
+                        feedLiveBadge.textContent = 'Paused (Burp)';
+                        feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase';
+                        pauseFeedTimerBtn.textContent = '▶️';
+                        showToast('Feed paused for baby burping/break ⏸️', 'info');
+                    } else {
+                        feedLiveBadge.textContent = 'Feeding...';
+                        feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase animate-pulse';
+                        pauseFeedTimerBtn.textContent = '⏸️';
+                        showToast('Feed resumed ▶️', 'info');
+                    }
+                };
+            }
+
+            if (cancelFeedTimerBtn) {
+                cancelFeedTimerBtn.onclick = () => {
+                    if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
+                    AppState.timers.feed.active = false;
+                    AppState.timers.feed.isPaused = false;
+                    AppState.timers.feed.seconds = 0;
+                    AppState.timers.feed.startTime = null;
+                    AppState.timers.feed.discardWarned = false;
+
+                    feedTimerDisplay.textContent = '00:00';
+                    feedTimerIcon.textContent = '▶️';
+                    feedTimerText.textContent = 'Start';
+                    feedLiveBadge.textContent = 'Ready';
+                    feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase';
+                    toggleFeedTimerBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1';
+                    pauseFeedTimerBtn.classList.add('hidden');
+                    pauseFeedTimerBtn.textContent = '⏸️';
+                    discardAlert?.classList.add('hidden');
+                };
+            }
+
+            if (saveFeedTimerBtn) {
+                saveFeedTimerBtn.onclick = () => {
+                    const elapsedMins = Math.max(1, Math.round(AppState.timers.feed.seconds / 60));
+                    const feedStartTime = AppState.timers.feed.startTime || (Date.now() - (AppState.timers.feed.seconds * 1000));
+                    
+                    cancelFeedTimerBtn.click();
+
+                    // Open log modal with duration prefilled and 50 mL default
+                    openLogModal('feeding');
+                    document.getElementById('feedDurationInput').value = elapsedMins;
+                    const amountInput = document.getElementById('feedAmountInput');
+                    if (amountInput) {
+                        amountInput.value = AppState.unit === 'oz' ? '1.7' : '50';
+                    }
+                    const startDate = new Date(feedStartTime);
+                    document.getElementById('modalDateInput').value = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+                    document.getElementById('modalTimeInput').value = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
+                };
+            }
         }
 
         // ==================== PUMP TRACKER & 3-HOUR REMINDER ====================
@@ -1937,74 +2380,84 @@
             setInterval(updatePumpCountdownUI, 1000);
 
             // Interval selector change
-            document.getElementById('pumpIntervalSelect').onchange = (e) => {
-                const newInterval = parseFloat(e.target.value) || 3.0;
-                AppState.pumpReminder.intervalHours = newInterval;
-                // Re-calculate target based on last pump start
-                AppState.pumpReminder.nextPumpTargetTime = AppState.pumpReminder.lastPumpStartTime + (newInterval * 3600 * 1000);
-                savePumpReminderLocally();
-                SyncEngine.broadcast();
-                updatePumpCountdownUI();
-                showToast(`Pump reminder set to every ${newInterval} hours 🥛`, 'success');
-            };
+            const pumpIntervalSelect = document.getElementById('pumpIntervalSelect');
+            if (pumpIntervalSelect) {
+                pumpIntervalSelect.onchange = (e) => {
+                    const newInterval = parseFloat(e.target.value) || 3.0;
+                    AppState.pumpReminder.intervalHours = newInterval;
+                    // Re-calculate target based on last pump start
+                    AppState.pumpReminder.nextPumpTargetTime = AppState.pumpReminder.lastPumpStartTime + (newInterval * 3600 * 1000);
+                    savePumpReminderLocally();
+                    SyncEngine.broadcast();
+                    updatePumpCountdownUI();
+                    showToast(`Pump reminder set to every ${newInterval} hours 🥛`, 'success');
+                };
+            }
 
-            document.getElementById('logPumpNowBtn').onclick = () => {
-                openLogModal('pumping');
-            };
+            const logPumpNowBtn = document.getElementById('logPumpNowBtn');
+            if (logPumpNowBtn) {
+                logPumpNowBtn.onclick = () => {
+                    openLogModal('pumping');
+                };
+            }
 
             // Pumping Stopwatch Live Timer buttons
             const togglePumpingTimerBtn = document.getElementById('togglePumpingTimerBtn');
             const cancelPumpingTimerBtn = document.getElementById('cancelPumpingTimerBtn');
 
-            togglePumpingTimerBtn.onclick = () => {
-                if (!AppState.pumpReminder.isPumping) {
-                    // Start pump stopwatch
-                    AppState.pumpReminder.isPumping = true;
-                    AppState.pumpReminder.pumpingStartTime = Date.now();
-                    AppState.pumpReminder.pumpingSeconds = 0;
-                    
-                    document.getElementById('pumpingTimerText').textContent = 'Finish & Log';
-                    document.getElementById('pumpingLiveBadge').textContent = 'Pumping...';
-                    document.getElementById('pumpingLiveBadge').className = 'text-[10px] px-1.5 py-0.2 rounded bg-rose-200 text-rose-800 font-extrabold uppercase animate-pulse';
-                    togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+            if (togglePumpingTimerBtn) {
+                togglePumpingTimerBtn.onclick = () => {
+                    if (!AppState.pumpReminder.isPumping) {
+                        // Start pump stopwatch
+                        AppState.pumpReminder.isPumping = true;
+                        AppState.pumpReminder.pumpingStartTime = Date.now();
+                        AppState.pumpReminder.pumpingSeconds = 0;
+                        
+                        document.getElementById('pumpingTimerText').textContent = 'Finish & Log';
+                        document.getElementById('pumpingLiveBadge').textContent = 'Pumping...';
+                        document.getElementById('pumpingLiveBadge').className = 'text-[10px] px-1.5 py-0.2 rounded bg-rose-200 text-rose-800 font-extrabold uppercase animate-pulse';
+                        togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
 
-                    AppState.pumpReminder.intervalId = setInterval(() => {
-                        AppState.pumpReminder.pumpingSeconds++;
-                        const mins = String(Math.floor(AppState.pumpReminder.pumpingSeconds / 60)).padStart(2, '0');
-                        const secs = String(AppState.pumpReminder.pumpingSeconds % 60).padStart(2, '0');
-                        document.getElementById('pumpingTimerDisplay').textContent = `${mins}:${secs}`;
-                    }, 1000);
+                        AppState.pumpReminder.intervalId = setInterval(() => {
+                            AppState.pumpReminder.pumpingSeconds++;
+                            const mins = String(Math.floor(AppState.pumpReminder.pumpingSeconds / 60)).padStart(2, '0');
+                            const secs = String(AppState.pumpReminder.pumpingSeconds % 60).padStart(2, '0');
+                            document.getElementById('pumpingTimerDisplay').textContent = `${mins}:${secs}`;
+                        }, 1000);
 
-                    showToast('Pumping stopwatch started! 🥛', 'info');
-                } else {
-                    // Finish & Save pump
-                    const elapsedMins = Math.max(1, Math.round(AppState.pumpReminder.pumpingSeconds / 60));
-                    clearInterval(AppState.pumpReminder.intervalId);
+                        showToast('Pumping stopwatch started! 🥛', 'info');
+                    } else {
+                        // Finish & Save pump
+                        const elapsedMins = Math.max(1, Math.round(AppState.pumpReminder.pumpingSeconds / 60));
+                        clearInterval(AppState.pumpReminder.intervalId);
+                        AppState.pumpReminder.isPumping = false;
+
+                        document.getElementById('pumpingTimerText').textContent = 'Start Pump';
+                        document.getElementById('pumpingLiveBadge').textContent = 'Ready';
+                        document.getElementById('pumpingLiveBadge').className = 'text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase';
+                        togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
+                        document.getElementById('pumpingTimerDisplay').textContent = '00:00';
+
+                        // Open log modal with pumping selected, duration prefilled, and start time
+                        openLogModal('pumping');
+                        document.getElementById('pumpDurationInput').value = elapsedMins;
+                        const startDate = new Date(AppState.pumpReminder.pumpingStartTime);
+                        document.getElementById('modalDateInput').value = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+                        document.getElementById('modalTimeInput').value = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
+                    }
+                };
+            }
+
+            if (cancelPumpingTimerBtn) {
+                cancelPumpingTimerBtn.onclick = () => {
+                    if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
                     AppState.pumpReminder.isPumping = false;
-
                     document.getElementById('pumpingTimerText').textContent = 'Start Pump';
                     document.getElementById('pumpingLiveBadge').textContent = 'Ready';
-                    document.getElementById('pumpingLiveBadge').className = 'text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase';
                     togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                     document.getElementById('pumpingTimerDisplay').textContent = '00:00';
-
-                    // Open log modal with pumping selected, duration prefilled, and start time
-                    openLogModal('pumping');
-                    document.getElementById('pumpDurationInput').value = elapsedMins;
-                    const startDate = new Date(AppState.pumpReminder.pumpingStartTime);
-                    document.getElementById('modalDateInput').value = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-                    document.getElementById('modalTimeInput').value = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
-                }
-            };
-
-            cancelPumpingTimerBtn.onclick = () => {
-                if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
-                AppState.pumpReminder.isPumping = false;
-                document.getElementById('pumpingTimerText').textContent = 'Start Pump';
-                document.getElementById('pumpingLiveBadge').textContent = 'Ready';
-                togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
-                document.getElementById('pumpingTimerDisplay').textContent = '00:00';
-            };
+                };
+            }
         }
 
         function updatePumpCountdownUI() {
@@ -2017,12 +2470,16 @@
             const targetDesc = document.getElementById('pumpTargetTimeDesc');
             const card = document.getElementById('pumpCountdownCard');
 
+            if (!countdownDisplay || !statusBadge) return;
+
             const targetDate = new Date(target);
             const targetTimeStr = formatDisplayTime(targetDate);
             const lastStartDate = new Date(AppState.pumpReminder.lastPumpStartTime);
             const lastStartTimeStr = formatDisplayTime(lastStartDate);
 
-            targetDesc.textContent = `Scheduled for ${targetTimeStr} (Last pump: ${lastStartTimeStr}) • Every ${AppState.pumpReminder.intervalHours}h`;
+            if (targetDesc) {
+                targetDesc.textContent = `Scheduled for ${targetTimeStr} (Last pump: ${lastStartTimeStr}) • Every ${AppState.pumpReminder.intervalHours}h`;
+            }
 
             if (diffMs > 0) {
                 // Countdown active
@@ -2034,14 +2491,14 @@
                 countdownDisplay.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
                 statusBadge.textContent = `In ${hrs}h ${mins}m`;
                 statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300';
-                card.classList.remove('pump-due-pulse', 'border-rose-500');
+                if (card) card.classList.remove('pump-due-pulse', 'border-rose-500');
             } else {
                 // DUE NOW / OVERDUE
                 const overdueMins = Math.floor(-diffMs / 60000);
                 countdownDisplay.textContent = overdueMins > 0 ? `+${overdueMins}m DUE` : 'DUE NOW!';
                 statusBadge.textContent = '🔔 TIME TO PUMP!';
                 statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-rose-500 text-white animate-pulse';
-                card.classList.add('pump-due-pulse', 'border-rose-500');
+                if (card) card.classList.add('pump-due-pulse', 'border-rose-500');
             }
         }
 
@@ -2051,6 +2508,131 @@
             savePumpReminderLocally();
             SyncEngine.broadcast();
             updatePumpCountdownUI();
+        }
+
+        // ==================== NURSERY SOUND MACHINE ====================
+
+        function initSoundMachine() {
+            const collapseBtn = document.getElementById('toggleSoundMachineCollapseBtn');
+            const content = document.getElementById('soundMachineContent');
+            if (collapseBtn && content) {
+                collapseBtn.onclick = () => {
+                    const isHidden = content.classList.toggle('hidden');
+                    collapseBtn.textContent = isHidden ? 'Show Player 🔽' : 'Hide Player 🔼';
+                };
+            }
+
+            const loadBtn = document.getElementById('loadMusicUrlBtn');
+            const urlInput = document.getElementById('musicUrlInput');
+            if (loadBtn && urlInput) {
+                loadBtn.onclick = () => loadCustomMusicUrl();
+                urlInput.onkeydown = (e) => {
+                    if (e.key === 'Enter') loadCustomMusicUrl();
+                };
+            }
+
+            const savedMusic = localStorage.getItem('bt_music_url');
+            if (savedMusic) {
+                const iframe = document.getElementById('nurseryMusicIframe');
+                if (iframe) iframe.src = savedMusic;
+                if (urlInput) urlInput.value = savedMusic;
+            }
+        }
+
+        window.loadMusicPreset = function(type) {
+            let embedUrl = '';
+            if (type === 'whitenoise') {
+                embedUrl = 'https://www.youtube.com/embed/nMfPqeZjc2c?autoplay=1&loop=1&playlist=nMfPqeZjc2c';
+            } else if (type === 'rain') {
+                embedUrl = 'https://www.youtube.com/embed/mPZkdNFkNps?autoplay=1&loop=1&playlist=mPZkdNFkNps';
+            } else if (type === 'lullaby') {
+                embedUrl = 'https://www.youtube.com/embed/1ZYbU82GVz4?autoplay=1&loop=1&playlist=1ZYbU82GVz4';
+            }
+            if (embedUrl) {
+                const iframe = document.getElementById('nurseryMusicIframe');
+                if (iframe) iframe.src = embedUrl;
+                localStorage.setItem('bt_music_url', embedUrl);
+                const urlInput = document.getElementById('musicUrlInput');
+                if (urlInput) urlInput.value = embedUrl;
+                showToast(`Playing ${type} sound loop 🎵`, 'success');
+            }
+        };
+
+        window.loadCustomMusicUrl = function() {
+            const input = document.getElementById('musicUrlInput');
+            if (!input) return;
+            const raw = input.value.trim();
+            if (!raw) return;
+
+            let embedUrl = raw;
+            const ytMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            if (ytMatch && ytMatch[1]) {
+                const id = ytMatch[1];
+                embedUrl = `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}`;
+            } else if (raw.includes('open.spotify.com') && !raw.includes('/embed/')) {
+                embedUrl = raw.replace('open.spotify.com/', 'open.spotify.com/embed/');
+            }
+
+            const iframe = document.getElementById('nurseryMusicIframe');
+            if (iframe) iframe.src = embedUrl;
+            localStorage.setItem('bt_music_url', embedUrl);
+            showToast('Loaded custom music loop! 🎶', 'success');
+        };
+
+        // ==================== VITAMINS 23-HOUR SAFETY GUARDRAIL ====================
+
+        function checkVitaminSafety(onConfirm, skipLogId = null) {
+            const twentyThreeHoursMs = 23 * 3600 * 1000;
+            const now = Date.now();
+
+            const vitaminLogs = AppState.logs.filter(l => {
+                if (skipLogId && l.id === skipLogId) return false;
+                const isSubType = l.subType === 'vitamins';
+                const hasNotes = l.notes && l.notes.toLowerCase().includes('vitamin');
+                return isSubType || hasNotes;
+            });
+
+            if (vitaminLogs.length === 0) {
+                onConfirm();
+                return;
+            }
+
+            vitaminLogs.sort((a, b) => b.timestamp - a.timestamp);
+            const latest = vitaminLogs[0];
+            const diffMs = now - latest.timestamp;
+
+            if (diffMs < twentyThreeHoursMs) {
+                const modal = document.getElementById('vitaminSafetyModal');
+                const timeText = document.getElementById('vitaminLastDoseTimeText');
+                const elapsedText = document.getElementById('vitaminLastDoseElapsedText');
+                const notesText = document.getElementById('vitaminLastDoseNotesText');
+                const confirmBtn = document.getElementById('confirmVitaminSafetyBtn');
+                const cancelBtn = document.getElementById('cancelVitaminSafetyBtn');
+
+                const elapsedMins = Math.floor(diffMs / 60000);
+                const hrs = Math.floor(elapsedMins / 60);
+                const mins = elapsedMins % 60;
+                const elapsedStr = hrs > 0 ? `${hrs}h ${mins}m ago` : `${mins}m ago`;
+
+                if (timeText) timeText.textContent = `${latest.dateStr} at ${latest.timeStr}`;
+                if (elapsedText) elapsedText.textContent = `${elapsedStr} (< 23h)`;
+                if (notesText) notesText.textContent = latest.notes || 'No notes';
+
+                AudioSynth.playChime('error');
+                modal?.classList.remove('hidden');
+
+                confirmBtn.onclick = () => {
+                    modal?.classList.add('hidden');
+                    onConfirm();
+                };
+
+                cancelBtn.onclick = () => {
+                    modal?.classList.add('hidden');
+                    showToast('Vitamin dose cancelled for safety 🛡️', 'info');
+                };
+            } else {
+                onConfirm();
+            }
         }
 
         // ==================== RENDER VIEWS ====================
@@ -2418,6 +3000,7 @@
                 const amount = isOz 
                     ? `${((parseFloat(log.amountMl) || 0) / ML_PER_OZ).toFixed(1)} oz`
                     : `${log.amountMl || 0} mL`;
+                if (log.subType === 'vitamins') return `Vitamins (${amount}) 💊`;
                 return `${log.subType === 'formula' ? 'Formula' : 'Breastmilk'} (${amount})`;
             }
             if (log.category === 'pumping') {
@@ -2530,15 +3113,21 @@
             } else if (type === 'formula') {
                 newLog.category = 'feeding';
                 newLog.subType = 'formula';
-                newLog.amountMl = 45;
-                newLog.durationMinutes = 15;
-                newLog.notes = 'Quick logged formula feed (45 mL)';
+                newLog.amountMl = 50;
+                newLog.durationMinutes = 30;
+                newLog.notes = 'Quick logged formula feed (50 mL, 30m)';
             } else if (type === 'breastmilk') {
                 newLog.category = 'feeding';
                 newLog.subType = 'breastmilk';
                 newLog.amountMl = 50;
+                newLog.durationMinutes = 30;
+                newLog.notes = 'Quick logged breastmilk bottle (50 mL, 30m)';
+            } else if (type === 'vitamins') {
+                newLog.category = 'feeding';
+                newLog.subType = 'vitamins';
+                newLog.amountMl = 15;
                 newLog.durationMinutes = 20;
-                newLog.notes = 'Quick logged breastmilk bottle (50 mL)';
+                newLog.notes = 'Quick logged daily vitamins (15 mL, 20m)';
             } else if (type === 'pump') {
                 newLog.category = 'pumping';
                 newLog.leftAmountMl = 50;
@@ -2552,13 +3141,32 @@
                 newLog.category = 'sleep';
                 newLog.durationMinutes = 60;
                 newLog.notes = 'Quick logged 1 hr nap';
+            } else if (type === 'tummy') {
+                newLog.category = 'tummy';
+                newLog.durationMinutes = 1;
+                newLog.notes = 'Quick logged 1 min tummy time';
             }
 
-            AppState.logs.push(newLog);
-            saveLogsToStorage();
-            renderAll();
-            SyncEngine.broadcast();
-            showToast(`Logged ${getLogSummaryText(newLog)}! ✨`, 'success');
+            const commitLog = () => {
+                AppState.logs.push(newLog);
+                saveLogsToStorage();
+                renderAll();
+                SyncEngine.broadcast();
+
+                // If feeding was logged, schedule next feed timer 3 hours from feed end
+                if (newLog.category === 'feeding') {
+                    const feedEndTime = newLog.timestamp + ((newLog.durationMinutes || 0) * 60 * 1000);
+                    scheduleNextFeed(feedEndTime);
+                }
+
+                showToast(`Logged ${getLogSummaryText(newLog)}! ✨`, 'success');
+            };
+
+            if (type === 'vitamins') {
+                checkVitaminSafety(commitLog);
+            } else {
+                commitLog();
+            }
         }
 
         function quickLogWithFeedback(type, btnEl) {
@@ -2594,7 +3202,7 @@
                 subType: subType,
                 amountMl: amountMl,
                 amountOz: Math.round((amountMl / 29.5735) * 10) / 10,
-                durationMinutes: 15,
+                durationMinutes: 30,
                 notes: `Voice logged ${subType} feed (${amountMl} mL)`
             };
 
@@ -2602,6 +3210,10 @@
             saveLogsToStorage();
             renderAll();
             SyncEngine.broadcast();
+
+            const feedEndTime = newLog.timestamp + ((newLog.durationMinutes || 0) * 60 * 1000);
+            scheduleNextFeed(feedEndTime);
+
             showToast(`Logged ${amountMl} mL ${capitalize(subType)}! ✨`, 'success');
         }
 
@@ -2617,6 +3229,30 @@
                 }
                 if (this.ctx && this.ctx.state === 'suspended') {
                     this.ctx.resume().catch(() => {});
+                }
+            },
+            playAlarm(type = 'alarm') {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    const count = type === 'alarm' ? 3 : 2;
+                    for (let i = 0; i < count; i++) {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.type = 'triangle';
+                        const start = now + (i * 0.22);
+                        osc.frequency.setValueAtTime(type === 'alarm' ? 880 : 587.33, start);
+                        gain.gain.setValueAtTime(0.001, start);
+                        gain.gain.linearRampToValueAtTime(0.25, start + 0.03);
+                        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
+                        osc.start(start);
+                        osc.stop(start + 0.18);
+                    }
+                } catch(e) {
+                    console.warn('AudioSynth alarm error:', e);
                 }
             },
             playChime(type = 'wake') {
@@ -2988,6 +3624,27 @@
                     return;
                 }
 
+                if (command.includes('next feed') || command.includes('when is the next feed')) {
+                    if (AppState.feedReminder && AppState.feedReminder.nextFeedTargetTime) {
+                        const remainingMs = AppState.feedReminder.nextFeedTargetTime - Date.now();
+                        if (remainingMs <= 0) {
+                            const reply = 'Feeding is due now!';
+                            this.speak(reply);
+                            showToast(reply, 'info');
+                        } else {
+                            const remMins = Math.round(remainingMs / 60000);
+                            const remHours = Math.floor(remMins / 60);
+                            const targetTime = formatDisplayTime(new Date(AppState.feedReminder.nextFeedTargetTime));
+                            const timeStr = remHours > 0 ? `${remHours} hours and ${remMins % 60} minutes` : `${remMins} minutes`;
+                            const reply = `Next feed is due in ${timeStr}, at ${targetTime}.`;
+                            this.speak(reply);
+                            showToast(reply, 'info');
+                        }
+                        AudioSynth.playChime('success');
+                        return;
+                    }
+                }
+
                 if (command.includes('next pump') || command.includes('when is the next pump')) {
                     if (AppState.pumpReminder && AppState.pumpReminder.nextPumpTargetTime) {
                         const remainingMs = AppState.pumpReminder.nextPumpTargetTime - Date.now();
@@ -3039,6 +3696,20 @@
                     return;
                 }
 
+                if (command.includes('vitamins') || command.includes('vitamin')) {
+                    quickLog('vitamins');
+                    this.speak('Logged daily vitamins: 15 mL.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
+                if (command.includes('tummy') || command.includes('tummy time')) {
+                    quickLog('tummy');
+                    this.speak('Logged 1 minute of tummy time.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
                 if (command.includes('formula')) {
                     const numMatch = command.match(/(\d+(\.\d+)?)\s*(ml|ounces|oz)?/);
                     if (numMatch) {
@@ -3049,7 +3720,7 @@
                         this.speak(`Logged formula feed: ${amount} ${isOz ? 'ounces' : 'mL'}.`);
                     } else {
                         quickLog('formula');
-                        this.speak('Logged formula feed: 45 mL.');
+                        this.speak('Logged formula feed: 50 mL.');
                     }
                     AudioSynth.playChime('success');
                     return;
@@ -3453,8 +4124,13 @@
             document.getElementById('modalDateInput').value = AppState.selectedDate || getTodayDateString();
             document.getElementById('modalTimeInput').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
-            document.getElementById('feedAmountInput').value = '';
-            document.getElementById('feedDurationInput').value = '';
+            if (defaultCategory === 'feeding') {
+                document.getElementById('feedAmountInput').value = AppState.unit === 'oz' ? '1.7' : '50';
+                document.getElementById('feedDurationInput').value = '30';
+            } else {
+                document.getElementById('feedAmountInput').value = '';
+                document.getElementById('feedDurationInput').value = '';
+            }
             document.getElementById('pumpLeftAmountInput').value = '';
             document.getElementById('pumpRightAmountInput').value = '';
             document.getElementById('pumpTotalAmountDisplay').textContent = `0 ${AppState.unit}`;
@@ -3598,18 +4274,32 @@
                 logData.durationMinutes = parseFloat(document.getElementById('tummyDurationInput').value) || 5;
             }
 
-            if (editId) {
-                const index = AppState.logs.findIndex(l => l.id === editId);
-                if (index !== -1) AppState.logs[index] = logData;
-                showToast('Activity updated! ✏️', 'success');
-            } else {
-                AppState.logs.push(logData);
-                showToast('Activity logged! 🍼', 'success');
-            }
+            const finalizeSave = () => {
+                if (editId) {
+                    const index = AppState.logs.findIndex(l => l.id === editId);
+                    if (index !== -1) AppState.logs[index] = logData;
+                    showToast('Activity updated! ✏️', 'success');
+                } else {
+                    AppState.logs.push(logData);
+                    showToast('Activity logged! 🍼', 'success');
+                }
 
-            saveLogsToStorage();
-            logActivityModal.classList.add('hidden');
-            renderAll();
+                // If feeding was logged, schedule next feed timer 3 hours from feed end
+                if (logData.category === 'feeding') {
+                    const feedEndTime = logData.timestamp + ((logData.durationMinutes || 0) * 60 * 1000);
+                    scheduleNextFeed(feedEndTime);
+                }
+
+                saveLogsToStorage();
+                logActivityModal.classList.add('hidden');
+                renderAll();
+            };
+
+            if (selectedCat === 'feeding' && logData.subType === 'vitamins') {
+                checkVitaminSafety(finalizeSave, editId);
+            } else {
+                finalizeSave();
+            }
         };
 
         window.editLog = (id) => {
@@ -3699,12 +4389,19 @@
             document.getElementById('goalUnitLabel').textContent = AppState.unit;
             document.getElementById('pumpUnitLabel').textContent = `(${AppState.unit})`;
 
+            // Reactively update modal unit toggle button label
+            const toggleModalBtn = document.getElementById('toggleModalVolumeUnitBtn');
+            if (toggleModalBtn) {
+                toggleModalBtn.textContent = isMl ? 'Switch to oz' : 'Switch to mL';
+            }
+
             const chipContainer = document.getElementById('quickVolumeChips');
             if (AppState.unit === 'oz') {
                 chipContainer.innerHTML = `
                     <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">0.5 oz</button>
                     <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1 oz</button>
                     <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1.5 oz</button>
+                    <button type="button" onclick="setFeedAmount(50)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">1.7 oz</button>
                     <button type="button" onclick="setFeedAmount(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">2 oz</button>
                     <button type="button" onclick="setFeedAmount(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">3 oz</button>
                 `;
@@ -3713,6 +4410,7 @@
                     <button type="button" onclick="setFeedAmount(15)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">15 mL</button>
                     <button type="button" onclick="setFeedAmount(30)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">30 mL (1oz)</button>
                     <button type="button" onclick="setFeedAmount(45)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">45 mL (1.5oz)</button>
+                    <button type="button" onclick="setFeedAmount(50)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">50 mL (~1.7oz)</button>
                     <button type="button" onclick="setFeedAmount(60)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">60 mL (2oz)</button>
                     <button type="button" onclick="setFeedAmount(90)" class="px-2 py-1 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-lg text-[11px] font-bold">90 mL (3oz)</button>
                 `;
@@ -3721,9 +4419,11 @@
             const fLabel = document.getElementById('quickFormulaLabel');
             const bLabel = document.getElementById('quickBreastLabel');
             const pLabel = document.getElementById('quickPumpLabel');
-            if (fLabel) fLabel.textContent = AppState.unit === 'oz' ? '1.5 oz Bottle' : '45 mL Bottle';
-            if (bLabel) bLabel.textContent = AppState.unit === 'oz' ? '1.7 oz Feed' : '50 mL Feed';
-            if (pLabel) pLabel.textContent = AppState.unit === 'oz' ? '3.4 oz Total' : '100 mL Total';
+            const vLabel = document.getElementById('quickVitaminsLabel');
+            if (fLabel) fLabel.textContent = isMl ? '50 mL (30m)' : '1.7 oz (30m)';
+            if (bLabel) bLabel.textContent = isMl ? '50 mL (30m)' : '1.7 oz (30m)';
+            if (pLabel) pLabel.textContent = isMl ? '100 mL Total' : '3.4 oz Total';
+            if (vLabel) vLabel.textContent = isMl ? '15 mL (20m)' : '0.5 oz (20m)';
 
             updatePumpTotalDisplay();
         }
@@ -4076,9 +4776,18 @@
         };
 
         function updateBabyProfileHeader() {
-            const birthFormatted = formatDisplayDate(AppState.babyBirthDate);
-            const ageStr = getBabyAgeString(AppState.babyBirthDate);
-            document.getElementById('babyStatusSubtitle').textContent = `${AppState.babyName} • Born ${birthFormatted} (${ageStr})`;
+            if (!AppState.babyName && !AppState.babyBirthDate) {
+                document.getElementById('babyStatusSubtitle').textContent = "Baby • Tap ✏️ to set birthday & name";
+                return;
+            }
+            const name = AppState.babyName || 'Baby';
+            if (AppState.babyBirthDate) {
+                const birthFormatted = formatDisplayDate(AppState.babyBirthDate);
+                const ageStr = getBabyAgeString(AppState.babyBirthDate);
+                document.getElementById('babyStatusSubtitle').textContent = `${name} • Born ${birthFormatted} (${ageStr})`;
+            } else {
+                document.getElementById('babyStatusSubtitle').textContent = `${name} • Tap ✏️ to set birthday`;
+            }
         }
 
         // ==================== NIGHT VISION & THEME ====================
@@ -4110,6 +4819,7 @@
                 babyName: AppState.babyName,
                 babyBirthDate: AppState.babyBirthDate,
                 dailyFeedGoalMl: AppState.dailyFeedGoalMl,
+                feedReminder: AppState.feedReminder,
                 pumpReminder: AppState.pumpReminder,
                 logs: AppState.logs
             };
@@ -4141,6 +4851,13 @@
                         if (parsed.babyName) AppState.babyName = parsed.babyName;
                         if (parsed.babyBirthDate) AppState.babyBirthDate = parsed.babyBirthDate;
                         if (parsed.dailyFeedGoalMl) AppState.dailyFeedGoalMl = parsed.dailyFeedGoalMl;
+                        if (parsed.feedReminder) {
+                            AppState.feedReminder.lastFeedEndTime = parsed.feedReminder.lastFeedEndTime;
+                            AppState.feedReminder.intervalHours = parsed.feedReminder.intervalHours || 3.0;
+                            AppState.feedReminder.nextFeedTargetTime = parsed.feedReminder.nextFeedTargetTime;
+                            saveFeedReminderLocally();
+                            updateFeedCountdownUI();
+                        }
                         if (parsed.pumpReminder) {
                             AppState.pumpReminder.lastPumpStartTime = parsed.pumpReminder.lastPumpStartTime;
                             AppState.pumpReminder.intervalHours = parsed.pumpReminder.intervalHours || 3.0;
