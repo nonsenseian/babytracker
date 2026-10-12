@@ -69,23 +69,190 @@
             background: rgba(148, 163, 184, 1);
         }
         
-        /* Night Vision 3 AM Feed Mode */
-        body.night-vision {
+        /* ==================== VISUAL THEMES ENGINE ==================== */
+        
+        /* 1. Night Vision 3 AM Feed Mode */
+        body.night-vision,
+        body.theme-night-vision {
             background-color: #070709 !important;
             color: #ef4444 !important;
         }
         body.night-vision .bg-white,
         body.night-vision .bg-cream,
-        body.night-vision .dark\:bg-nightCard {
+        body.night-vision .dark\:bg-nightCard,
+        body.theme-night-vision .bg-white,
+        body.theme-night-vision .bg-cream,
+        body.theme-night-vision .dark\:bg-nightCard {
             background-color: #120909 !important;
             border-color: #3b1111 !important;
             color: #f87171 !important;
         }
         body.night-vision button,
         body.night-vision input,
-        body.night-vision select {
+        body.night-vision select,
+        body.theme-night-vision button,
+        body.theme-night-vision input,
+        body.theme-night-vision select {
             border-color: #451a1a !important;
             color: #fca5a5 !important;
+        }
+
+        /* 2. E-Ink Monochrome Paper Mode */
+        body.theme-e-ink {
+            background-color: #f5f5f2 !important;
+            color: #111111 !important;
+            filter: grayscale(100%);
+        }
+        body.theme-e-ink.dark {
+            background-color: #18181b !important;
+            color: #f4f4f5 !important;
+            filter: grayscale(100%);
+        }
+        body.theme-e-ink .bg-white,
+        body.theme-e-ink .bg-cream,
+        body.theme-e-ink .cute-card,
+        body.theme-e-ink section,
+        body.theme-e-ink header,
+        body.theme-e-ink footer,
+        body.theme-e-ink .dark\:bg-nightCard {
+            background-color: #ffffff !important;
+            border-color: #18181b !important;
+            border-width: 1.5px !important;
+            box-shadow: 2px 2px 0px #18181b !important;
+            color: #111111 !important;
+        }
+        body.theme-e-ink.dark .bg-white,
+        body.theme-e-ink.dark .bg-cream,
+        body.theme-e-ink.dark .cute-card,
+        body.theme-e-ink.dark section,
+        body.theme-e-ink.dark header,
+        body.theme-e-ink.dark footer,
+        body.theme-e-ink.dark .dark\:bg-nightCard {
+            background-color: #27272a !important;
+            border-color: #71717a !important;
+            box-shadow: 2px 2px 0px #71717a !important;
+            color: #f4f4f5 !important;
+        }
+        body.theme-e-ink button {
+            border-color: #18181b !important;
+            border-width: 1.5px !important;
+            color: #111111 !important;
+            box-shadow: 1px 1px 0px #18181b !important;
+            background-image: none !important;
+        }
+        body.theme-e-ink button:hover {
+            background-color: #e4e4e7 !important;
+        }
+        body.theme-e-ink button.bg-gradient-to-r,
+        body.theme-e-ink button.bg-amber-500,
+        body.theme-e-ink button.bg-emerald-500,
+        body.theme-e-ink button.bg-sky-500,
+        body.theme-e-ink button.bg-rose-500 {
+            background-color: #18181b !important;
+            color: #ffffff !important;
+            background-image: none !important;
+        }
+        body.theme-e-ink input,
+        body.theme-e-ink select,
+        body.theme-e-ink textarea {
+            border-color: #18181b !important;
+            border-width: 1.5px !important;
+            background-color: #ffffff !important;
+            color: #111111 !important;
+        }
+        body.theme-e-ink.dark input,
+        body.theme-e-ink.dark select,
+        body.theme-e-ink.dark textarea {
+            border-color: #71717a !important;
+            background-color: #27272a !important;
+            color: #f4f4f5 !important;
+        }
+        body.theme-e-ink .timer-card-active {
+            border: 3px solid #000000 !important;
+            box-shadow: 4px 4px 0px #000000 !important;
+            background-color: #f4f4f5 !important;
+        }
+        body.theme-e-ink .font-mono {
+            font-weight: 800 !important;
+            letter-spacing: -0.03em !important;
+            color: #000000 !important;
+        }
+        body.theme-e-ink.dark .font-mono {
+            color: #ffffff !important;
+        }
+        body.theme-e-ink .rounded-2xl,
+        body.theme-e-ink .rounded-xl,
+        body.theme-e-ink .rounded-3xl {
+            border-radius: 6px !important;
+        }
+
+        /* 3. Cutesy Pastel Theme */
+        body.theme-cutesy {
+            background: linear-gradient(135deg, #fff0f5 0%, #fffbf0 50%, #f0fdf4 100%) !important;
+            color: #4a5568 !important;
+        }
+        body.theme-cutesy .bg-white,
+        body.theme-cutesy .cute-card,
+        body.theme-cutesy section,
+        body.theme-cutesy header {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border-color: #fbcfe8 !important;
+            border-width: 2px !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.15) !important;
+        }
+        body.theme-cutesy button {
+            border-radius: 1rem !important;
+        }
+        body.theme-cutesy .timer-card-active {
+            border-color: #f472b6 !important;
+            box-shadow: 0 12px 30px -4px rgba(244, 114, 182, 0.3) !important;
+        }
+
+        /* 4. Retro Digital Clock (Nightstand LED) */
+        body.theme-retro-digital {
+            background-color: #050a0e !important;
+            color: #10b981 !important;
+        }
+        body.theme-retro-digital .bg-white,
+        body.theme-retro-digital .bg-cream,
+        body.theme-retro-digital .cute-card,
+        body.theme-retro-digital section,
+        body.theme-retro-digital header,
+        body.theme-retro-digital footer,
+        body.theme-retro-digital .dark\:bg-nightCard {
+            background-color: #0b1319 !important;
+            border-color: #064e3b !important;
+            border-width: 1.5px !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+        }
+        body.theme-retro-digital .font-mono,
+        body.theme-retro-digital .font-outfit {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+            color: #10b981 !important;
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.6) !important;
+        }
+        body.theme-retro-digital button {
+            border-color: #059669 !important;
+            color: #34d399 !important;
+            background-color: #06241b !important;
+            background-image: none !important;
+            text-shadow: 0 0 4px rgba(16, 185, 129, 0.5) !important;
+        }
+        body.theme-retro-digital button:hover {
+            background-color: #047857 !important;
+            color: #ffffff !important;
+        }
+        body.theme-retro-digital input,
+        body.theme-retro-digital select {
+            background-color: #031510 !important;
+            border-color: #059669 !important;
+            color: #34d399 !important;
+        }
+        body.theme-retro-digital .timer-card-active {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
         }
 
         /* Cute Card Hover Transitions */
@@ -210,10 +377,24 @@
                     <span id="voiceBtnLabel">Voice Mode</span>
                 </button>
 
-                <!-- 3 AM Night Mode Toggle -->
-                <button id="nightFeedToggle" class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs shadow-sm transition-all" title="Toggle 3 AM Red Night-Vision Mode">
-                    🌙
-                </button>
+                <!-- Visual Styles & Night Modes Dropdown Selector -->
+                <div class="relative" id="themeDropdownContainer">
+                    <button id="nightFeedToggle" class="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold shadow-sm transition-all cursor-pointer" title="Switch Theme & Visual Styles">
+                        <span id="currentThemeIcon" class="text-xs">🌙</span>
+                        <span id="currentThemeLabel" class="text-xs font-semibold">Styles</span>
+                        <span class="text-[10px] text-slate-400">▾</span>
+                    </button>
+                    <!-- Floating Dropdown Menu -->
+                    <div id="themeDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50 space-y-1">
+                        <div class="px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <span>Visual Styles</span>
+                            <span class="text-[9px] text-amber-500 font-mono font-bold">5 Themes</span>
+                        </div>
+                        <div id="themeOptionsList" class="space-y-1 pt-1">
+                            <!-- Populated dynamically by ThemeEngine -->
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Dark / Light Theme Toggle -->
                 <button id="themeToggleBtn" class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs shadow-sm transition-all" title="Toggle Light/Dark Theme">
@@ -4016,21 +4197,52 @@
                     return;
                 }
 
-                // === 4. NIGHT VISION & CONTROLS ===
-                if (command.includes('night mode on') || command.includes('red mode on') || command.includes('turn on night vision')) {
-                    if (!document.body.classList.contains('night-vision')) {
-                        document.getElementById('nightFeedToggle').click();
-                        this.speak('3 AM Red Night-Vision enabled.');
+                // === 4. THEME & DISPLAY MODES ===
+                if (command.includes('night mode on') || command.includes('red mode on') || command.includes('turn on night vision') || command.includes('red mode')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('night-vision');
+                    } else {
+                        document.body.classList.add('night-vision');
                     }
+                    this.speak('3 AM Red Night-Vision enabled.');
                     AudioSynth.playChime('success');
                     return;
                 }
 
-                if (command.includes('night mode off') || command.includes('red mode off') || command.includes('turn off night vision')) {
-                    if (document.body.classList.contains('night-vision')) {
-                        document.getElementById('nightFeedToggle').click();
-                        this.speak('Night-Vision disabled.');
+                if (command.includes('e ink') || command.includes('e-ink') || command.includes('paper mode') || command.includes('greyscale') || command.includes('grayscale')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('e-ink');
                     }
+                    this.speak('E-Ink monochrome paper mode enabled.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
+                if (command.includes('cutesy') || command.includes('pastel mode') || command.includes('cutesy theme')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('cutesy');
+                    }
+                    this.speak('Cutesy pastel theme enabled.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
+                if (command.includes('retro') || command.includes('digital clock') || command.includes('clock mode')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('retro-digital');
+                    }
+                    this.speak('Retro digital clock theme enabled.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
+                if (command.includes('night mode off') || command.includes('red mode off') || command.includes('turn off night vision') || command.includes('daylight') || command.includes('default theme') || command.includes('normal mode')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('default');
+                    } else {
+                        document.body.classList.remove('night-vision');
+                    }
+                    this.speak('Daylight theme restored.');
                     AudioSynth.playChime('success');
                     return;
                 }
@@ -5049,15 +5261,205 @@
             }
         }
 
-        // ==================== NIGHT VISION & THEME ====================
+        // ==================== EXTENSIBLE VISUAL THEMES ENGINE ====================
 
-        const nightFeedToggle = document.getElementById('nightFeedToggle');
-        nightFeedToggle.onclick = () => {
-            document.body.classList.toggle('night-vision');
-            const isRed = document.body.classList.contains('night-vision');
-            nightFeedToggle.textContent = isRed ? '🔴' : '🌙';
-            showToast(isRed ? '3 AM Red Night-Vision enabled 🌙' : 'Night-Vision disabled', 'info');
+        const ThemeEngine = {
+            themes: [
+                {
+                    id: 'default',
+                    name: 'Daylight Modern',
+                    icon: '☀️',
+                    badge: 'Standard',
+                    desc: 'Clean modern pastel theme for daytime cares'
+                },
+                {
+                    id: 'night-vision',
+                    name: '3 AM Red Night-Vision',
+                    icon: '🌙',
+                    badge: 'Sleep Guard',
+                    desc: 'Ultra-low glare crimson red to protect baby melatonin'
+                },
+                {
+                    id: 'e-ink',
+                    name: 'E-Ink Monochrome',
+                    icon: '📖',
+                    badge: 'Paper Glare-Free',
+                    desc: 'High contrast black & white paper style with ink borders'
+                },
+                {
+                    id: 'cutesy',
+                    name: 'Cutesy Pastel',
+                    icon: '🧸',
+                    badge: 'Playful',
+                    desc: 'Soft strawberry milk & marshmallow tones'
+                },
+                {
+                    id: 'retro-digital',
+                    name: 'Retro Digital Clock',
+                    icon: '📟',
+                    badge: 'Nightstand LED',
+                    desc: 'Glowing green phosphorescent digital nightstand clock'
+                }
+            ],
+
+            currentTheme: 'default',
+
+            init() {
+                const saved = localStorage.getItem('bt_visual_theme') || 'default';
+                this.setTheme(saved, false);
+                this.renderDropdown();
+                this.bindEvents();
+            },
+
+            // Easy 1-call registration for any future theme
+            registerTheme(themeObj) {
+                if (!themeObj || !themeObj.id) return;
+                const existingIdx = this.themes.findIndex(t => t.id === themeObj.id);
+                if (existingIdx >= 0) {
+                    this.themes[existingIdx] = themeObj;
+                } else {
+                    this.themes.push(themeObj);
+                }
+                this.renderDropdown();
+            },
+
+            setTheme(themeId, notify = true) {
+                const theme = this.themes.find(t => t.id === themeId) || this.themes[0];
+                this.currentTheme = theme.id;
+                localStorage.setItem('bt_visual_theme', theme.id);
+
+                // Strip any previous theme-* classes and legacy night-vision class
+                this.themes.forEach(t => {
+                    document.body.classList.remove(`theme-${t.id}`);
+                });
+                document.body.classList.remove('night-vision');
+
+                // Apply active theme
+                if (theme.id !== 'default') {
+                    document.body.classList.add(`theme-${theme.id}`);
+                    if (theme.id === 'night-vision') {
+                        document.body.classList.add('night-vision');
+                    }
+                }
+                document.body.setAttribute('data-theme', theme.id);
+
+                // Update UI button icon and label
+                const iconEl = document.getElementById('currentThemeIcon');
+                const labelEl = document.getElementById('currentThemeLabel');
+                if (iconEl) iconEl.textContent = theme.icon;
+                if (labelEl) labelEl.textContent = theme.name.split(' ')[0];
+
+                this.updateDropdownActiveState();
+                this.closeDropdown();
+
+                if (notify) {
+                    showToast(`${theme.icon} ${theme.name} enabled`, 'info');
+                }
+            },
+
+            toggleDropdown() {
+                const menu = document.getElementById('themeDropdownMenu');
+                if (!menu) return;
+                const isHidden = menu.classList.contains('hidden');
+                if (isHidden) {
+                    this.openDropdown();
+                } else {
+                    this.closeDropdown();
+                }
+            },
+
+            openDropdown() {
+                const menu = document.getElementById('themeDropdownMenu');
+                if (menu) {
+                    menu.classList.remove('hidden');
+                    this.updateDropdownActiveState();
+                }
+            },
+
+            closeDropdown() {
+                const menu = document.getElementById('themeDropdownMenu');
+                if (menu) menu.classList.add('hidden');
+            },
+
+            renderDropdown() {
+                const list = document.getElementById('themeOptionsList');
+                if (!list) return;
+                list.innerHTML = '';
+
+                this.themes.forEach(theme => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `w-full flex items-center justify-between p-2 rounded-xl text-left transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 ${this.currentTheme === theme.id ? 'bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60' : 'border border-transparent'}`;
+                    btn.dataset.themeId = theme.id;
+
+                    btn.innerHTML = `
+                        <div class="flex items-center space-x-2.5 min-w-0 pr-2">
+                            <span class="text-lg shrink-0">${theme.icon}</span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate">
+                                    <span>${theme.name}</span>
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono shrink-0">${theme.badge}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate">${theme.desc}</p>
+                            </div>
+                        </div>
+                        <span class="theme-check text-emerald-500 font-black text-xs ${this.currentTheme === theme.id ? '' : 'hidden'}">✓</span>
+                    `;
+
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.setTheme(theme.id, true);
+                    };
+
+                    list.appendChild(btn);
+                });
+            },
+
+            updateDropdownActiveState() {
+                const list = document.getElementById('themeOptionsList');
+                if (!list) return;
+                const buttons = list.querySelectorAll('button[data-theme-id]');
+                buttons.forEach(btn => {
+                    const tid = btn.dataset.themeId;
+                    const isSelected = tid === this.currentTheme;
+                    const check = btn.querySelector('.theme-check');
+                    if (check) check.classList.toggle('hidden', !isSelected);
+                    if (isSelected) {
+                        btn.className = 'w-full flex items-center justify-between p-2 rounded-xl text-left transition-colors cursor-pointer bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60';
+                    } else {
+                        btn.className = 'w-full flex items-center justify-between p-2 rounded-xl text-left transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent';
+                    }
+                });
+            },
+
+            bindEvents() {
+                const toggleBtn = document.getElementById('nightFeedToggle');
+                if (toggleBtn) {
+                    toggleBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.toggleDropdown();
+                    };
+                }
+
+                // Close on outside click
+                document.addEventListener('click', (e) => {
+                    const container = document.getElementById('themeDropdownContainer');
+                    if (container && !container.contains(e.target)) {
+                        this.closeDropdown();
+                    }
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeDropdown();
+                    }
+                });
+            }
         };
+
+        // Initialize Theme Engine
+        ThemeEngine.init();
 
         const themeToggleBtn = document.getElementById('themeToggleBtn');
         themeToggleBtn.onclick = () => {
