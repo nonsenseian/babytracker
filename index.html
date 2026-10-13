@@ -218,6 +218,24 @@
             box-shadow: 0 12px 30px -4px rgba(244, 114, 182, 0.3) !important;
         }
 
+        /* Specifically in Cutesy Pastel Theme: Render cute Apple-style emojis while preserving SVGs in all other themes */
+        .theme-icon-emoji {
+            display: none !important;
+        }
+        .theme-icon-svg {
+            display: inline-flex;
+        }
+        body.theme-cutesy .theme-icon-svg,
+        body[data-theme="cutesy"] .theme-icon-svg {
+            display: none !important;
+        }
+        body.theme-cutesy .theme-icon-emoji,
+        body[data-theme="cutesy"] .theme-icon-emoji {
+            display: inline-flex !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+            line-height: 1;
+        }
+
         /* 4. Retro Digital Clock (Nightstand LED) */
         body.theme-retro-digital {
             background-color: #050a0e !important;
@@ -421,6 +439,15 @@
             animation: spinSlow 0.8s linear infinite;
         }
 
+        @keyframes pinShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: pinShake 0.4s ease-in-out;
+        }
+
         /* Active Timer Card Expansion & Prominence */
         .timer-card-active {
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
@@ -490,33 +517,11 @@
 
             <!-- Right: Action Buttons & Utilities -->
             <div class="flex items-center flex-wrap gap-2">
-                <!-- Unit Switcher mL vs oz -->
-                <div class="flex items-center bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-xl p-1 shadow-sm text-xs font-bold">
-                    <button id="unitMlBtn" class="px-2.5 py-1 rounded-lg transition-colors bg-amber-500 text-white shadow-xs">
-                        mL
-                    </button>
-                    <button id="unitOzBtn" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                        oz
-                    </button>
-                </div>
-
-                <!-- Instant Cloud Sync Button -->
-                <button id="syncNowBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/50 active:scale-95 transition-all" title="Force sync latest updates with cloud">
-                    <span id="syncSpinIcon" class="text-xs">🔄</span>
-                    <span id="syncBtnLabel">Sync</span>
-                </button>
-
-                <!-- Sync / Partner Sharing Button -->
-                <button id="sharePartnerBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all">
+                <!-- Invite Collaborators (formerly Share Room) -->
+                <button id="sharePartnerBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all cursor-pointer" title="Invite Collaborators & Realtime Cloud Sync">
                     <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Share Room</span>
+                    <span>Invite Collaborators</span>
                     <span id="roomCodeBadge" class="hidden sm:inline text-[10px] bg-sky-200/60 dark:bg-sky-800/60 px-1.5 py-0.5 rounded-md font-mono">Live</span>
-                </button>
-
-                <!-- Export to Apple Notes -->
-                <button id="exportNotesBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs font-bold shadow-sm hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-all" title="Export clean formatted text for Apple Notes">
-                    <span>📋</span>
-                    <span>Apple Notes</span>
                 </button>
 
                 <!-- Hands-Free Nightstand Voice Assistant Toggle -->
@@ -544,6 +549,12 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Privacy PIN Lock Padlock Button (Unlocked when no PIN set, Locked when PIN set) -->
+                <button id="pinLockBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer" title="Privacy PIN Lock (Tap to setup or lock)">
+                    <span id="pinLockIcon" class="text-sm">🔓</span>
+                    <span id="pinLockLabel" class="hidden sm:inline">PIN</span>
+                </button>
             </div>
         </div>
     </header>
@@ -868,10 +879,13 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3.5">
                 <!-- 1. Pee -->
                 <button onclick="quickLogWithFeedback('pee', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-2 border-amber-200/90 dark:border-amber-800/60 active:scale-95 active:border-amber-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="currentColor" fill-opacity="0.25"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-amber-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="currentColor" fill-opacity="0.25"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">💧</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-amber-900 dark:text-amber-100 tracking-tight">Pee</span>
                     <span class="text-[11px] font-semibold text-amber-700 dark:text-amber-300/80">Wet Diaper</span>
@@ -879,11 +893,14 @@
 
                 <!-- 2. Poop -->
                 <button onclick="quickLogWithFeedback('poop', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-orange-50/90 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-900/40 border-2 border-orange-200/90 dark:border-orange-800/60 active:scale-95 active:border-orange-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 6h16c0 6-3 13-8 13S4 12 4 6z" fill="currentColor" fill-opacity="0.25"/>
-                            <path d="M4 9h4"/><path d="M16 9h4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-orange-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 6h16c0 6-3 13-8 13S4 12 4 6z" fill="currentColor" fill-opacity="0.25"/>
+                                <path d="M4 9h4"/><path d="M16 9h4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">💩</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-orange-900 dark:text-orange-100 tracking-tight">Poop</span>
                     <span class="text-[11px] font-semibold text-orange-700 dark:text-orange-300/80">Dirty Diaper</span>
@@ -891,10 +908,13 @@
 
                 <!-- 3. Formula -->
                 <button onclick="quickLogWithFeedback('formula', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-sky-50/90 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/40 border-2 border-sky-200/90 dark:border-sky-800/60 active:scale-95 active:border-sky-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 2h6v2H9z"/><path d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity="0.25"/><line x1="10" y1="13" x2="14" y2="13"/><line x1="10" y1="16" x2="13" y2="16"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-sky-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 2h6v2H9z"/><path d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity="0.25"/><line x1="10" y1="13" x2="14" y2="13"/><line x1="10" y1="16" x2="13" y2="16"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🍼</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-sky-900 dark:text-sky-100 tracking-tight">Formula</span>
                     <span id="quickFormulaLabel" class="text-[11px] font-semibold text-sky-700 dark:text-sky-300/80">50 mL (30m)</span>
@@ -902,10 +922,13 @@
 
                 <!-- 4. Breastmilk -->
                 <button onclick="quickLogWithFeedback('breastmilk', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-pink-50/90 dark:bg-pink-950/30 hover:bg-pink-100 dark:hover:bg-pink-900/40 border-2 border-pink-200/90 dark:border-pink-800/60 active:scale-95 active:border-pink-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-pink-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="currentColor" fill-opacity="0.25"/><circle cx="12" cy="10" r="2" fill="currentColor"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-pink-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="currentColor" fill-opacity="0.25"/><circle cx="12" cy="10" r="2" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🤱</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-pink-900 dark:text-pink-100 tracking-tight">Breast</span>
                     <span id="quickBreastLabel" class="text-[11px] font-semibold text-pink-700 dark:text-pink-300/80">50 mL (30m)</span>
@@ -913,10 +936,13 @@
 
                 <!-- 5. Pump -->
                 <button onclick="quickLogWithFeedback('pump', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-purple-50/90 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 border-2 border-purple-200/90 dark:border-purple-800/60 active:scale-95 active:border-purple-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M7 3h4v4H7z"/><path d="M11 5h6l3 4v2h-9"/><rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.25"/><line x1="9" y1="15" x2="13" y2="15"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-purple-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 3h4v4H7z"/><path d="M11 5h6l3 4v2h-9"/><rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.25"/><line x1="9" y1="15" x2="13" y2="15"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🥛</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-purple-900 dark:text-purple-100 tracking-tight">Pump</span>
                     <span id="quickPumpLabel" class="text-[11px] font-semibold text-purple-700 dark:text-purple-300/80">100 mL Total</span>
@@ -924,10 +950,13 @@
 
                 <!-- 6. Sleep -->
                 <button onclick="quickLogWithFeedback('sleep', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border-2 border-indigo-200/90 dark:border-indigo-800/60 active:scale-95 active:border-indigo-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" fill="currentColor" fill-opacity="0.25"/><path d="M19 3v4"/><path d="M21 5h-4"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-indigo-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" fill="currentColor" fill-opacity="0.25"/><path d="M19 3v4"/><path d="M21 5h-4"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">😴</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-indigo-900 dark:text-indigo-100 tracking-tight">Sleep</span>
                     <span class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300/80">1h Quick Nap</span>
@@ -935,10 +964,13 @@
 
                 <!-- 7. Vitamins -->
                 <button onclick="quickLogWithFeedback('vitamins', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-teal-50/90 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/40 border-2 border-teal-200/90 dark:border-teal-800/60 active:scale-95 active:border-teal-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log Daily Vitamins (20 mL milk, 20m)">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-teal-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" fill="currentColor" fill-opacity="0.25"/><path d="m8.5 8.5 7 7"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-teal-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" fill="currentColor" fill-opacity="0.25"/><path d="m8.5 8.5 7 7"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">💊</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-teal-900 dark:text-teal-100 tracking-tight">Vitamins</span>
                     <span id="quickVitaminsLabel" class="text-[11px] font-semibold text-teal-700 dark:text-teal-300/80">20 mL (20m)</span>
@@ -946,10 +978,13 @@
 
                 <!-- 8. Tummy Time -->
                 <button onclick="quickLogWithFeedback('tummy', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border-2 border-emerald-200/90 dark:border-emerald-800/60 active:scale-95 active:border-emerald-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log 1 Minute Tummy Time">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <ellipse cx="12" cy="13" rx="6" ry="4" fill="currentColor" fill-opacity="0.25"/><circle cx="19" cy="13" r="2.5"/><path d="M8 9l-2-2M16 9l2-2M8 17l-2 2M16 17l2 2"/>
-                        </svg>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="theme-icon-svg text-emerald-500">
+                            <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="13" rx="6" ry="4" fill="currentColor" fill-opacity="0.25"/><circle cx="19" cy="13" r="2.5"/><path d="M8 9l-2-2M16 9l2-2M8 17l-2 2M16 17l2 2"/>
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🐢</span>
                     </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-emerald-900 dark:text-emerald-100 tracking-tight">Tummy</span>
                     <span class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300/80">1 min</span>
@@ -999,6 +1034,84 @@
                         <span>🎹</span>
                         <span>Piano Lullabies</span>
                     </button>
+                    <!-- Record your own audio button with microphone emoji next to piano lullabies -->
+                    <button type="button" id="recordOwnAudioBtn" class="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 text-purple-800 dark:text-purple-200 text-xs font-bold hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-all flex items-center gap-1.5 active:scale-95 shadow-xs cursor-pointer" title="Record your own soothing audio (2 minute limit)">
+                        <span>🎙️</span>
+                        <span>Record your own audio</span>
+                    </button>
+                </div>
+
+                <!-- Custom Audio Recording Studio Panel -->
+                <div id="customAudioStudioCard" class="hidden p-3.5 sm:p-4 rounded-2xl bg-purple-50/80 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">🎙️</span>
+                            <div>
+                                <h4 class="text-xs font-extrabold uppercase tracking-wider text-purple-900 dark:text-purple-200">
+                                    Custom Voice & Audio Studio
+                                </h4>
+                                <span class="text-[10px] text-purple-700/80 dark:text-purple-400">
+                                    2-minute max hard cap • Stored locally in browser IndexedDB
+                                </span>
+                            </div>
+                        </div>
+                        <span id="recordingBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-300 animate-pulse">
+                            🔴 Recording
+                        </span>
+                    </div>
+
+                    <!-- Record Controls (Start, Stop, Live Timer, Progress) -->
+                    <div id="recordingControlsSection" class="space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" id="startRecordAudioBtn" class="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-700 hover:to-rose-700 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+                                <span>🔴</span>
+                                <span>Start Recording</span>
+                            </button>
+                            <button type="button" id="stopRecordAudioBtn" disabled class="px-3.5 py-2 bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-not-allowed">
+                                <span>⏹️</span>
+                                <span>Stop & Save</span>
+                            </button>
+                            <div class="ml-auto font-mono text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-nightBg px-3 py-1.5 rounded-xl border border-purple-200/60 dark:border-purple-800/60" id="recordTimerDisplay">
+                                00:00 / 02:00
+                            </div>
+                        </div>
+                        <!-- Recording Progress Bar (0 to 120s) -->
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                            <div id="recordProgressBar" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Saved Playback Controls (Play, Loop Toggle, Volume Slider, Delete) -->
+                    <div id="savedAudioControlsSection" class="hidden p-3 bg-white dark:bg-nightBg border border-purple-200/60 dark:border-purple-800/60 rounded-xl space-y-2.5">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center space-x-2">
+                                <button type="button" id="playCustomAudioBtn" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
+                                    <span id="playCustomAudioIcon">▶️</span>
+                                    <span id="playCustomAudioText">Play Audio</span>
+                                </button>
+                                <button type="button" id="loopCustomAudioBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-purple-300 dark:border-purple-700 bg-purple-100 text-purple-900 dark:bg-purple-900/50 dark:text-purple-200 cursor-pointer" title="Toggle Loop Playback">
+                                    <span id="loopCustomAudioText">🔁 Loop: ON</span>
+                                </button>
+                                <button type="button" id="deleteCustomAudioBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-800/50 transition-all flex items-center gap-1 cursor-pointer" title="Delete recorded audio">
+                                    <span>🗑️</span>
+                                    <span>Delete</span>
+                                </button>
+                            </div>
+                            <span id="customAudioTimestampLabel" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                Saved Recording
+                            </span>
+                        </div>
+
+                        <!-- Volume Slider -->
+                        <div class="flex items-center space-x-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+                            <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                <span>🔊</span> Volume:
+                            </span>
+                            <input type="range" id="customAudioVolumeSlider" min="0" max="100" value="80" class="flex-1 accent-purple-600 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer">
+                            <span id="customAudioVolumeLabel" class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 w-9 text-right">80%</span>
+                        </div>
+                    </div>
+                    <audio id="customAudioPlayer" loop class="hidden"></audio>
                 </div>
 
                 <!-- Custom URL Input -->
@@ -1090,13 +1203,26 @@
             <!-- 1. Feeding Tracker & Progress Bar -->
             <div class="bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-2xl p-5 shadow-sm cute-card flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                            🍼 Feed Tracker
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5 pt-1">
+                            <span class="theme-icon-svg">🍼</span>
+                            <span class="theme-icon-emoji text-sm" aria-hidden="true">🍼</span>
+                            <span>Feed Tracker</span>
                         </span>
-                        <button id="setFeedGoalBtn" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
-                            🎯 Set Goal
-                        </button>
+                        <div class="flex flex-col items-end gap-1.5">
+                            <button id="setFeedGoalBtn" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer">
+                                🎯 Set Goal
+                            </button>
+                            <!-- Unit Switcher mL vs oz moved underneath Set Goal -->
+                            <div class="flex items-center bg-slate-100 dark:bg-nightBg border border-amber-200/70 dark:border-nightBorder rounded-lg p-0.5 shadow-xs text-[10px] font-bold">
+                                <button id="unitMlBtn" class="px-2 py-0.5 rounded-md transition-colors bg-amber-500 text-white shadow-xs cursor-pointer">
+                                    mL
+                                </button>
+                                <button id="unitOzBtn" class="px-2 py-0.5 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                                    oz
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex items-baseline justify-between mt-1">
@@ -1246,6 +1372,36 @@
 
         </div>
 
+        <!-- Baby Appointments & External Calendar Sync (Apple & Google Calendar) -->
+        <section id="appointmentsSection" class="bg-white dark:bg-nightCard border border-amber-200/70 dark:border-nightBorder rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xl shrink-0">
+                        📅
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+                            Baby Appointments & Calendar Sync
+                            <span id="appointmentsCountBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border border-blue-300">
+                                0 Upcoming
+                            </span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Pediatrician checkups, vaccines & milestones • Syncs to Apple & Google Calendar across partners
+                        </p>
+                    </div>
+                </div>
+                <button type="button" id="openAddAppointmentModalBtn" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span>➕</span>
+                    <span>Add Appointment</span>
+                </button>
+            </div>
+            <!-- Dynamic Appointments Cards Container -->
+            <div id="appointmentsList" class="space-y-2.5 pt-1">
+                <!-- Populated dynamically by CalendarSyncEngine -->
+            </div>
+        </section>
+
         <!-- 24-Hour Visual Timeline Ribbon -->
         <section class="bg-white dark:bg-nightCard border border-amber-100 dark:border-nightBorder rounded-2xl p-4 sm:p-5 shadow-sm cute-card">
             <div class="flex items-center justify-between mb-2">
@@ -1341,9 +1497,19 @@
             <div>
                 Built with ❤️ for new parents • <a href="/home" class="text-amber-600 dark:text-amber-400 font-semibold hover:underline">Nonsenseian Tools</a>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="backupJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200">💾 Backup Data</button>
-                <button id="restoreJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200">📂 Restore Data</button>
+            <div class="flex items-center flex-wrap gap-4">
+                <button id="exportNotesBtn" class="hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer" title="Import notes or export clean text for Apple Notes">
+                    <span>📝</span>
+                    <span>Import Text Notes</span>
+                </button>
+                <button id="backupJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer">
+                    <span>💾</span>
+                    <span>Backup Data</span>
+                </button>
+                <button id="restoreJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer">
+                    <span>📂</span>
+                    <span>Restore Data</span>
+                </button>
                 <input type="file" id="restoreFileInput" class="hidden" accept=".json">
             </div>
         </div>
@@ -1783,42 +1949,233 @@
         </div>
     </div>
 
-    <!-- 3. Apple Notes Export Modal -->
+    <!-- 3. Text Notes Modal (Import Text Notes & Apple Notes Export) -->
     <div id="exportNotesModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
-            <button id="closeExportModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+            <button id="closeExportModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer">
                 ✕
             </button>
 
             <div class="flex items-center space-x-3 mb-4">
                 <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-xl">
-                    📋
+                    📝
                 </div>
                 <div>
                     <h3 class="text-xl font-extrabold font-outfit text-slate-900 dark:text-white">
-                        Export for Apple Notes
+                        Text Notes & Summary
                     </h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400">
-                        Formatted clean text ready to paste directly into Notes app
+                        Import notes from clipboard or export clean text for Apple Notes
                     </p>
                 </div>
             </div>
 
-            <div class="space-y-3">
-                <div class="relative">
-                    <textarea id="notesPreviewTextarea" rows="12" readonly class="w-full font-mono text-xs p-3.5 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl text-slate-800 dark:text-slate-200 focus:outline-none"></textarea>
-                </div>
+            <!-- Tab Switcher -->
+            <div class="flex items-center bg-slate-100 dark:bg-nightBg p-1 rounded-2xl mb-4 border border-slate-200 dark:border-nightBorder">
+                <button type="button" id="notesImportTabBtn" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white dark:bg-nightCard text-slate-900 dark:text-white shadow-xs">
+                    📥 Import Text Notes
+                </button>
+                <button type="button" id="notesExportTabBtn" class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+                    📋 Export for Apple Notes
+                </button>
+            </div>
 
+            <!-- Tab 1: Import Text Notes -->
+            <div id="notesImportTabContent" class="space-y-3">
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Paste notes from Apple Notes, text messages, or physical logs. Our parser extracts times, feed volumes (mL/oz), diapers, and sleep into BabyTracker.
+                </p>
+                <textarea id="importNotesTextarea" rows="8" placeholder="e.g.&#10;• 09:30 PM: Formula 60 mL - Fed well&#10;• 11:15 AM: Wet Diaper&#10;• 02:00 PM: Nap for 45 min&#10;• 05:00 PM: Breastmilk 80 mL" class="w-full font-mono text-xs p-3.5 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                <button type="button" id="executeImportNotesBtn" class="w-full py-3 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 active:scale-95 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>📥</span>
+                    <span>Parse & Import Notes into BabyTracker</span>
+                </button>
+            </div>
+
+            <!-- Tab 2: Export for Apple Notes -->
+            <div id="notesExportTabContent" class="hidden space-y-3">
+                <div class="relative">
+                    <textarea id="notesPreviewTextarea" rows="10" readonly class="w-full font-mono text-xs p-3.5 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl text-slate-800 dark:text-slate-200 focus:outline-none"></textarea>
+                </div>
                 <div class="flex items-center space-x-2">
-                    <button id="copyNotesTextBtn" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
+                    <button type="button" id="copyNotesTextBtn" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
                         <span>📋</span>
                         <span id="copyNotesBtnText">Copy to Clipboard</span>
                     </button>
-                    <button id="nativeShareNotesBtn" class="py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-all" title="Share via iOS Sheet / Apple Notes">
+                    <button type="button" id="nativeShareNotesBtn" class="py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-all cursor-pointer" title="Share via iOS Sheet / Apple Notes">
                         📤 Share
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 8. Baby Appointment Modal -->
+    <div id="appointmentModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-blue-200/80 dark:border-nightBorder rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
+            <button id="closeAppointmentModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer">
+                ✕
+            </button>
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 flex items-center justify-center text-xl">
+                    📅
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold font-outfit text-slate-900 dark:text-white" id="appointmentModalTitle">
+                        Add Baby Appointment
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        1-tap sync to Apple & Google Calendar
+                    </p>
+                </div>
+            </div>
+            <form id="appointmentForm" class="space-y-3.5">
+                <input type="hidden" id="editAppointmentId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Appointment Title</label>
+                    <input type="text" id="appointmentTitleInput" required placeholder="e.g. 2-Month Well-Baby & Vaccines" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Date</label>
+                        <input type="date" id="appointmentDateInput" required class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Time</label>
+                        <input type="time" id="appointmentTimeInput" required class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Duration</label>
+                        <select id="appointmentDurationSelect" class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="15">15 min</option>
+                            <option value="30" selected>30 min</option>
+                            <option value="45">45 min</option>
+                            <option value="60">1 hour</option>
+                            <option value="90">1.5 hours</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Location / Clinic</label>
+                        <input type="text" id="appointmentLocationInput" placeholder="e.g. Pediatric Clinic Room 3B" class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Notes / Questions for Doctor</label>
+                    <textarea id="appointmentNotesInput" rows="2" placeholder="e.g. Ask about sleeping position, vaccine schedule..." class="w-full px-3 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <button type="submit" id="saveAppointmentBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all cursor-pointer">
+                    Save Appointment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 9. Manage PIN / Privacy Lock Modal -->
+    <div id="managePinModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-sm w-full p-6 relative shadow-2xl">
+            <button id="closePinModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer">
+                ✕
+            </button>
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-xl">
+                    <span id="managePinModalIcon">🔒</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold font-outfit text-slate-900 dark:text-white" id="managePinModalTitle">
+                        Privacy PIN Lock
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Protect baby data when joining or reopening
+                    </p>
+                </div>
+            </div>
+
+            <!-- If PIN is not set -->
+            <div id="pinNotSetConfig" class="space-y-3">
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Set a 4-digit PIN or password. Anyone opening, joining, or reopening this tracker will be required to enter it to view baby logs.
+                </p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">New PIN / Password</label>
+                    <input type="password" id="newPinInput" placeholder="e.g. 1234" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-sm font-mono text-center tracking-widest text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Confirm PIN</label>
+                    <input type="password" id="confirmPinInput" placeholder="Re-enter PIN" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-xl text-sm font-mono text-center tracking-widest text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <button type="button" id="saveNewPinBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all cursor-pointer">
+                    Enable Privacy PIN Lock
+                </button>
+            </div>
+
+            <!-- If PIN is already set -->
+            <div id="pinActiveConfig" class="hidden space-y-3">
+                <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/50 rounded-2xl flex items-center justify-between text-xs">
+                    <span class="font-bold text-emerald-800 dark:text-emerald-300">Status: Active & Protected</span>
+                    <span class="text-emerald-600 text-sm">🔒</span>
+                </div>
+                <button type="button" id="lockNowBtn" class="w-full py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>🔒</span>
+                    <span>Lock Screen Now</span>
+                </button>
+                <div class="pt-2 border-t border-slate-100 dark:border-nightBorder space-y-2">
+                    <button type="button" id="toggleChangePinBtn" class="w-full py-2 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline text-left flex items-center justify-between cursor-pointer">
+                        <span>Change Current PIN</span>
+                        <span id="changePinToggleArrow">▾</span>
+                    </button>
+                    <div id="changePinForm" class="hidden space-y-2 p-2.5 bg-slate-50 dark:bg-nightBg rounded-xl border border-slate-200 dark:border-nightBorder">
+                        <input type="password" id="oldPinInput" placeholder="Current PIN" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightCard font-mono text-center">
+                        <input type="password" id="updatePinInput" placeholder="New PIN" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightCard font-mono text-center">
+                        <button type="button" id="executeChangePinBtn" class="w-full py-1.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-lg text-xs font-bold cursor-pointer">Update PIN</button>
+                    </div>
+                    <button type="button" id="removePinBtn" class="w-full py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:underline text-left cursor-pointer">
+                        Remove PIN (Disable Lock)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Fullscreen Privacy Lock Screen Overlay -->
+    <div id="privacyLockOverlay" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-4 hidden">
+        <div id="privacyLockCard" class="bg-white/10 dark:bg-slate-900/90 border border-white/20 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 sm:p-8 text-center text-white shadow-2xl backdrop-blur-xl space-y-4">
+            <div class="w-16 h-16 rounded-3xl bg-amber-500/20 text-amber-400 border border-amber-500/30 mx-auto flex items-center justify-center text-3xl shadow-inner">
+                🔒
+            </div>
+            <div>
+                <h3 class="text-xl font-extrabold font-outfit text-white tracking-tight">
+                    BabyTracker Protected
+                </h3>
+                <p class="text-xs text-slate-300 mt-1">
+                    Enter your PIN or password to view baby logs
+                </p>
+            </div>
+            <form id="privacyUnlockForm" onsubmit="event.preventDefault(); PrivacyLockEngine.handleUnlockSubmit();" class="space-y-3.5">
+                <input type="password" id="privacyUnlockInput" autofocus placeholder="Enter PIN" class="w-full text-center text-lg tracking-widest font-mono py-2.5 px-4 bg-black/40 border border-white/20 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <div id="privacyUnlockError" class="hidden text-xs text-rose-300 font-bold bg-rose-950/80 border border-rose-800 rounded-xl py-1.5 px-3">
+                    Incorrect PIN. Try again.
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-1 font-mono">
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('1')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">1</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('2')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">2</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('3')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">3</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('4')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">4</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('5')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">5</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('6')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">6</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('7')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">7</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('8')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">8</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('9')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">9</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('clear')" class="py-2.5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold transition-all active:scale-95 cursor-pointer">Clear</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('0')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-lg font-bold transition-all active:scale-95 cursor-pointer">0</button>
+                    <button type="button" onclick="PrivacyLockEngine.keypadPress('back')" class="py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-sm font-bold transition-all active:scale-95 cursor-pointer">⌫</button>
+                </div>
+                <button type="submit" id="privacyUnlockSubmitBtn" class="w-full py-3 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 active:scale-95 text-white font-extrabold rounded-2xl text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>🔓</span>
+                    <span>Unlock Page</span>
+                </button>
+            </form>
         </div>
     </div>
 
@@ -2125,6 +2482,7 @@
             roomId: '',
             deletedLogIds: new Set(),
             logs: [],
+            appointments: [],
             feedReminder: {
                 intervalHours: 3.0, // Default 3 hours from end of latest feed
                 nextFeedTargetTime: null,
@@ -2548,6 +2906,7 @@
                         }
                     },
                     deletedLogIds: Array.from(AppState.deletedLogIds || []),
+                    appointments: AppState.appointments || [],
                     logs: cleanLogs,
                     timestamp: Date.now()
                 };
@@ -2991,6 +3350,24 @@
                     localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
                 }
 
+                // Step C: Sync Appointments
+                if (Array.isArray(remote.appointments)) {
+                    if (!AppState.appointments) AppState.appointments = [];
+                    const aptMap = new Map();
+                    AppState.appointments.forEach(a => aptMap.set(a.id, a));
+                    remote.appointments.forEach(remApt => {
+                        if (!remApt || !remApt.id) return;
+                        const local = aptMap.get(remApt.id);
+                        if (!local || (remApt.updatedAt || 0) > (local.updatedAt || 0)) {
+                            aptMap.set(remApt.id, remApt);
+                            changed = true;
+                        }
+                    });
+                    AppState.appointments = Array.from(aptMap.values());
+                    localStorage.setItem('bt_appointments', JSON.stringify(AppState.appointments));
+                    if (window.CalendarSyncEngine) CalendarSyncEngine.render();
+                }
+
                 if (changed) {
                     updateBabyProfileHeader();
                     renderAll();
@@ -3066,12 +3443,16 @@
         // ==================== APP INITIALIZATION ====================
 
         document.addEventListener('DOMContentLoaded', () => {
+            PrivacyLockEngine.init();
             loadPreferences();
             SyncEngine.init();
             initTimers();
             initFeedReminder();
             initPumpReminder();
             initSoundMachine();
+            CustomAudioRecorder.init();
+            CalendarSyncEngine.init();
+            NotesImportEngine.init();
             VoiceAssistant.init();
             setupEventListeners();
             updateDateControls();
@@ -3090,6 +3471,18 @@
 
             const savedBirthDate = localStorage.getItem('bt_baby_birthdate');
             if (savedBirthDate) AppState.babyBirthDate = savedBirthDate;
+
+            // Load appointments
+            const savedAppointments = localStorage.getItem('bt_appointments');
+            if (savedAppointments) {
+                try {
+                    AppState.appointments = JSON.parse(savedAppointments);
+                } catch(e) {
+                    AppState.appointments = [];
+                }
+            } else {
+                AppState.appointments = [];
+            }
 
             // Load logs (Blank slate default, no mock seed logs)
             const savedLogs = localStorage.getItem('bt_logs');
@@ -5947,49 +6340,263 @@
             setUnit(AppState.unit === 'mL' ? 'oz' : 'mL');
         };
 
-        // ==================== APPLE NOTES EXPORT ====================
+        // ==================== TEXT NOTES IMPORT & APPLE NOTES EXPORT ENGINE ====================
 
-        const exportNotesBtn = document.getElementById('exportNotesBtn');
-        const exportNotesModal = document.getElementById('exportNotesModal');
-        const closeExportModalBtn = document.getElementById('closeExportModalBtn');
-        const copyNotesTextBtn = document.getElementById('copyNotesTextBtn');
-        const nativeShareNotesBtn = document.getElementById('nativeShareNotesBtn');
-        const notesPreviewTextarea = document.getElementById('notesPreviewTextarea');
+        const NotesImportEngine = {
+            init() {
+                const exportNotesBtn = document.getElementById('exportNotesBtn');
+                const exportNotesModal = document.getElementById('exportNotesModal');
+                const closeExportModalBtn = document.getElementById('closeExportModalBtn');
+                const notesImportTabBtn = document.getElementById('notesImportTabBtn');
+                const notesExportTabBtn = document.getElementById('notesExportTabBtn');
+                const executeImportNotesBtn = document.getElementById('executeImportNotesBtn');
+                const copyNotesTextBtn = document.getElementById('copyNotesTextBtn');
+                const nativeShareNotesBtn = document.getElementById('nativeShareNotesBtn');
+                const notesPreviewTextarea = document.getElementById('notesPreviewTextarea');
+                const importNotesTextarea = document.getElementById('importNotesTextarea');
 
-        exportNotesBtn.onclick = () => {
-            const formattedNote = generateAppleNotesFormat(AppState.selectedDate);
-            notesPreviewTextarea.value = formattedNote;
-            exportNotesModal.classList.remove('hidden');
-        };
+                if (exportNotesBtn) {
+                    exportNotesBtn.onclick = () => {
+                        this.switchTab('import');
+                        if (exportNotesModal) exportNotesModal.classList.remove('hidden');
+                    };
+                }
 
-        closeExportModalBtn.onclick = () => exportNotesModal.classList.add('hidden');
+                if (closeExportModalBtn && exportNotesModal) {
+                    closeExportModalBtn.onclick = () => exportNotesModal.classList.add('hidden');
+                }
 
-        copyNotesTextBtn.onclick = () => {
-            const text = notesPreviewTextarea.value;
-            navigator.clipboard.writeText(text).then(() => {
-                document.getElementById('copyNotesBtnText').textContent = 'Copied to Clipboard! ✓';
-                setTimeout(() => {
-                    document.getElementById('copyNotesBtnText').textContent = 'Copy to Clipboard';
-                }, 2000);
-                showToast('Copied! Ready to paste in Apple Notes 📋', 'success');
-            }).catch(() => {
-                notesPreviewTextarea.select();
-                document.execCommand('copy');
-                showToast('Copied to Clipboard! 📋', 'success');
-            });
-        };
+                if (notesImportTabBtn) {
+                    notesImportTabBtn.onclick = () => this.switchTab('import');
+                }
+                if (notesExportTabBtn) {
+                    notesExportTabBtn.onclick = () => this.switchTab('export');
+                }
 
-        nativeShareNotesBtn.onclick = () => {
-            const text = notesPreviewTextarea.value;
-            if (navigator.share) {
-                navigator.share({
-                    title: `${AppState.babyName} Log - ${AppState.selectedDate}`,
-                    text: text
-                }).catch(() => {});
-            } else {
-                copyNotesTextBtn.click();
+                if (executeImportNotesBtn && importNotesTextarea) {
+                    executeImportNotesBtn.onclick = () => {
+                        this.parseAndImportNotes(importNotesTextarea.value);
+                    };
+                }
+
+                if (copyNotesTextBtn && notesPreviewTextarea) {
+                    copyNotesTextBtn.onclick = () => {
+                        const text = notesPreviewTextarea.value;
+                        navigator.clipboard.writeText(text).then(() => {
+                            const btnText = document.getElementById('copyNotesBtnText');
+                            if (btnText) btnText.textContent = 'Copied to Clipboard! ✓';
+                            setTimeout(() => {
+                                if (btnText) btnText.textContent = 'Copy to Clipboard';
+                            }, 2000);
+                            showToast('Copied! Ready to paste in Apple Notes 📋', 'success');
+                        }).catch(() => {
+                            notesPreviewTextarea.select();
+                            document.execCommand('copy');
+                            showToast('Copied to Clipboard! 📋', 'success');
+                        });
+                    };
+                }
+
+                if (nativeShareNotesBtn && notesPreviewTextarea) {
+                    nativeShareNotesBtn.onclick = () => {
+                        const text = notesPreviewTextarea.value;
+                        if (navigator.share) {
+                            navigator.share({
+                                title: `${AppState.babyName || 'Baby'} Log - ${AppState.selectedDate}`,
+                                text: text
+                            }).catch(() => {});
+                        } else if (copyNotesTextBtn) {
+                            copyNotesTextBtn.click();
+                        }
+                    };
+                }
+            },
+
+            switchTab(tab) {
+                const importTabBtn = document.getElementById('notesImportTabBtn');
+                const exportTabBtn = document.getElementById('notesExportTabBtn');
+                const importTabContent = document.getElementById('notesImportTabContent');
+                const exportTabContent = document.getElementById('notesExportTabContent');
+                const notesPreviewTextarea = document.getElementById('notesPreviewTextarea');
+
+                if (tab === 'import') {
+                    if (importTabBtn) {
+                        importTabBtn.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white dark:bg-nightCard text-slate-900 dark:text-white shadow-xs';
+                    }
+                    if (exportTabBtn) {
+                        exportTabBtn.className = 'flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all';
+                    }
+                    if (importTabContent) importTabContent.classList.remove('hidden');
+                    if (exportTabContent) exportTabContent.classList.add('hidden');
+                } else {
+                    if (exportTabBtn) {
+                        exportTabBtn.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white dark:bg-nightCard text-slate-900 dark:text-white shadow-xs';
+                    }
+                    if (importTabBtn) {
+                        importTabBtn.className = 'flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all';
+                    }
+                    if (exportTabContent) exportTabContent.classList.remove('hidden');
+                    if (importTabContent) importTabContent.classList.add('hidden');
+                    if (notesPreviewTextarea) {
+                        notesPreviewTextarea.value = generateAppleNotesFormat(AppState.selectedDate);
+                    }
+                }
+            },
+
+            parseAndImportNotes(rawText) {
+                if (!rawText || !rawText.trim()) {
+                    showToast('Please paste notes to import', 'warning');
+                    return;
+                }
+                const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                let importedCount = 0;
+                const dateStr = AppState.selectedDate;
+
+                lines.forEach((line, idx) => {
+                    const cleanLine = line.replace(/^[•\-\*\d\.\)\s]+/, '').trim();
+                    if (!cleanLine || cleanLine.startsWith('Generated by') || cleanLine.startsWith('━━━━') || cleanLine.startsWith('SUMMARY')) return;
+
+                    // Extract Time (e.g. 09:30 PM, 9:30am, 14:30)
+                    const timeMatch = cleanLine.match(/(\b\d{1,2}:\d{2}\s*(?:[apAP][mM])?\b)/);
+                    let timeStr = '12:00';
+                    let timestamp = Date.now() + (idx * 1000);
+                    if (timeMatch) {
+                        const parsedT = parseTimeStringTo24H(timeMatch[1]);
+                        if (parsedT) {
+                            timeStr = parsedT;
+                            const [h, m] = parsedT.split(':').map(Number);
+                            const d = parseLocalDate(dateStr);
+                            d.setHours(h, m, 0, 0);
+                            timestamp = d.getTime();
+                        }
+                    }
+
+                    const lower = cleanLine.toLowerCase();
+                    let log = null;
+
+                    if (lower.includes('formula') || lower.includes('bottle')) {
+                        const amt = extractAmountMl(cleanLine, 50);
+                        log = {
+                            id: 'log_' + Date.now() + '_' + idx,
+                            timestamp,
+                            dateStr,
+                            timeStr,
+                            category: 'feeding',
+                            subType: 'formula',
+                            amountMl: amt,
+                            notes: cleanLine
+                        };
+                    } else if (lower.includes('breast') || lower.includes('nursing') || lower.includes('breastmilk')) {
+                        const amt = extractAmountMl(cleanLine, 50);
+                        log = {
+                            id: 'log_' + Date.now() + '_' + idx,
+                            timestamp,
+                            dateStr,
+                            timeStr,
+                            category: 'feeding',
+                            subType: 'breast',
+                            amountMl: amt,
+                            notes: cleanLine
+                        };
+                    } else if (lower.includes('pump')) {
+                        const amt = extractAmountMl(cleanLine, 100);
+                        log = {
+                            id: 'log_' + Date.now() + '_' + idx,
+                            timestamp,
+                            dateStr,
+                            timeStr,
+                            category: 'pumping',
+                            subType: 'pump',
+                            amountMl: amt,
+                            notes: cleanLine
+                        };
+                    } else if (lower.includes('pee') || lower.includes('wet') || lower.includes('poop') || lower.includes('dirty') || lower.includes('diaper')) {
+                        const isPoop = lower.includes('poop') || lower.includes('dirty');
+                        const isPee = lower.includes('pee') || lower.includes('wet');
+                        log = {
+                            id: 'log_' + Date.now() + '_' + idx,
+                            timestamp,
+                            dateStr,
+                            timeStr,
+                            category: 'diaper',
+                            subType: (isPoop && isPee) ? 'both' : (isPoop ? 'poop' : 'pee'),
+                            size: 'medium',
+                            notes: cleanLine
+                        };
+                    } else if (lower.includes('nap') || lower.includes('sleep') || lower.includes('slept')) {
+                        const durMatch = cleanLine.match(/(\d+)\s*(?:min|m|hr|hour)/i);
+                        let dur = 30;
+                        if (durMatch) {
+                            const val = parseInt(durMatch[1]);
+                            dur = lower.includes('hr') || lower.includes('hour') ? val * 60 : val;
+                        }
+                        log = {
+                            id: 'log_' + Date.now() + '_' + idx,
+                            timestamp,
+                            dateStr,
+                            timeStr,
+                            category: 'sleep',
+                            subType: 'nap',
+                            durationMinutes: dur,
+                            notes: cleanLine
+                        };
+                    } else if (lower.includes('tummy')) {
+                        const durMatch = cleanLine.match(/(\d+)\s*m/i);
+                        log = {
+                            id: 'log_' + Date.now() + '_' + idx,
+                            timestamp,
+                            dateStr,
+                            timeStr,
+                            category: 'tummy',
+                            subType: 'tummy',
+                            durationMinutes: durMatch ? parseInt(durMatch[1]) : 5,
+                            notes: cleanLine
+                        };
+                    }
+
+                    if (log) {
+                        AppState.logs.push(log);
+                        importedCount++;
+                    }
+                });
+
+                if (importedCount > 0) {
+                    saveLogsToStorage();
+                    renderAll();
+                    const exportNotesModal = document.getElementById('exportNotesModal');
+                    if (exportNotesModal) exportNotesModal.classList.add('hidden');
+                    const importTextarea = document.getElementById('importNotesTextarea');
+                    if (importTextarea) importTextarea.value = '';
+                    showToast(`Successfully imported ${importedCount} notes! 📥`, 'success');
+                } else {
+                    showToast('Could not recognize log entries. Check formatting.', 'warning');
+                }
             }
         };
+
+        function parseTimeStringTo24H(timeStr) {
+            if (!timeStr) return null;
+            const parts = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*([apAP][mM])?$/);
+            if (!parts) return null;
+            let h = parseInt(parts[1], 10);
+            const m = parts[2].padStart(2, '0');
+            const ampm = parts[3] ? parts[3].toUpperCase() : null;
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            return `${String(h).padStart(2, '0')}:${m}`;
+        }
+
+        function extractAmountMl(str, defaultMl = 50) {
+            const ozMatch = str.match(/([\d\.]+)\s*(?:oz|ounces?)/i);
+            if (ozMatch) {
+                return Math.round(parseFloat(ozMatch[1]) * ML_PER_OZ);
+            }
+            const mlMatch = str.match(/(\d+)\s*(?:ml|milliliters?)/i);
+            if (mlMatch) {
+                return parseInt(mlMatch[1], 10);
+            }
+            return defaultMl;
+        }
 
         function generateAppleNotesFormat(dateStr) {
             const dateObj = parseLocalDate(dateStr);
@@ -6032,7 +6639,7 @@
             const sleepMins = totalSleepMins % 60;
             const nextPumpDate = new Date(AppState.pumpReminder.nextPumpTargetTime);
 
-            let out = `🍼 ${AppState.babyName} Daily Log — ${formattedDateHeader}\n`;
+            let out = `🍼 ${AppState.babyName || 'Baby'} Daily Log — ${formattedDateHeader}\n`;
             out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
             out += `📊 SUMMARY\n`;
             out += `• Total Fed: ${totalFedMl} mL (${totalFedOz} oz)\n`;
@@ -6055,7 +6662,7 @@
                         out += `${l.subType === 'formula' ? '🍼 Formula' : '🤱 Breastmilk'}: ${amountStr}`;
                         if (l.durationMinutes) out += ` (${l.durationMinutes}m)`;
                     } else if (l.category === 'pumping') {
-                        const amountStr = AppState.unit === 'oz'
+                        const amountStr = AppState.unit === 'oz' 
                             ? `${((l.amountMl || 0) / ML_PER_OZ).toFixed(1)} oz (${l.amountMl} mL)`
                             : `${l.amountMl} mL`;
                         out += `🥛 Pumping: ${amountStr}`;
@@ -6081,6 +6688,809 @@
             return out;
         }
 
+        // ==================== CUSTOM AUDIO RECORDING STUDIO (INDEXEDDB) ====================
+
+        const CustomAudioRecorder = {
+            db: null,
+            mediaRecorder: null,
+            audioChunks: [],
+            recordingTimer: null,
+            secondsElapsed: 0,
+            maxDurationSeconds: 120, // 2-minute hard cap
+            audioObjectUrl: null,
+
+            async init() {
+                await this.initDB();
+                this.bindUI();
+                await this.loadSavedRecording();
+            },
+
+            initDB() {
+                return new Promise((resolve) => {
+                    const req = indexedDB.open('babytracker_db', 1);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('custom_audio')) {
+                            db.createObjectStore('custom_audio', { keyPath: 'id' });
+                        }
+                    };
+                    req.onsuccess = (e) => {
+                        this.db = e.target.result;
+                        resolve(this.db);
+                    };
+                    req.onerror = () => {
+                        console.warn('IndexedDB not supported or permission denied');
+                        resolve(null);
+                    };
+                });
+            },
+
+            bindUI() {
+                const recordOwnAudioBtn = document.getElementById('recordOwnAudioBtn');
+                const studioCard = document.getElementById('customAudioStudioCard');
+                const startBtn = document.getElementById('startRecordAudioBtn');
+                const stopBtn = document.getElementById('stopRecordAudioBtn');
+                const playBtn = document.getElementById('playCustomAudioBtn');
+                const loopBtn = document.getElementById('loopCustomAudioBtn');
+                const deleteBtn = document.getElementById('deleteCustomAudioBtn');
+                const volumeSlider = document.getElementById('customAudioVolumeSlider');
+                const player = document.getElementById('customAudioPlayer');
+
+                if (recordOwnAudioBtn && studioCard) {
+                    recordOwnAudioBtn.onclick = () => {
+                        studioCard.classList.toggle('hidden');
+                    };
+                }
+
+                if (startBtn) {
+                    startBtn.onclick = () => this.startRecording();
+                }
+                if (stopBtn) {
+                    stopBtn.onclick = () => this.stopRecording();
+                }
+
+                if (playBtn && player) {
+                    playBtn.onclick = () => {
+                        if (player.paused) {
+                            player.play().catch(e => console.warn('Play blocked:', e));
+                            this.updatePlayState(true);
+                        } else {
+                            player.pause();
+                            this.updatePlayState(false);
+                        }
+                    };
+
+                    player.onended = () => {
+                        if (!player.loop) {
+                            this.updatePlayState(false);
+                        }
+                    };
+                }
+
+                if (loopBtn && player) {
+                    loopBtn.onclick = () => {
+                        player.loop = !player.loop;
+                        const loopText = document.getElementById('loopCustomAudioText');
+                        if (player.loop) {
+                            loopBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-purple-300 dark:border-purple-700 bg-purple-100 text-purple-900 dark:bg-purple-900/50 dark:text-purple-200 cursor-pointer';
+                            if (loopText) loopText.textContent = '🔁 Loop: ON';
+                            showToast('Loop playback ON 🔁', 'info');
+                        } else {
+                            loopBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightCard text-slate-600 dark:text-slate-300 cursor-pointer';
+                            if (loopText) loopText.textContent = '➡️ Loop: OFF';
+                            showToast('Loop playback OFF ➡️', 'info');
+                        }
+                    };
+                }
+
+                if (volumeSlider && player) {
+                    volumeSlider.oninput = (e) => {
+                        const val = parseInt(e.target.value, 10);
+                        player.volume = val / 100;
+                        const label = document.getElementById('customAudioVolumeLabel');
+                        if (label) label.textContent = `${val}%`;
+                    };
+                }
+
+                if (deleteBtn) {
+                    deleteBtn.onclick = () => this.deleteRecording();
+                }
+            },
+
+            async startRecording() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const options = (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/webm'))
+                        ? { mimeType: 'audio/webm' } 
+                        : ((typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/mp4')) ? { mimeType: 'audio/mp4' } : {});
+
+                    this.mediaRecorder = new MediaRecorder(stream, options);
+                    this.audioChunks = [];
+
+                    this.mediaRecorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) {
+                            this.audioChunks.push(e.data);
+                        }
+                    };
+
+                    this.mediaRecorder.onstop = () => {
+                        stream.getTracks().forEach(t => t.stop());
+                        this.finishRecording();
+                    };
+
+                    this.mediaRecorder.start(250);
+                    this.secondsElapsed = 0;
+                    this.updateTimerUI();
+
+                    const startBtn = document.getElementById('startRecordAudioBtn');
+                    const stopBtn = document.getElementById('stopRecordAudioBtn');
+                    const badge = document.getElementById('recordingBadge');
+
+                    if (startBtn) {
+                        startBtn.disabled = true;
+                        startBtn.className = 'px-3.5 py-2 bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-not-allowed';
+                    }
+                    if (stopBtn) {
+                        stopBtn.disabled = false;
+                        stopBtn.className = 'px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer';
+                    }
+                    if (badge) badge.classList.remove('hidden');
+
+                    this.recordingTimer = setInterval(() => {
+                        this.secondsElapsed++;
+                        this.updateTimerUI();
+                        if (this.secondsElapsed >= this.maxDurationSeconds) {
+                            this.stopRecording();
+                            showToast('2-minute limit reached — recording saved! ⏱️', 'info');
+                        }
+                    }, 1000);
+
+                    showToast('Recording started 🎙️ (Max 2 mins)', 'info');
+                } catch(err) {
+                    console.error('Microphone access denied:', err);
+                    alert('Could not access microphone. Please grant microphone permission to record audio.');
+                }
+            },
+
+            stopRecording() {
+                if (this.recordingTimer) {
+                    clearInterval(this.recordingTimer);
+                    this.recordingTimer = null;
+                }
+                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                    this.mediaRecorder.stop();
+                }
+                const startBtn = document.getElementById('startRecordAudioBtn');
+                const stopBtn = document.getElementById('stopRecordAudioBtn');
+                const badge = document.getElementById('recordingBadge');
+
+                if (startBtn) {
+                    startBtn.disabled = false;
+                    startBtn.className = 'px-3.5 py-2 bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-700 hover:to-rose-700 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer';
+                }
+                if (stopBtn) {
+                    stopBtn.disabled = true;
+                    stopBtn.className = 'px-3.5 py-2 bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-not-allowed';
+                }
+                if (badge) badge.classList.add('hidden');
+            },
+
+            updateTimerUI() {
+                const timerDisplay = document.getElementById('recordTimerDisplay');
+                const progressBar = document.getElementById('recordProgressBar');
+                const mins = String(Math.floor(this.secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(this.secondsElapsed % 60).padStart(2, '0');
+                if (timerDisplay) {
+                    timerDisplay.textContent = `${mins}:${secs} / 02:00`;
+                }
+                if (progressBar) {
+                    const pct = Math.min(100, (this.secondsElapsed / this.maxDurationSeconds) * 100);
+                    progressBar.style.width = `${pct}%`;
+                }
+            },
+
+            async finishRecording() {
+                if (this.audioChunks.length === 0) return;
+                const mimeType = this.audioChunks[0].type || 'audio/webm';
+                const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+                const recData = {
+                    id: 'user_recording',
+                    blob: audioBlob,
+                    durationSeconds: this.secondsElapsed,
+                    timestamp: Date.now()
+                };
+
+                await this.saveToDB(recData);
+                this.setupPlayback(audioBlob, recData);
+                showToast('Custom audio saved successfully! 🎵', 'success');
+            },
+
+            saveToDB(data) {
+                if (!this.db) return Promise.resolve();
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction('custom_audio', 'readwrite');
+                    const store = tx.objectStore('custom_audio');
+                    store.put(data);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = (e) => reject(e);
+                });
+            },
+
+            async loadSavedRecording() {
+                if (!this.db) return;
+                const recData = await new Promise((resolve) => {
+                    const tx = this.db.transaction('custom_audio', 'readonly');
+                    const store = tx.objectStore('custom_audio');
+                    const req = store.get('user_recording');
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
+                });
+
+                if (recData && recData.blob) {
+                    this.setupPlayback(recData.blob, recData);
+                }
+            },
+
+            setupPlayback(blob, metadata) {
+                const player = document.getElementById('customAudioPlayer');
+                const controlsSection = document.getElementById('savedAudioControlsSection');
+                const timestampLabel = document.getElementById('customAudioTimestampLabel');
+
+                if (this.audioObjectUrl) {
+                    URL.revokeObjectURL(this.audioObjectUrl);
+                }
+                this.audioObjectUrl = URL.createObjectURL(blob);
+                if (player) {
+                    player.src = this.audioObjectUrl;
+                    player.load();
+                }
+                if (controlsSection) controlsSection.classList.remove('hidden');
+                if (timestampLabel && metadata) {
+                    const d = new Date(metadata.timestamp || Date.now());
+                    const dur = metadata.durationSeconds ? `${metadata.durationSeconds}s` : 'Audio';
+                    timestampLabel.textContent = `Recorded ${formatDisplayTime(d)} (${dur})`;
+                }
+            },
+
+            updatePlayState(isPlaying) {
+                const icon = document.getElementById('playCustomAudioIcon');
+                const text = document.getElementById('playCustomAudioText');
+                if (icon) icon.textContent = isPlaying ? '⏸️' : '▶️';
+                if (text) text.textContent = isPlaying ? 'Pause Audio' : 'Play Audio';
+            },
+
+            async deleteRecording() {
+                if (!confirm('Are you sure you want to delete your recorded audio?')) return;
+                const player = document.getElementById('customAudioPlayer');
+                if (player) {
+                    player.pause();
+                    player.removeAttribute('src');
+                }
+                if (this.audioObjectUrl) {
+                    URL.revokeObjectURL(this.audioObjectUrl);
+                    this.audioObjectUrl = null;
+                }
+                if (this.db) {
+                    const tx = this.db.transaction('custom_audio', 'readwrite');
+                    tx.objectStore('custom_audio').delete('user_recording');
+                }
+                const controlsSection = document.getElementById('savedAudioControlsSection');
+                if (controlsSection) controlsSection.classList.add('hidden');
+                this.secondsElapsed = 0;
+                this.updateTimerUI();
+                this.updatePlayState(false);
+                showToast('Recorded audio deleted 🗑️', 'info');
+            }
+        };
+
+        // ==================== CALENDAR APPOINTMENTS & SYNC ENGINE ====================
+
+        const CalendarSyncEngine = {
+            init() {
+                const openBtn = document.getElementById('openAddAppointmentModalBtn');
+                const modal = document.getElementById('appointmentModal');
+                const closeBtn = document.getElementById('closeAppointmentModalBtn');
+                const form = document.getElementById('appointmentForm');
+
+                if (openBtn) {
+                    openBtn.onclick = () => {
+                        this.openModal();
+                    };
+                }
+                if (closeBtn && modal) {
+                    closeBtn.onclick = () => modal.classList.add('hidden');
+                }
+                if (form) {
+                    form.onsubmit = (e) => {
+                        e.preventDefault();
+                        this.handleFormSubmit();
+                    };
+                }
+
+                this.render();
+            },
+
+            openModal(appointment = null) {
+                const modal = document.getElementById('appointmentModal');
+                const titleModal = document.getElementById('appointmentModalTitle');
+                const editId = document.getElementById('editAppointmentId');
+                const titleInput = document.getElementById('appointmentTitleInput');
+                const dateInput = document.getElementById('appointmentDateInput');
+                const timeInput = document.getElementById('appointmentTimeInput');
+                const durationSelect = document.getElementById('appointmentDurationSelect');
+                const locationInput = document.getElementById('appointmentLocationInput');
+                const notesInput = document.getElementById('appointmentNotesInput');
+
+                if (appointment) {
+                    if (titleModal) titleModal.textContent = 'Edit Baby Appointment';
+                    if (editId) editId.value = appointment.id;
+                    if (titleInput) titleInput.value = appointment.title || '';
+                    if (dateInput) dateInput.value = appointment.date || AppState.selectedDate;
+                    if (timeInput) timeInput.value = appointment.time || '10:00';
+                    if (durationSelect) durationSelect.value = String(appointment.durationMinutes || 30);
+                    if (locationInput) locationInput.value = appointment.location || '';
+                    if (notesInput) notesInput.value = appointment.notes || '';
+                } else {
+                    if (titleModal) titleModal.textContent = 'Add Baby Appointment';
+                    if (editId) editId.value = '';
+                    if (titleInput) titleInput.value = '';
+                    if (dateInput) dateInput.value = AppState.selectedDate;
+                    if (timeInput) timeInput.value = '10:00';
+                    if (durationSelect) durationSelect.value = '30';
+                    if (locationInput) locationInput.value = '';
+                    if (notesInput) notesInput.value = '';
+                }
+
+                if (modal) modal.classList.remove('hidden');
+            },
+
+            handleFormSubmit() {
+                const editId = document.getElementById('editAppointmentId')?.value;
+                const title = document.getElementById('appointmentTitleInput')?.value.trim();
+                const date = document.getElementById('appointmentDateInput')?.value;
+                const time = document.getElementById('appointmentTimeInput')?.value;
+                const durationMinutes = parseInt(document.getElementById('appointmentDurationSelect')?.value || '30', 10);
+                const location = document.getElementById('appointmentLocationInput')?.value.trim();
+                const notes = document.getElementById('appointmentNotesInput')?.value.trim();
+
+                if (!title || !date || !time) {
+                    showToast('Please fill in title, date and time', 'warning');
+                    return;
+                }
+
+                if (!Array.isArray(AppState.appointments)) {
+                    AppState.appointments = [];
+                }
+
+                if (editId) {
+                    const idx = AppState.appointments.findIndex(a => a.id === editId);
+                    if (idx !== -1) {
+                        AppState.appointments[idx] = {
+                            ...AppState.appointments[idx],
+                            title,
+                            date,
+                            time,
+                            durationMinutes,
+                            location,
+                            notes,
+                            updatedAt: Date.now()
+                        };
+                    }
+                } else {
+                    AppState.appointments.push({
+                        id: 'apt_' + Date.now(),
+                        title,
+                        date,
+                        time,
+                        durationMinutes,
+                        location,
+                        notes,
+                        createdAt: Date.now()
+                    });
+                }
+
+                this.save();
+                this.render();
+                document.getElementById('appointmentModal')?.classList.add('hidden');
+                showToast('Appointment saved & synced! 📅', 'success');
+            },
+
+            deleteAppointment(id) {
+                if (!confirm('Delete this appointment?')) return;
+                AppState.appointments = AppState.appointments.filter(a => a.id !== id);
+                this.save();
+                this.render();
+                showToast('Appointment removed 🗑️', 'info');
+            },
+
+            save() {
+                localStorage.setItem('bt_appointments', JSON.stringify(AppState.appointments));
+                SyncEngine.broadcast();
+            },
+
+            render() {
+                const container = document.getElementById('appointmentsList');
+                const badge = document.getElementById('appointmentsCountBadge');
+                if (!container) return;
+
+                const appointments = Array.isArray(AppState.appointments) ? AppState.appointments : [];
+                // Sort chronologically
+                appointments.sort((a, b) => {
+                    const dtA = new Date(`${a.date}T${a.time || '00:00'}`).getTime();
+                    const dtB = new Date(`${b.date}T${b.time || '00:00'}`).getTime();
+                    return dtA - dtB;
+                });
+
+                if (badge) {
+                    badge.textContent = `${appointments.length} Scheduled`;
+                }
+
+                if (appointments.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-6 text-center text-slate-400 dark:text-slate-500 rounded-2xl border border-dashed border-slate-200 dark:border-nightBorder space-y-1">
+                            <span class="text-2xl block">🗓️</span>
+                            <p class="text-xs font-bold text-slate-600 dark:text-slate-400">No baby appointments scheduled yet</p>
+                            <p class="text-[11px]">Track pediatrician visits, vaccine milestones & checkups with 1-tap Google/Apple Calendar sync!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = appointments.map(apt => {
+                    const dur = apt.durationMinutes ? `${apt.durationMinutes} min` : '30 min';
+                    const loc = apt.location ? `<span class="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">📍 ${escapeHtml(apt.location)}</span>` : '';
+                    const notes = apt.notes ? `<p class="text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-nightBg p-2 rounded-xl border border-slate-200/60 dark:border-nightBorder mt-1">📝 ${escapeHtml(apt.notes)}</p>` : '';
+                    const dateFormatted = formatDisplayDate(apt.date);
+
+                    return `
+                        <div class="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-nightBg/70 border border-slate-200/80 dark:border-nightBorder space-y-2.5 transition-all hover:border-blue-300 dark:hover:border-blue-700">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                                        <span>🩺</span>
+                                        <span>${escapeHtml(apt.title)}</span>
+                                    </h4>
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
+                                        <span>📅 ${dateFormatted} at ${apt.time} (${dur})</span>
+                                        ${loc}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="CalendarSyncEngine.openModal(AppState.appointments.find(a => a.id === '${apt.id}'))" class="px-2 py-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" title="Edit">
+                                        ✏️ Edit
+                                    </button>
+                                    <button type="button" onclick="CalendarSyncEngine.deleteAppointment('${apt.id}')" class="px-2 py-1 text-[11px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer" title="Delete">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            ${notes}
+                            <!-- 1-Tap Calendar Export Buttons -->
+                            <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200/50 dark:border-nightBorder/50">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Sync To:</span>
+                                <button type="button" onclick="CalendarSyncEngine.exportToGoogle('${apt.id}')" class="px-2.5 py-1 bg-white dark:bg-nightCard hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 rounded-xl text-[11px] font-bold shadow-2xs transition-all flex items-center gap-1 cursor-pointer">
+                                    <span>🌐</span>
+                                    <span>Add to Google Calendar</span>
+                                </button>
+                                <button type="button" onclick="CalendarSyncEngine.exportToApple('${apt.id}')" class="px-2.5 py-1 bg-white dark:bg-nightCard hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-nightBorder rounded-xl text-[11px] font-bold shadow-2xs transition-all flex items-center gap-1 cursor-pointer">
+                                    <span>🍏</span>
+                                    <span>Add to Apple Calendar (.ics)</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            getStartEndDates(apt) {
+                const [y, m, d] = apt.date.split('-').map(Number);
+                const [hh, mm] = (apt.time || '10:00').split(':').map(Number);
+                const start = new Date(y, m - 1, d, hh, mm);
+                const end = new Date(start.getTime() + ((apt.durationMinutes || 30) * 60 * 1000));
+                return { start, end };
+            },
+
+            exportToGoogle(id) {
+                const apt = AppState.appointments.find(a => a.id === id);
+                if (!apt) return;
+                const { start, end } = this.getStartEndDates(apt);
+
+                const formatGDate = (dt) => {
+                    return dt.toISOString().replace(/-|:|\.\d\d\d/g, '');
+                };
+
+                const startStr = formatGDate(start);
+                const endStr = formatGDate(end);
+                const details = encodeURIComponent((apt.notes ? apt.notes + '\n\n' : '') + `Baby: ${AppState.babyName || 'Baby'}\nTracked via BabyTracker`);
+                const title = encodeURIComponent(`${AppState.babyName || 'Baby'} - ${apt.title}`);
+                const loc = encodeURIComponent(apt.location || '');
+
+                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${loc}`;
+                window.open(url, '_blank');
+                showToast('Opening Google Calendar... 🌐', 'info');
+            },
+
+            exportToApple(id) {
+                const apt = AppState.appointments.find(a => a.id === id);
+                if (!apt) return;
+                const { start, end } = this.getStartEndDates(apt);
+
+                const formatIcsDate = (dt) => {
+                    return dt.toISOString().replace(/-|:|\.\d\d\d/g, '');
+                };
+
+                const startStr = formatIcsDate(start);
+                const endStr = formatIcsDate(end);
+                const nowStr = formatIcsDate(new Date());
+                const baby = AppState.babyName || 'Baby';
+                const summary = `${baby} - ${apt.title}`.replace(/[\r\n]/g, ' ');
+                const description = ((apt.notes ? apt.notes + '\\n\\n' : '') + `Baby: ${baby}\\nTracked via BabyTracker`).replace(/[\r\n]/g, '\\n');
+                const location = (apt.location || '').replace(/[\r\n]/g, ' ');
+
+                const icsContent = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'PRODID:-//Nonsenseian//BabyTracker//EN',
+                    'CALSCALE:GREGORIAN',
+                    'METHOD:PUBLISH',
+                    'BEGIN:VEVENT',
+                    `UID:${apt.id}@nonsenseian.babytracker`,
+                    `DTSTAMP:${nowStr}`,
+                    `DTSTART:${startStr}`,
+                    `DTEND:${endStr}`,
+                    `SUMMARY:${summary}`,
+                    `DESCRIPTION:${description}`,
+                    `LOCATION:${location}`,
+                    'STATUS:CONFIRMED',
+                    'END:VEVENT',
+                    'END:VCALENDAR'
+                ].join('\r\n');
+
+                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${apt.title.replace(/[^a-zA-Z0-9_-]/g, '_')}.ics`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                showToast('Apple Calendar (.ics) downloaded! 🍏', 'success');
+            }
+        };
+
+        // ==================== PRIVACY PIN / PASSWORD LOCK ENGINE ====================
+
+        const PrivacyLockEngine = {
+            init() {
+                this.updatePadlockIcon();
+                this.checkSessionLock();
+                this.bindUI();
+            },
+
+            async sha256(str) {
+                if (window.crypto && crypto.subtle) {
+                    try {
+                        const msgUint8 = new TextEncoder().encode(str);
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                    } catch(e) {}
+                }
+                // Fallback deterministic hash
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash |= 0;
+                }
+                return 'fb_' + Math.abs(hash).toString(16);
+            },
+
+            isPinSet() {
+                return Boolean(localStorage.getItem('bt_pin_hash'));
+            },
+
+            updatePadlockIcon() {
+                const icon = document.getElementById('pinLockIcon');
+                if (!icon) return;
+                if (this.isPinSet()) {
+                    icon.textContent = '🔒';
+                    icon.setAttribute('title', 'Privacy PIN Active (Click to manage/lock)');
+                } else {
+                    icon.textContent = '🔓';
+                    icon.setAttribute('title', 'Privacy PIN Disabled (Click to setup PIN)');
+                }
+            },
+
+            checkSessionLock() {
+                if (this.isPinSet()) {
+                    const isUnlocked = sessionStorage.getItem('bt_session_unlocked') === 'true';
+                    if (!isUnlocked) {
+                        this.showLockOverlay();
+                    }
+                }
+            },
+
+            showLockOverlay() {
+                const overlay = document.getElementById('privacyLockOverlay');
+                const input = document.getElementById('privacyUnlockInput');
+                const err = document.getElementById('privacyUnlockError');
+                if (overlay) {
+                    overlay.classList.remove('hidden');
+                    if (err) err.classList.add('hidden');
+                    if (input) {
+                        input.value = '';
+                        setTimeout(() => input.focus(), 150);
+                    }
+                }
+            },
+
+            hideLockOverlay() {
+                const overlay = document.getElementById('privacyLockOverlay');
+                if (overlay) overlay.classList.add('hidden');
+            },
+
+            bindUI() {
+                const pinLockBtn = document.getElementById('pinLockBtn');
+                const closePinModalBtn = document.getElementById('closePinModalBtn');
+                const saveNewPinBtn = document.getElementById('saveNewPinBtn');
+                const lockNowBtn = document.getElementById('lockNowBtn');
+                const toggleChangePinBtn = document.getElementById('toggleChangePinBtn');
+                const executeChangePinBtn = document.getElementById('executeChangePinBtn');
+                const removePinBtn = document.getElementById('removePinBtn');
+
+                if (pinLockBtn) {
+                    pinLockBtn.onclick = () => this.openManagePinModal();
+                }
+
+                if (closePinModalBtn) {
+                    closePinModalBtn.onclick = () => {
+                        document.getElementById('managePinModal')?.classList.add('hidden');
+                    };
+                }
+
+                if (saveNewPinBtn) {
+                    saveNewPinBtn.onclick = async () => {
+                        const newPin = document.getElementById('newPinInput')?.value;
+                        const confirmPin = document.getElementById('confirmPinInput')?.value;
+                        if (!newPin || newPin.length < 4) {
+                            showToast('PIN must be at least 4 digits/characters', 'warning');
+                            return;
+                        }
+                        if (newPin !== confirmPin) {
+                            showToast('PINs do not match', 'warning');
+                            return;
+                        }
+                        const hash = await this.sha256(newPin);
+                        localStorage.setItem('bt_pin_hash', hash);
+                        sessionStorage.setItem('bt_session_unlocked', 'true');
+                        this.updatePadlockIcon();
+                        document.getElementById('managePinModal')?.classList.add('hidden');
+                        showToast('Privacy PIN enabled successfully! 🔒', 'success');
+                    };
+                }
+
+                if (lockNowBtn) {
+                    lockNowBtn.onclick = () => {
+                        sessionStorage.removeItem('bt_session_unlocked');
+                        document.getElementById('managePinModal')?.classList.add('hidden');
+                        this.showLockOverlay();
+                    };
+                }
+
+                if (toggleChangePinBtn) {
+                    toggleChangePinBtn.onclick = () => {
+                        const form = document.getElementById('changePinForm');
+                        const arrow = document.getElementById('changePinToggleArrow');
+                        if (form) {
+                            form.classList.toggle('hidden');
+                            if (arrow) arrow.textContent = form.classList.contains('hidden') ? '▾' : '▴';
+                        }
+                    };
+                }
+
+                if (executeChangePinBtn) {
+                    executeChangePinBtn.onclick = async () => {
+                        const oldPin = document.getElementById('oldPinInput')?.value;
+                        const updatePin = document.getElementById('updatePinInput')?.value;
+                        const savedHash = localStorage.getItem('bt_pin_hash');
+                        const oldHash = await this.sha256(oldPin || '');
+                        if (oldHash !== savedHash) {
+                            showToast('Current PIN is incorrect', 'warning');
+                            return;
+                        }
+                        if (!updatePin || updatePin.length < 4) {
+                            showToast('New PIN must be at least 4 characters', 'warning');
+                            return;
+                        }
+                        const newHash = await this.sha256(updatePin);
+                        localStorage.setItem('bt_pin_hash', newHash);
+                        document.getElementById('managePinModal')?.classList.add('hidden');
+                        showToast('PIN updated successfully! 🔒', 'success');
+                    };
+                }
+
+                if (removePinBtn) {
+                    removePinBtn.onclick = () => {
+                        if (confirm('Disable privacy PIN lock? Anyone with the URL will be able to view logs without entering a PIN.')) {
+                            localStorage.removeItem('bt_pin_hash');
+                            sessionStorage.removeItem('bt_session_unlocked');
+                            this.updatePadlockIcon();
+                            document.getElementById('managePinModal')?.classList.add('hidden');
+                            showToast('Privacy PIN removed 🔓', 'info');
+                        }
+                    };
+                }
+            },
+
+            openManagePinModal() {
+                const modal = document.getElementById('managePinModal');
+                const notSetConfig = document.getElementById('pinNotSetConfig');
+                const activeConfig = document.getElementById('pinActiveConfig');
+                const modalIcon = document.getElementById('managePinModalIcon');
+                const modalTitle = document.getElementById('managePinModalTitle');
+
+                if (this.isPinSet()) {
+                    if (notSetConfig) notSetConfig.classList.add('hidden');
+                    if (activeConfig) activeConfig.classList.remove('hidden');
+                    if (modalIcon) modalIcon.textContent = '🔒';
+                    if (modalTitle) modalTitle.textContent = 'Privacy Lock Protected';
+                } else {
+                    if (notSetConfig) notSetConfig.classList.remove('hidden');
+                    if (activeConfig) activeConfig.classList.add('hidden');
+                    if (modalIcon) modalIcon.textContent = '🔓';
+                    if (modalTitle) modalTitle.textContent = 'Setup Privacy PIN Lock';
+                    const newPinInput = document.getElementById('newPinInput');
+                    const confirmPinInput = document.getElementById('confirmPinInput');
+                    if (newPinInput) newPinInput.value = '';
+                    if (confirmPinInput) confirmPinInput.value = '';
+                }
+
+                if (modal) modal.classList.remove('hidden');
+            },
+
+            keypadPress(val) {
+                const input = document.getElementById('privacyUnlockInput');
+                if (!input) return;
+                if (val === 'clear') {
+                    input.value = '';
+                } else if (val === 'back') {
+                    input.value = input.value.slice(0, -1);
+                } else {
+                    input.value += val;
+                }
+            },
+
+            async handleUnlockSubmit() {
+                const input = document.getElementById('privacyUnlockInput');
+                const err = document.getElementById('privacyUnlockError');
+                const card = document.getElementById('privacyLockCard');
+                const entered = input ? input.value : '';
+                const savedHash = localStorage.getItem('bt_pin_hash');
+
+                if (!savedHash) {
+                    this.hideLockOverlay();
+                    return;
+                }
+
+                const enteredHash = await this.sha256(entered);
+                if (enteredHash === savedHash) {
+                    sessionStorage.setItem('bt_session_unlocked', 'true');
+                    this.hideLockOverlay();
+                    showToast('Welcome back! BabyTracker unlocked 🔓', 'success');
+                } else {
+                    if (err) err.classList.remove('hidden');
+                    if (card) {
+                        card.classList.add('animate-shake');
+                        setTimeout(() => card.classList.remove('animate-shake'), 600);
+                    }
+                    if (input) {
+                        input.value = '';
+                        input.focus();
+                    }
+                }
+            }
+        };
+
         // ==================== PARTNER SHARING & CLOUD SYNC ====================
 
         const sharePartnerBtn = document.getElementById('sharePartnerBtn');
@@ -6089,19 +7499,25 @@
         const copyShareUrlBtn = document.getElementById('copyShareUrlBtn');
         const createNewRoomBtn = document.getElementById('createNewRoomBtn');
         const shareUrlInput = document.getElementById('shareUrlInput');
-        const syncNowBtn = document.getElementById('syncNowBtn');
+        const syncNowBtn = document.getElementById('syncNowBtn') || document.getElementById('modalSyncNowBtn');
         const modalSyncNowBtn = document.getElementById('modalSyncNowBtn');
         const testSyncBtn = document.getElementById('testSyncBtn');
 
-        syncNowBtn.onclick = () => {
-            SyncEngine.syncAll(true);
-        };
-        modalSyncNowBtn.onclick = () => {
-            SyncEngine.syncAll(true);
-        };
-        testSyncBtn.onclick = () => {
-            SyncEngine.sendTestPing();
-        };
+        if (syncNowBtn) {
+            syncNowBtn.onclick = () => {
+                SyncEngine.syncAll(true);
+            };
+        }
+        if (modalSyncNowBtn && modalSyncNowBtn !== syncNowBtn) {
+            modalSyncNowBtn.onclick = () => {
+                SyncEngine.syncAll(true);
+            };
+        }
+        if (testSyncBtn) {
+            testSyncBtn.onclick = () => {
+                SyncEngine.sendTestPing();
+            };
+        }
 
         // 1-Tap Direct Transfer Code Handlers
         const copyTransferCodeBtn = document.getElementById('copyTransferCodeBtn');
@@ -6661,6 +8077,7 @@
                 dailyFeedGoalMl: AppState.dailyFeedGoalMl,
                 feedReminder: AppState.feedReminder,
                 pumpReminder: AppState.pumpReminder,
+                appointments: AppState.appointments || [],
                 logs: AppState.logs
             };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
@@ -6704,6 +8121,11 @@
                             AppState.pumpReminder.nextPumpTargetTime = parsed.pumpReminder.nextPumpTargetTime;
                             savePumpReminderLocally();
                             updatePumpCountdownUI();
+                        }
+                        if (Array.isArray(parsed.appointments)) {
+                            AppState.appointments = parsed.appointments;
+                            localStorage.setItem('bt_appointments', JSON.stringify(AppState.appointments));
+                            if (typeof CalendarSyncEngine !== 'undefined') CalendarSyncEngine.render();
                         }
                     }
                     saveLogsToStorage();
