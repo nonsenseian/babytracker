@@ -70,6 +70,30 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(148, 163, 184, 1);
         }
+
+        /* Modal Scroll Container with Touch Momentum & Visible Scrollbar */
+        .modal-scroll-container {
+            max-height: 85vh;
+            max-height: 85dvh;
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+        }
+        .modal-scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.6);
+            border-radius: 9999px;
+        }
+        .modal-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.9);
+        }
         
         /* ==================== VISUAL THEMES ENGINE ==================== */
         
@@ -1620,9 +1644,9 @@
     </div>
 
     <!-- 2. Partner Share / Sync Modal -->
-    <div id="sharePartnerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-nightCard border border-sky-200/80 dark:border-nightBorder rounded-3xl max-w-md w-full shadow-2xl p-6 relative">
-            <button id="closeShareModalBtn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+    <div id="sharePartnerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white dark:bg-nightCard border border-sky-200/80 dark:border-nightBorder rounded-3xl max-w-md w-full shadow-2xl p-5 sm:p-6 relative max-h-[85vh] sm:max-h-[88vh] overflow-y-auto overscroll-contain modal-scroll-container">
+            <button id="closeShareModalBtn" class="sticky top-0 float-right -mt-1 -mr-1 z-20 w-8 h-8 rounded-full bg-slate-100/90 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold flex items-center justify-center backdrop-blur-xs transition-colors shadow-xs" title="Close Modal">
                 ✕
             </button>
 
@@ -2014,6 +2038,8 @@
                 </div>
             </div>
         </div>
+    </div>
+
     <!-- 23-Hour Vitamin Safety Guardrail Modal -->
     <div id="vitaminSafetyModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white dark:bg-nightCard border-2 border-rose-400 dark:border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-left animate-in fade-in zoom-in-95 duration-150">
@@ -2290,6 +2316,12 @@
                 const secs = String(AppState.timers.feed.seconds % 60).padStart(2, '0');
                 const disp = document.getElementById('feedTimerDisplay');
                 if (disp) disp.textContent = `${mins}:${secs}`;
+                if (AppState.timers.feed.seconds >= 3540 && !AppState.timers.feed.discardWarned) {
+                    AppState.timers.feed.discardWarned = true;
+                    document.getElementById('discardMilkAlertBanner')?.classList.remove('hidden');
+                    AudioSynth.playAlarm('alarm');
+                    showToast('⚠️ 59m Warning: Discard milk 1 hour after feed start per CDC guidelines!', 'warning');
+                }
             }
 
             // 5. Pumping stopwatch catch-up
@@ -2304,6 +2336,23 @@
             updateFeedCountdownUI();
             updatePumpCountdownUI();
             persistTimersLocally();
+        }
+
+        // Safe Fetch with AbortController Timeout to prevent hung connections on mobile Safari / WebKit
+        async function safeFetchWithTimeout(url, options = {}, timeoutMs = 3500) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                return response;
+            } catch(err) {
+                clearTimeout(timer);
+                throw err;
+            }
         }
 
         // ==================== CLOUD SYNC ENGINE ====================
@@ -2524,32 +2573,40 @@
 
                 this.updateSyncUI('syncing');
 
-                // 2. Broadcast to Supabase if configured
-                if (this.supabase) {
-                    try {
-                        await this.supabase
-                            .from('baby_rooms')
-                            .upsert({
-                                room_id: AppState.roomId,
-                                state: payload,
-                                updated_at: new Date().toISOString()
-                            });
-                        this.updateSyncUI('connected');
-                        return;
-                    } catch(e) {}
-                }
-
-                // 3. Fallback broadcast to HTTP relay
                 try {
-                    const res = await fetch(`https://ntfy.sh/${this.topic}`, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
-                    if (res.ok) {
-                        this.updateSyncUI('connected');
+                    // 2. Broadcast to Supabase if configured
+                    if (this.supabase) {
+                        try {
+                            await this.supabase
+                                .from('baby_rooms')
+                                .upsert({
+                                    room_id: AppState.roomId,
+                                    state: payload,
+                                    updated_at: new Date().toISOString()
+                                });
+                            this.updateSyncUI('connected');
+                            return;
+                        } catch(e) {
+                            console.warn('Supabase broadcast failed:', e);
+                        }
                     }
-                } catch(err) {
-                    this.updateSyncUI('connected');
+
+                    // 3. Fallback broadcast to HTTP relay with strict timeout
+                    try {
+                        const res = await safeFetchWithTimeout(`https://ntfy.sh/${this.topic}`, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        }, 3500);
+                        if (res.ok) {
+                            this.updateSyncUI('connected');
+                        } else {
+                            this.updateSyncUI('offline');
+                        }
+                    } catch(err) {
+                        this.updateSyncUI('offline');
+                    }
+                } finally {
+                    this.isSyncing = false;
                 }
             },
 
@@ -2557,7 +2614,7 @@
                 if (!obj) return null;
                 if (obj.attachment && obj.attachment.url) {
                     try {
-                        const attRes = await fetch(obj.attachment.url);
+                        const attRes = await safeFetchWithTimeout(obj.attachment.url, {}, 3500);
                         if (attRes.ok) {
                             return await attRes.json();
                         }
@@ -2606,10 +2663,10 @@
 
                     this.eventSource.onerror = () => {
                         setTimeout(() => {
-                            if (document.visibilityState === 'visible') {
+                            if (document.visibilityState === 'visible' && !this.supabase) {
                                 this.connectSSE();
                             }
-                        }, 8000);
+                        }, 12000);
                     };
                 } catch(err) {}
             },
@@ -2626,10 +2683,10 @@
                     try { localChannel.postMessage(ping); } catch(e) {}
                 }
                 try {
-                    await fetch(`https://ntfy.sh/${this.topic}`, {
+                    await safeFetchWithTimeout(`https://ntfy.sh/${this.topic}`, {
                         method: 'POST',
                         body: JSON.stringify(ping)
-                    });
+                    }, 3000);
                 } catch(e) {}
             },
 
@@ -2641,65 +2698,80 @@
                 try {
                     // 1. Pull from Supabase if configured
                     if (this.supabase) {
-                        const { data, error } = await this.supabase
-                            .from('baby_rooms')
-                            .select('state')
-                            .eq('room_id', AppState.roomId)
-                            .maybeSingle();
+                        try {
+                            const { data, error } = await this.supabase
+                                .from('baby_rooms')
+                                .select('state')
+                                .eq('room_id', AppState.roomId)
+                                .maybeSingle();
 
-                        if (data && data.state) {
-                            const changed = this.applyRemoteState(data.state, false);
-                            if (showToastNotify) {
-                                showToast(changed ? `Synced ${AppState.logs.length} activities from cloud! 🍼` : `Everything up to date! (${AppState.logs.length} activities) ✨`, 'success');
-                            }
-                            this.updateSyncUI('connected');
-                            this.isSyncing = false;
-                            return;
-                        }
-                    }
-
-                    // 2. Fallback pull from HTTP relay
-                    if (this.topic) {
-                        const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=all`);
-                        if (res.ok) {
-                            const text = await res.text();
-                            const lines = text.trim().split('\n');
-                            let remotePayloads = [];
-
-                            for (const line of lines) {
-                                if (!line) continue;
-                                try {
-                                    const obj = JSON.parse(line);
-                                    if (obj.event === 'message') {
-                                        const payload = await this.extractPayload(obj);
-                                        if (payload && (payload.logs || payload.timestamp)) {
-                                            remotePayloads.push(payload);
-                                        }
-                                    }
-                                } catch(e) {}
-                            }
-
-                            remotePayloads.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-                            let anyChanged = false;
-                            remotePayloads.forEach(payload => {
-                                const chg = this.applyRemoteState(payload, false);
-                                if (chg) anyChanged = true;
-                            });
-
-                            if (anyChanged || showToastNotify) {
-                                if (anyChanged && AppState.logs && AppState.logs.length > 0) {
-                                    this.broadcast();
-                                }
+                            if (data && data.state) {
+                                const changed = this.applyRemoteState(data.state, false);
                                 if (showToastNotify) {
-                                    showToast(anyChanged ? `Synced & updated ${AppState.logs.length} activities! 🍼` : `Synced with room! ${AppState.logs.length} activities up to date. ✨`, 'success');
+                                    showToast(changed ? `Synced ${AppState.logs.length} activities from cloud DB! 🍼` : `Everything up to date! (${AppState.logs.length} activities) ✨`, 'success');
                                 }
+                                this.updateSyncUI('connected');
+                                return;
                             }
+                        } catch(sbErr) {
+                            console.warn('Supabase pull error:', sbErr);
                         }
                     }
-                    this.updateSyncUI('connected');
+
+                    // 2. Fallback pull from HTTP relay with strict timeout
+                    if (this.topic) {
+                        try {
+                            const res = await safeFetchWithTimeout(`https://ntfy.sh/${this.topic}/json?poll=1&since=all`, {}, 3500);
+                            if (res.ok) {
+                                const text = await res.text();
+                                const lines = text.trim().split('\n');
+                                let remotePayloads = [];
+
+                                for (const line of lines) {
+                                    if (!line) continue;
+                                    try {
+                                        const obj = JSON.parse(line);
+                                        if (obj.event === 'message') {
+                                            const payload = await this.extractPayload(obj);
+                                            if (payload && (payload.logs || payload.timestamp)) {
+                                                remotePayloads.push(payload);
+                                            }
+                                        }
+                                    } catch(e) {}
+                                }
+
+                                remotePayloads.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                                let anyChanged = false;
+                                remotePayloads.forEach(payload => {
+                                    const chg = this.applyRemoteState(payload, false);
+                                    if (chg) anyChanged = true;
+                                });
+
+                                if (anyChanged || showToastNotify) {
+                                    if (anyChanged && AppState.logs && AppState.logs.length > 0) {
+                                        this.broadcast();
+                                    }
+                                    if (showToastNotify) {
+                                        showToast(anyChanged ? `Synced & updated ${AppState.logs.length} activities! 🍼` : `Synced with room! ${AppState.logs.length} activities up to date. ✨`, 'success');
+                                    }
+                                }
+                                this.updateSyncUI('connected');
+                                return;
+                            }
+                        } catch(relayErr) {}
+                    }
+
+                    // If neither responded, degrade gracefully to local offline safeguard
+                    this.updateSyncUI('offline');
+                    if (showToastNotify) {
+                        showToast(`Cloud relay unavailable. All ${AppState.logs.length} activities safeguarded locally! Tip: Use 1-Tap Transfer Code.`, 'info');
+                    }
                 } catch(err) {
-                    this.updateSyncUI('connected');
+                    this.updateSyncUI('offline');
+                    if (showToastNotify) {
+                        showToast(`Sync timed out. All ${AppState.logs.length} activities safeguarded locally!`, 'info');
+                    }
                 } finally {
                     this.isSyncing = false;
                 }
@@ -2707,29 +2779,50 @@
 
             async syncAll(showToastNotify = true) {
                 this.updateSyncUI('syncing');
-                // 1. If we have local logs, push local state first
-                if (AppState.logs && AppState.logs.length > 0) {
-                    await this.broadcast();
+                try {
+                    // 1. If we have local logs, push local state first
+                    if (AppState.logs && AppState.logs.length > 0) {
+                        await this.broadcast();
+                    }
+                    // 2. Proactively ping peers in room
+                    this.sendSyncRequest();
+                    // 3. Pull latest remote state
+                    await this.pullLatest(showToastNotify);
+                } catch(err) {
+                    this.updateSyncUI('offline');
+                } finally {
+                    this.isSyncing = false;
                 }
-                // 2. Proactively ping peers in room
-                this.sendSyncRequest();
-                // 3. Pull latest remote state
-                await this.pullLatest(showToastNotify);
             },
 
             async sendTestPing() {
+                let sent = false;
+                if (localChannel) {
+                    try {
+                        localChannel.postMessage({
+                            type: 'PING',
+                            senderId: AppState.deviceId,
+                            timestamp: Date.now()
+                        });
+                        sent = true;
+                    } catch(e) {}
+                }
                 try {
-                    await fetch(`https://ntfy.sh/${this.topic}`, {
+                    const res = await safeFetchWithTimeout(`https://ntfy.sh/${this.topic}`, {
                         method: 'POST',
                         body: JSON.stringify({
                             type: 'PING',
                             senderId: AppState.deviceId,
                             timestamp: Date.now()
                         })
-                    });
+                    }, 3000);
+                    if (res.ok) sent = true;
+                } catch(e) {}
+
+                if (sent) {
                     showToast('Ping sent to partner! 🔔', 'success');
-                } catch(e) {
-                    showToast('Error sending ping', 'info');
+                } else {
+                    showToast('Ping broadcast locally (Cloud relay offline — connect Supabase or use Transfer Code)', 'info');
                 }
             },
 
@@ -2841,6 +2934,25 @@
                         }
                     }
 
+                    // Feed stopwatch
+                    if (remote.timers.feed && remote.timers.feed.active && !AppState.timers.feed.active && remote.timers.feed.startTime) {
+                        AppState.timers.feed.active = true;
+                        AppState.timers.feed.isPaused = !!remote.timers.feed.isPaused;
+                        AppState.timers.feed.startTime = remote.timers.feed.startTime;
+                        AppState.timers.feed.seconds = remote.timers.feed.seconds || Math.max(0, Math.floor((Date.now() - remote.timers.feed.startTime) / 1000));
+                        initTimers();
+                        changed = true;
+                    }
+
+                    // Pumping stopwatch
+                    if (remote.pumpReminder && remote.pumpReminder.isPumping && !AppState.pumpReminder.isPumping && remote.pumpReminder.pumpingStartTime) {
+                        AppState.pumpReminder.isPumping = true;
+                        AppState.pumpReminder.pumpingStartTime = remote.pumpReminder.pumpingStartTime;
+                        AppState.pumpReminder.pumpingSeconds = remote.pumpReminder.pumpingSeconds || Math.max(0, Math.floor((Date.now() - remote.pumpReminder.pumpingStartTime) / 1000));
+                        initTimers();
+                        changed = true;
+                    }
+
                     persistTimersLocally();
                 }
 
@@ -2934,7 +3046,7 @@
                     if (spin) spin.classList.remove('spin-active');
                     if (modalStatus) {
                         modalStatus.innerHTML = this.supabase 
-                            ? '<span class="text-emerald-500 font-bold">🟢 Supabase Realtime DB</span>'
+                            ? '<span class="text-emerald-500 font-bold">🟢 Supabase Realtime DB Connected</span>'
                             : '<span class="text-emerald-500 font-bold">🟢 Active & Connected</span>';
                     }
                 } else if (status === 'syncing') {
@@ -2943,10 +3055,10 @@
                     if (spin) spin.classList.add('spin-active');
                     if (modalStatus) modalStatus.innerHTML = '<span class="text-amber-500 font-bold">🔄 Syncing Cloud Data...</span>';
                 } else {
-                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400';
-                    if (badge) badge.textContent = 'Offline';
+                    if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                    if (badge) badge.textContent = 'Safeguarded';
                     if (spin) spin.classList.remove('spin-active');
-                    if (modalStatus) modalStatus.innerHTML = '<span class="text-slate-400 font-bold">🟡 Offline (Safeguarded Locally)</span>';
+                    if (modalStatus) modalStatus.innerHTML = '<span class="text-amber-600 dark:text-amber-400 font-bold">🟡 Offline (Data 100% Safeguarded Locally)</span>';
                 }
             }
         };
@@ -3173,64 +3285,7 @@
         }
 
         function syncAllActiveTimersOnWake() {
-            // 1. Feed live stopwatch
-            if (AppState.timers.feed.active && !AppState.timers.feed.isPaused && AppState.timers.feed.startTime) {
-                const diffSecs = Math.floor((Date.now() - AppState.timers.feed.startTime) / 1000);
-                AppState.timers.feed.seconds = diffSecs;
-                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
-                const secs = String(diffSecs % 60).padStart(2, '0');
-                const disp = document.getElementById('feedTimerDisplay');
-                if (disp) disp.textContent = `${mins}:${secs}`;
-                if (diffSecs >= 3540 && !AppState.timers.feed.discardWarned) {
-                    AppState.timers.feed.discardWarned = true;
-                    document.getElementById('discardMilkAlertBanner')?.classList.remove('hidden');
-                    AudioSynth.playAlarm('alarm');
-                    showToast('⚠️ 59m Warning: Discard milk 1 hour after feed start per CDC guidelines!', 'warning');
-                }
-            }
-            // 2. Pumping live stopwatch
-            if (AppState.pumpReminder.isPumping && AppState.pumpReminder.pumpingStartTime) {
-                const diffSecs = Math.floor((Date.now() - AppState.pumpReminder.pumpingStartTime) / 1000);
-                AppState.pumpReminder.pumpingSeconds = diffSecs;
-                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
-                const secs = String(diffSecs % 60).padStart(2, '0');
-                const disp = document.getElementById('pumpingTimerDisplay');
-                if (disp) disp.textContent = `${mins}:${secs}`;
-            }
-            // 3. Sleep live stopwatch
-            if (AppState.timers.sleep.active && AppState.timers.sleep.startTime) {
-                const diffSecs = Math.floor((Date.now() - AppState.timers.sleep.startTime) / 1000);
-                AppState.timers.sleep.seconds = diffSecs;
-                const hrs = String(Math.floor(diffSecs / 3600)).padStart(2, '0');
-                const mins = String(Math.floor((diffSecs % 3600) / 60)).padStart(2, '0');
-                const secs = String(diffSecs % 60).padStart(2, '0');
-                const disp = document.getElementById('sleepTimerDisplay');
-                if (disp) disp.textContent = `${hrs}:${mins}:${secs}`;
-            }
-            // 4. Tummy live stopwatch
-            if (AppState.timers.tummy.active && AppState.timers.tummy.startTime) {
-                const diffSecs = Math.floor((Date.now() - AppState.timers.tummy.startTime) / 1000);
-                AppState.timers.tummy.seconds = diffSecs;
-                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
-                const secs = String(diffSecs % 60).padStart(2, '0');
-                const disp = document.getElementById('tummyTimerDisplay');
-                if (disp) disp.textContent = `${mins}:${secs}`;
-            }
-            // 5. Nursing live stopwatch
-            if (AppState.timers.nursing.activeSide && AppState.timers.nursing.sideStartTime) {
-                const diffSecs = Math.floor((Date.now() - AppState.timers.nursing.sideStartTime) / 1000);
-                if (AppState.timers.nursing.activeSide === 'left') {
-                    AppState.timers.nursing.leftSeconds = (AppState.timers.nursing.baseLeftSeconds || 0) + diffSecs;
-                } else if (AppState.timers.nursing.activeSide === 'right') {
-                    AppState.timers.nursing.rightSeconds = (AppState.timers.nursing.baseRightSeconds || 0) + diffSecs;
-                }
-                if (typeof updateNursingDisplay === 'function') {
-                    updateNursingDisplay();
-                }
-            }
-            // 6. Next Feed & Next Pump Countdowns
-            updateFeedCountdownUI();
-            updatePumpCountdownUI();
+            recalcTimersOnWake();
         }
 
         function initFeedReminder() {
@@ -3290,6 +3345,7 @@
                         pauseFeedTimerBtn.textContent = '⏸️';
                         document.getElementById('feedTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-sky-400');
 
+                        if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
                         AppState.timers.feed.intervalId = setInterval(() => {
                             if (!AppState.timers.feed.isPaused) {
                                 const diffSecs = Math.floor((Date.now() - AppState.timers.feed.startTime) / 1000);
@@ -3315,6 +3371,7 @@
                             }
                         }, 1000);
 
+                        persistTimersLocally();
                         showToast('Feed stopwatch started! 🍼', 'info');
                     } else {
                         cancelFeedTimerBtn.click();
@@ -3336,8 +3393,26 @@
                         feedLiveBadge.textContent = 'Feeding...';
                         feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase animate-pulse';
                         pauseFeedTimerBtn.textContent = '⏸️';
+                        if (!AppState.timers.feed.intervalId) {
+                            AppState.timers.feed.intervalId = setInterval(() => {
+                                if (!AppState.timers.feed.isPaused) {
+                                    const diffSecs = Math.floor((Date.now() - AppState.timers.feed.startTime) / 1000);
+                                    AppState.timers.feed.seconds = diffSecs;
+                                    const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                                    const secs = String(diffSecs % 60).padStart(2, '0');
+                                    feedTimerDisplay.textContent = `${mins}:${secs}`;
+                                    if (diffSecs >= 3540 && !AppState.timers.feed.discardWarned) {
+                                        AppState.timers.feed.discardWarned = true;
+                                        discardAlert?.classList.remove('hidden');
+                                        AudioSynth.playAlarm('alarm');
+                                        showToast('⚠️ 59m Warning: Discard milk 1 hour after feed start per CDC guidelines!', 'warning');
+                                    }
+                                }
+                            }, 1000);
+                        }
                         showToast('Feed resumed ▶️', 'info');
                     }
+                    persistTimersLocally();
                 };
             }
 
@@ -3347,6 +3422,7 @@
                         if (!confirm('Are you sure you want to reset the Feed timer? Any elapsed time will be discarded.')) return;
                     }
                     if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
+                    AppState.timers.feed.intervalId = null;
                     AppState.timers.feed.active = false;
                     AppState.timers.feed.isPaused = false;
                     AppState.timers.feed.seconds = 0;
@@ -3363,6 +3439,7 @@
                     pauseFeedTimerBtn.textContent = '⏸️';
                     discardAlert?.classList.add('hidden');
                     document.getElementById('feedTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-sky-400');
+                    persistTimersLocally();
                 };
             }
 
@@ -3372,6 +3449,7 @@
                     const feedStartTime = AppState.timers.feed.startTime || (Date.now() - (AppState.timers.feed.seconds * 1000));
                     
                     if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
+                    AppState.timers.feed.intervalId = null;
                     AppState.timers.feed.active = false;
                     AppState.timers.feed.isPaused = false;
                     AppState.timers.feed.seconds = 0;
@@ -3388,6 +3466,7 @@
                     pauseFeedTimerBtn.textContent = '⏸️';
                     discardAlert?.classList.add('hidden');
                     document.getElementById('feedTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-sky-400');
+                    persistTimersLocally();
 
                     // Open log modal with duration prefilled and 50 mL default
                     openLogModal('feeding');
@@ -3449,6 +3528,7 @@
                         togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
                         document.getElementById('pumpingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-amber-400');
 
+                        if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
                         AppState.pumpReminder.intervalId = setInterval(() => {
                             const diffSecs = Math.floor((Date.now() - AppState.pumpReminder.pumpingStartTime) / 1000);
                             AppState.pumpReminder.pumpingSeconds = diffSecs;
@@ -3457,12 +3537,15 @@
                             document.getElementById('pumpingTimerDisplay').textContent = `${mins}:${secs}`;
                         }, 1000);
 
+                        persistTimersLocally();
                         showToast('Pumping stopwatch started! 🥛', 'info');
                     } else {
                         // Finish & Save pump
                         const elapsedMins = Math.max(1, Math.round(AppState.pumpReminder.pumpingSeconds / 60));
-                        clearInterval(AppState.pumpReminder.intervalId);
+                        if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
+                        AppState.pumpReminder.intervalId = null;
                         AppState.pumpReminder.isPumping = false;
+                        AppState.pumpReminder.pumpingSeconds = 0;
 
                         document.getElementById('pumpingTimerText').textContent = 'Start Pump';
                         document.getElementById('pumpingLiveBadge').textContent = 'Ready';
@@ -3470,11 +3553,12 @@
                         togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                         document.getElementById('pumpingTimerDisplay').textContent = '00:00';
                         document.getElementById('pumpingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-amber-400');
+                        persistTimersLocally();
 
                         // Open log modal with pumping selected, duration prefilled, and start time
                         openLogModal('pumping');
                         document.getElementById('pumpDurationInput').value = elapsedMins;
-                        const startDate = new Date(AppState.pumpReminder.pumpingStartTime);
+                        const startDate = new Date(AppState.pumpReminder.pumpingStartTime || Date.now());
                         document.getElementById('modalDateInput').value = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
                         document.getElementById('modalTimeInput').value = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
                     }
@@ -3487,13 +3571,16 @@
                         if (!confirm('Are you sure you want to reset the Pumping stopwatch? Any elapsed time will be discarded.')) return;
                     }
                     if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
+                    AppState.pumpReminder.intervalId = null;
                     AppState.pumpReminder.isPumping = false;
                     AppState.pumpReminder.pumpingSeconds = 0;
+                    AppState.pumpReminder.pumpingStartTime = null;
                     document.getElementById('pumpingTimerText').textContent = 'Start Pump';
                     document.getElementById('pumpingLiveBadge').textContent = 'Ready';
                     togglePumpingTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                     document.getElementById('pumpingTimerDisplay').textContent = '00:00';
                     document.getElementById('pumpingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-amber-400');
+                    persistTimersLocally();
                 };
             }
         }
@@ -5004,64 +5091,254 @@
 
         // ==================== TIMERS IMPLEMENTATION ====================
 
+        function formatMinsSecs(totalSecs) {
+            const mins = String(Math.floor((totalSecs || 0) / 60)).padStart(2, '0');
+            const secs = String(Math.floor((totalSecs || 0) % 60)).padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        function formatHrsMinsSecs(totalSecs) {
+            const hrs = String(Math.floor((totalSecs || 0) / 3600)).padStart(2, '0');
+            const mins = String(Math.floor(((totalSecs || 0) % 3600) / 60)).padStart(2, '0');
+            const secs = String(Math.floor((totalSecs || 0) % 60)).padStart(2, '0');
+            return `${hrs}:${mins}:${secs}`;
+        }
+
         function initTimers() {
             const savedTimers = localStorage.getItem('bt_timers');
-            if (savedTimers) {
-                try {
-                    const parsed = JSON.parse(savedTimers);
-                    const now = Date.now();
+            if (!savedTimers) return;
+            try {
+                const parsed = JSON.parse(savedTimers);
+                const now = Date.now();
 
-                    // 1. Sleep Nap Timer
-                    if (parsed.sleep && parsed.sleep.active && parsed.sleep.startTime) {
-                        AppState.timers.sleep.active = true;
-                        AppState.timers.sleep.startTime = parsed.sleep.startTime;
-                        AppState.timers.sleep.seconds = Math.max(0, Math.floor((now - parsed.sleep.startTime) / 1000));
-                        startSleepInterval();
-                        document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
-                    }
+                // 1. Bottle Feed Stopwatch (AppState.timers.feed)
+                if (parsed.feed && (parsed.feed.active || (parsed.feed.seconds && parsed.feed.seconds > 0))) {
+                    AppState.timers.feed.active = !!parsed.feed.active;
+                    AppState.timers.feed.isPaused = !!parsed.feed.isPaused;
+                    AppState.timers.feed.discardWarned = !!parsed.feed.discardWarned;
+                    AppState.timers.feed.startTime = parsed.feed.startTime || null;
 
-                    // 2. Nursing Timer
-                    if (parsed.nursing) {
-                        AppState.timers.nursing.baseLeftSeconds = parsed.nursing.baseLeftSeconds || 0;
-                        AppState.timers.nursing.baseRightSeconds = parsed.nursing.baseRightSeconds || 0;
-                        AppState.timers.nursing.leftSeconds = parsed.nursing.leftSeconds || 0;
-                        AppState.timers.nursing.rightSeconds = parsed.nursing.rightSeconds || 0;
-                        if (parsed.nursing.activeSide && parsed.nursing.sideStartTime) {
-                            AppState.timers.nursing.sideStartTime = parsed.nursing.sideStartTime;
-                            const diffSecs = Math.floor((now - parsed.nursing.sideStartTime) / 1000);
-                            if (parsed.nursing.activeSide === 'left') {
-                                AppState.timers.nursing.leftSeconds = AppState.timers.nursing.baseLeftSeconds + diffSecs;
-                            } else if (parsed.nursing.activeSide === 'right') {
-                                AppState.timers.nursing.rightSeconds = AppState.timers.nursing.baseRightSeconds + diffSecs;
-                            }
-                            switchNursingBreast(parsed.nursing.activeSide);
+                    if (AppState.timers.feed.active) {
+                        if (AppState.timers.feed.isPaused) {
+                            AppState.timers.feed.seconds = parsed.feed.seconds || 0;
+                        } else if (AppState.timers.feed.startTime) {
+                            AppState.timers.feed.seconds = Math.max(0, Math.floor((now - AppState.timers.feed.startTime) / 1000));
                         } else {
-                            updateNursingDisplay();
+                            AppState.timers.feed.seconds = parsed.feed.seconds || 0;
+                            AppState.timers.feed.startTime = now - (AppState.timers.feed.seconds * 1000);
                         }
+                    } else {
+                        AppState.timers.feed.seconds = parsed.feed.seconds || 0;
                     }
 
-                    // 3. Tummy Time
-                    if (parsed.tummy && parsed.tummy.active && parsed.tummy.startTime) {
-                        AppState.timers.tummy.active = true;
-                        AppState.timers.tummy.startTime = parsed.tummy.startTime;
-                        AppState.timers.tummy.seconds = Math.max(0, Math.floor((now - parsed.tummy.startTime) / 1000));
-                        const toggleTummyTimerBtn = document.getElementById('toggleTummyTimerBtn');
-                        if (toggleTummyTimerBtn) {
-                            document.getElementById('tummyTimerText').textContent = 'Done & Save';
-                            toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
-                            document.getElementById('tummyTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-emerald-400');
-                            AppState.timers.tummy.intervalId = setInterval(() => {
-                                const diffSecs = Math.floor((Date.now() - AppState.timers.tummy.startTime) / 1000);
-                                AppState.timers.tummy.seconds = diffSecs;
-                                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
-                                const secs = String(diffSecs % 60).padStart(2, '0');
-                                const disp = document.getElementById('tummyTimerDisplay');
-                                if (disp) disp.textContent = `${mins}:${secs}`;
+                    const feedDisplay = document.getElementById('feedTimerDisplay');
+                    const feedIcon = document.getElementById('feedTimerIcon');
+                    const feedText = document.getElementById('feedTimerText');
+                    const feedBadge = document.getElementById('feedLiveBadge');
+                    const toggleFeedBtn = document.getElementById('toggleFeedTimerBtn');
+                    const pauseFeedBtn = document.getElementById('pauseFeedTimerBtn');
+                    const feedCard = document.getElementById('feedTimerCard');
+                    const discardAlert = document.getElementById('discardMilkAlertBanner');
+
+                    if (feedDisplay) {
+                        feedDisplay.textContent = formatMinsSecs(AppState.timers.feed.seconds);
+                    }
+
+                    if (AppState.timers.feed.active) {
+                        if (feedIcon) feedIcon.textContent = '⏹️';
+                        if (toggleFeedBtn) {
+                            toggleFeedBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1 timer-active';
+                        }
+                        feedCard?.classList.add('timer-card-active', 'ring-2', 'ring-sky-400');
+                        pauseFeedBtn?.classList.remove('hidden');
+
+                        if (AppState.timers.feed.isPaused) {
+                            if (feedText) feedText.textContent = 'Paused (Burp)';
+                            if (feedBadge) {
+                                feedBadge.textContent = 'Paused (Burp)';
+                                feedBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase';
+                            }
+                            if (pauseFeedBtn) pauseFeedBtn.textContent = '▶️';
+                        } else {
+                            if (feedText) feedText.textContent = 'Running';
+                            if (feedBadge) {
+                                feedBadge.textContent = 'Feeding...';
+                                feedBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase animate-pulse';
+                            }
+                            if (pauseFeedBtn) pauseFeedBtn.textContent = '⏸️';
+
+                            if (AppState.timers.feed.intervalId) clearInterval(AppState.timers.feed.intervalId);
+                            AppState.timers.feed.intervalId = setInterval(() => {
+                                if (!AppState.timers.feed.isPaused) {
+                                    const diffSecs = Math.floor((Date.now() - AppState.timers.feed.startTime) / 1000);
+                                    AppState.timers.feed.seconds = diffSecs;
+                                    const disp = document.getElementById('feedTimerDisplay');
+                                    if (disp) disp.textContent = formatMinsSecs(diffSecs);
+
+                                    if (diffSecs >= 3540 && !AppState.timers.feed.discardWarned) {
+                                        AppState.timers.feed.discardWarned = true;
+                                        document.getElementById('discardMilkAlertBanner')?.classList.remove('hidden');
+                                        AudioSynth.playAlarm('alarm');
+                                        showToast('⚠️ 59m Warning: Discard milk 1 hour after feed start per CDC guidelines!', 'warning');
+                                    }
+                                }
                             }, 1000);
                         }
+
+                        if (AppState.timers.feed.seconds >= 3540) {
+                            discardAlert?.classList.remove('hidden');
+                        }
                     }
-                } catch(e) {}
-            }
+                }
+
+                // 2. Dual Nursing Stopwatch (AppState.timers.nursing)
+                if (parsed.nursing) {
+                    AppState.timers.nursing.baseLeftSeconds = parsed.nursing.baseLeftSeconds || 0;
+                    AppState.timers.nursing.baseRightSeconds = parsed.nursing.baseRightSeconds || 0;
+                    AppState.timers.nursing.leftSeconds = parsed.nursing.leftSeconds || 0;
+                    AppState.timers.nursing.rightSeconds = parsed.nursing.rightSeconds || 0;
+                    AppState.timers.nursing.activeSide = parsed.nursing.activeSide || null;
+                    AppState.timers.nursing.sideStartTime = parsed.nursing.sideStartTime || null;
+
+                    if (parsed.nursing.activeSide && parsed.nursing.sideStartTime) {
+                        const diffSecs = Math.floor((now - parsed.nursing.sideStartTime) / 1000);
+                        if (parsed.nursing.activeSide === 'left') {
+                            AppState.timers.nursing.leftSeconds = AppState.timers.nursing.baseLeftSeconds + diffSecs;
+                        } else if (parsed.nursing.activeSide === 'right') {
+                            AppState.timers.nursing.rightSeconds = AppState.timers.nursing.baseRightSeconds + diffSecs;
+                        }
+
+                        const side = parsed.nursing.activeSide;
+                        const sideBadge = document.getElementById('nursingSideBadge');
+                        if (sideBadge) sideBadge.textContent = side.toUpperCase();
+
+                        const btnL = document.getElementById('timerLeftBtn');
+                        const btnR = document.getElementById('timerRightBtn');
+                        if (btnL) {
+                            btnL.className = side === 'left' 
+                                ? 'flex-1 py-1.5 px-2 rounded-lg bg-rose-500 text-white text-xs font-bold' 
+                                : 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+                        }
+                        if (btnR) {
+                            btnR.className = side === 'right' 
+                                ? 'flex-1 py-1.5 px-2 rounded-lg bg-rose-500 text-white text-xs font-bold' 
+                                : 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+                        }
+                        document.getElementById('nursingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-rose-400');
+
+                        if (AppState.timers.nursing.intervalId) clearInterval(AppState.timers.nursing.intervalId);
+                        AppState.timers.nursing.intervalId = setInterval(() => {
+                            const diffSecs = Math.floor((Date.now() - AppState.timers.nursing.sideStartTime) / 1000);
+                            if (AppState.timers.nursing.activeSide === 'left') {
+                                AppState.timers.nursing.leftSeconds = AppState.timers.nursing.baseLeftSeconds + diffSecs;
+                            } else if (AppState.timers.nursing.activeSide === 'right') {
+                                AppState.timers.nursing.rightSeconds = AppState.timers.nursing.baseRightSeconds + diffSecs;
+                            }
+                            updateNursingDisplay();
+                        }, 1000);
+                    } else if (AppState.timers.nursing.leftSeconds > 0 || AppState.timers.nursing.rightSeconds > 0) {
+                        const sideBadge = document.getElementById('nursingSideBadge');
+                        if (sideBadge) sideBadge.textContent = 'Paused';
+                        document.getElementById('nursingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-rose-400');
+                    }
+                    updateNursingDisplay();
+                }
+
+                // 3. Pumping Stopwatch (AppState.pumpReminder)
+                if (parsed.pump && (parsed.pump.isPumping || (parsed.pump.pumpingSeconds && parsed.pump.pumpingSeconds > 0))) {
+                    AppState.pumpReminder.isPumping = !!parsed.pump.isPumping;
+                    AppState.pumpReminder.pumpingStartTime = parsed.pump.pumpingStartTime || null;
+                    if (AppState.pumpReminder.isPumping && AppState.pumpReminder.pumpingStartTime) {
+                        const diffSecs = Math.max(0, Math.floor((now - AppState.pumpReminder.pumpingStartTime) / 1000));
+                        AppState.pumpReminder.pumpingSeconds = diffSecs;
+
+                        const pumpDisp = document.getElementById('pumpingTimerDisplay');
+                        const pumpText = document.getElementById('pumpingTimerText');
+                        const pumpBadge = document.getElementById('pumpingLiveBadge');
+                        const togglePumpBtn = document.getElementById('togglePumpingTimerBtn');
+
+                        if (pumpDisp) {
+                            pumpDisp.textContent = formatMinsSecs(diffSecs);
+                        }
+                        if (pumpText) pumpText.textContent = 'Finish & Log';
+                        if (pumpBadge) {
+                            pumpBadge.textContent = 'Pumping...';
+                            pumpBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-rose-200 text-rose-800 font-extrabold uppercase animate-pulse';
+                        }
+                        if (togglePumpBtn) {
+                            togglePumpBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+                        }
+                        document.getElementById('pumpingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-amber-400');
+
+                        if (AppState.pumpReminder.intervalId) clearInterval(AppState.pumpReminder.intervalId);
+                        AppState.pumpReminder.intervalId = setInterval(() => {
+                            const diffSecs = Math.floor((Date.now() - AppState.pumpReminder.pumpingStartTime) / 1000);
+                            AppState.pumpReminder.pumpingSeconds = diffSecs;
+                            const disp = document.getElementById('pumpingTimerDisplay');
+                            if (disp) disp.textContent = formatMinsSecs(diffSecs);
+                        }, 1000);
+                    } else if (parsed.pump.pumpingSeconds) {
+                        AppState.pumpReminder.pumpingSeconds = parsed.pump.pumpingSeconds;
+                        const pumpDisp = document.getElementById('pumpingTimerDisplay');
+                        if (pumpDisp) {
+                            pumpDisp.textContent = formatMinsSecs(parsed.pump.pumpingSeconds);
+                        }
+                    }
+                }
+
+                // 4. Sleep Nap Timer (AppState.timers.sleep)
+                if (parsed.sleep && (parsed.sleep.active || (parsed.sleep.seconds && parsed.sleep.seconds > 0))) {
+                    AppState.timers.sleep.active = !!parsed.sleep.active;
+                    AppState.timers.sleep.startTime = parsed.sleep.startTime || null;
+                    if (AppState.timers.sleep.active && AppState.timers.sleep.startTime) {
+                        const diffSecs = Math.max(0, Math.floor((now - AppState.timers.sleep.startTime) / 1000));
+                        AppState.timers.sleep.seconds = diffSecs;
+                        startSleepInterval();
+                    } else if (parsed.sleep.seconds) {
+                        AppState.timers.sleep.seconds = parsed.sleep.seconds;
+                        const disp = document.getElementById('sleepTimerDisplay');
+                        if (disp) {
+                            disp.textContent = formatHrsMinsSecs(parsed.sleep.seconds);
+                        }
+                    }
+                }
+
+                // 5. Tummy Time (AppState.timers.tummy)
+                if (parsed.tummy && (parsed.tummy.active || (parsed.tummy.seconds && parsed.tummy.seconds > 0))) {
+                    AppState.timers.tummy.active = !!parsed.tummy.active;
+                    AppState.timers.tummy.startTime = parsed.tummy.startTime || null;
+                    if (AppState.timers.tummy.active && AppState.timers.tummy.startTime) {
+                        const diffSecs = Math.max(0, Math.floor((now - AppState.timers.tummy.startTime) / 1000));
+                        AppState.timers.tummy.seconds = diffSecs;
+                        const toggleTummyTimerBtn = document.getElementById('toggleTummyTimerBtn');
+                        const tummyText = document.getElementById('tummyTimerText');
+                        const tummyDisp = document.getElementById('tummyTimerDisplay');
+
+                        if (tummyText) tummyText.textContent = 'Done & Save';
+                        if (toggleTummyTimerBtn) {
+                            toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+                        }
+                        document.getElementById('tummyTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-emerald-400');
+                        if (tummyDisp) {
+                            tummyDisp.textContent = formatMinsSecs(diffSecs);
+                        }
+
+                        if (AppState.timers.tummy.intervalId) clearInterval(AppState.timers.tummy.intervalId);
+                        AppState.timers.tummy.intervalId = setInterval(() => {
+                            const diffSecs = Math.floor((Date.now() - AppState.timers.tummy.startTime) / 1000);
+                            AppState.timers.tummy.seconds = diffSecs;
+                            const disp = document.getElementById('tummyTimerDisplay');
+                            if (disp) disp.textContent = formatMinsSecs(diffSecs);
+                        }, 1000);
+                    } else if (parsed.tummy.seconds) {
+                        AppState.timers.tummy.seconds = parsed.tummy.seconds;
+                        const tummyDisp = document.getElementById('tummyTimerDisplay');
+                        if (tummyDisp) {
+                            tummyDisp.textContent = formatMinsSecs(parsed.tummy.seconds);
+                        }
+                    }
+                }
+            } catch(e) {}
         }
 
         const timerLeftBtn = document.getElementById('timerLeftBtn');
@@ -5235,6 +5512,14 @@
             toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
             document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
 
+            const diffSecs = Math.max(0, Math.floor((Date.now() - AppState.timers.sleep.startTime) / 1000));
+            AppState.timers.sleep.seconds = diffSecs;
+            const hrs = String(Math.floor(diffSecs / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((diffSecs % 3600) / 60)).padStart(2, '0');
+            const secs = String(diffSecs % 60).padStart(2, '0');
+            if (sleepTimerDisplay) sleepTimerDisplay.textContent = `${hrs}:${mins}:${secs}`;
+
+            if (AppState.timers.sleep.intervalId) clearInterval(AppState.timers.sleep.intervalId);
             AppState.timers.sleep.intervalId = setInterval(() => {
                 const diffSecs = Math.floor((Date.now() - AppState.timers.sleep.startTime) / 1000);
                 AppState.timers.sleep.seconds = diffSecs;
@@ -5315,12 +5600,15 @@
                 if (!confirm('Are you sure you want to reset the Tummy Time timer? Elapsed time will be discarded.')) return;
             }
             if (AppState.timers.tummy.intervalId) clearInterval(AppState.timers.tummy.intervalId);
+            AppState.timers.tummy.intervalId = null;
             AppState.timers.tummy.active = false;
             AppState.timers.tummy.seconds = 0;
+            AppState.timers.tummy.startTime = null;
             tummyTimerText.textContent = 'Start Tummy';
             toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
             tummyTimerDisplay.textContent = '00:00';
             document.getElementById('tummyTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-emerald-400');
+            persistTimersLocally();
         };
 
         // ==================== LOG ACTIVITY MODAL ====================
@@ -6513,6 +6801,19 @@
                     document.querySelectorAll('.fixed.z-50').forEach(m => m.classList.add('hidden'));
                 }
             });
+
+            // Timer Persistence: Unload and Lock-Screen Listeners
+            window.addEventListener('beforeunload', () => persistTimersLocally());
+            window.addEventListener('pagehide', () => persistTimersLocally());
+
+            // Continuous 3s Active Timer Heartbeat Safeguard
+            setInterval(() => {
+                if (AppState.timers.feed.active || AppState.timers.nursing.activeSide || 
+                    AppState.timers.sleep.active || AppState.timers.tummy.active || 
+                    AppState.pumpReminder.isPumping) {
+                    persistTimersLocally();
+                }
+            }, 3000);
 
             // Voice Assistant UI Listeners
             const nightstandVoiceBtn = document.getElementById('nightstandVoiceBtn');
