@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap"
         rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
@@ -215,9 +215,11 @@
             border-radius: 6px !important;
         }
 
-        /* 3. Cutesy Pastel Theme */
+        /* 3. Cutesy Pastel Theme (Pastel Orange with Subtle Teddy Bear Emoji Pattern) */
         body.theme-cutesy {
-            background: linear-gradient(135deg, #fff0f5 0%, #fffbf0 50%, #f0fdf4 100%) !important;
+            background-color: #fff7ed !important;
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='30' font-size='22' opacity='0.08'%3E🧸%3C/text%3E%3Ctext x='60' y='70' font-size='22' opacity='0.08'%3E🧸%3C/text%3E%3C/svg%3E") !important;
+            background-repeat: repeat !important;
             color: #4a5568 !important;
         }
 
@@ -241,8 +243,9 @@
             box-shadow: 0 12px 30px -4px rgba(244, 114, 182, 0.3) !important;
         }
 
-        /* Specifically in Cutesy Pastel Theme: Render cute Apple-style emojis while preserving SVGs in all other themes */
-        .theme-icon-emoji {
+        /* Theme Icon Visibility Rules: SVG in default/dark/e-ink, Apple emojis in Cutesy, 8-Bit Pixel Sprites in Pixelated */
+        .theme-icon-emoji,
+        .theme-icon-pixel {
             display: none !important;
         }
 
@@ -260,6 +263,241 @@
             display: inline-flex !important;
             font-family: -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
             line-height: 1;
+        }
+
+        /* 7. Pixelated (8-Bit Retro Arcade Game) Theme */
+        body.theme-pixelated {
+            background-color: #161626 !important;
+            background-image: linear-gradient(rgba(18, 16, 38, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04)) !important;
+            background-size: 100% 4px, 6px 100% !important;
+            color: #ffd700 !important;
+            font-family: 'Silkscreen', 'Press Start 2P', monospace !important;
+        }
+
+        body.theme-pixelated .theme-icon-svg,
+        body[data-theme="pixelated"] .theme-icon-svg,
+        body.theme-pixelated .theme-icon-emoji,
+        body[data-theme="pixelated"] .theme-icon-emoji {
+            display: none !important;
+        }
+
+        body.theme-pixelated .theme-icon-pixel,
+        body[data-theme="pixelated"] .theme-icon-pixel {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            image-rendering: pixelated !important;
+            shape-rendering: crispEdges !important;
+            filter: drop-shadow(2px 2px 0px #000);
+        }
+
+        body.theme-pixelated .bg-white,
+        body.theme-pixelated .cute-card,
+        body.theme-pixelated section,
+        body.theme-pixelated header,
+        body.theme-pixelated footer {
+            background-color: #12121f !important;
+            border: 3px solid #ffd700 !important;
+            border-radius: 0px !important;
+            box-shadow: 4px 4px 0px #000, 8px 8px 0px rgba(0, 0, 0, 0.45) !important;
+        }
+
+        body.theme-pixelated h1,
+        body.theme-pixelated h2,
+        body.theme-pixelated h3,
+        body.theme-pixelated .font-outfit {
+            font-family: 'Press Start 2P', monospace !important;
+            letter-spacing: -0.5px;
+            text-shadow: 2px 2px 0px #000, 3px 3px 0px #d97706 !important;
+        }
+
+        /* 8-Bit Pixel Text Style for Countdown displays, "FEEDING...", "DUE", and Timers */
+        body.theme-pixelated .font-mono,
+        body.theme-pixelated [id$="CountdownDisplay"],
+        body.theme-pixelated [id$="TimerDisplay"],
+        body.theme-pixelated #feedCountdownDisplay,
+        body.theme-pixelated #pumpCountdownDisplay {
+            font-family: 'Press Start 2P', monospace !important;
+        }
+
+        body.theme-pixelated #feedCountdownDisplay,
+        body.theme-pixelated #pumpCountdownDisplay {
+            font-size: clamp(1.05rem, 2.5vw, 1.45rem) !important;
+            line-height: 1.35 !important;
+            letter-spacing: -0.5px !important;
+            text-shadow: 2px 2px 0px #000, 3px 3px 0px #d97706 !important;
+        }
+
+        body.theme-pixelated .timer-card-item .font-mono,
+        body.theme-pixelated [id$="TimerDisplay"] {
+            font-size: 0.92rem !important;
+            line-height: 1.2 !important;
+            letter-spacing: -0.5px !important;
+            color: #ffd700 !important;
+            text-shadow: 2px 2px 0px #000 !important;
+        }
+
+        body.theme-pixelated button {
+            border-radius: 0px !important;
+            border: 2px solid #000 !important;
+            box-shadow: 3px 3px 0px #000 !important;
+            font-family: 'Silkscreen', monospace !important;
+            transition: transform 0.06s ease, box-shadow 0.06s ease;
+        }
+
+        body.theme-pixelated button:active {
+            transform: translate(2px, 2px) !important;
+            box-shadow: 1px 1px 0px #000 !important;
+        }
+
+        body.theme-pixelated input,
+        body.theme-pixelated select,
+        body.theme-pixelated textarea {
+            border-radius: 0px !important;
+            border: 2px solid #ffd700 !important;
+            background-color: #0b0f19 !important;
+            color: #ffd700 !important;
+            font-family: 'Silkscreen', monospace !important;
+        }
+
+        /* Prevent Spilling & Box Overflows in Pixelated Mode */
+        body.theme-pixelated .reminder-card-item section > div:first-child {
+            flex-wrap: nowrap !important;
+            gap: 0.25rem !important;
+        }
+
+        body.theme-pixelated .reminder-card-item h3 {
+            font-size: 0.56rem !important;
+            line-height: 1.3 !important;
+            letter-spacing: -0.5px !important;
+            white-space: nowrap !important;
+        }
+
+        body.theme-pixelated #feedStatusBadge,
+        body.theme-pixelated #pumpStatusBadge {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.5rem !important;
+            padding: 1px 4px !important;
+            border-radius: 0px !important;
+            box-shadow: 1px 1px 0px #000 !important;
+        }
+
+        body.theme-pixelated #feedIntervalSelect,
+        body.theme-pixelated #pumpIntervalSelect {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.54rem !important;
+            padding: 2px 4px !important;
+            max-width: none !important;
+            width: auto !important;
+            box-shadow: 2px 2px 0px #000 !important;
+        }
+
+        body.theme-pixelated .timer-card-item {
+            padding: 0.55rem 0.4rem !important;
+            overflow: hidden !important;
+        }
+
+        body.theme-pixelated .timer-card-item > div:nth-child(2) {
+            padding-right: 36px !important;
+        }
+
+        body.theme-pixelated .timer-card-item h3,
+        body.theme-pixelated .timer-card-item span.text-xs.font-bold {
+            font-size: 0.5rem !important;
+            line-height: 1.2 !important;
+        }
+
+        body.theme-pixelated .timer-card-item button[id^="cancel"] {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.46rem !important;
+            padding: 1px 3px !important;
+            top: 3px !important;
+            right: 3px !important;
+            box-shadow: 1px 1px 0px #000 !important;
+            background-color: #dc2626 !important;
+            color: #ffffff !important;
+            border: 1px solid #000 !important;
+        }
+
+        body.theme-pixelated .timer-card-item [id$="LiveBadge"],
+        body.theme-pixelated .timer-card-item #nursingSideBadge {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.46rem !important;
+            padding: 1px 3px !important;
+            border-radius: 0px !important;
+            max-width: none !important;
+            white-space: nowrap !important;
+        }
+
+        body.theme-pixelated .timer-card-item .flex.items-center.gap-1.5,
+        body.theme-pixelated .timer-card-item .flex.items-center.gap-2 {
+            gap: 2px !important;
+        }
+
+        body.theme-pixelated .timer-card-item button:not([id^="cancel"]) {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.46rem !important;
+            padding: 4px 2px !important;
+            min-width: 0 !important;
+            white-space: nowrap !important;
+            overflow: visible !important;
+            box-shadow: 2px 2px 0px #000 !important;
+        }
+
+        body.theme-pixelated #discardMilkAlertBanner {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.48rem !important;
+            padding: 2px 3px !important;
+            border-radius: 0px !important;
+        }
+
+        body.theme-pixelated #quickPadGrid button {
+            padding: 0.5rem 0.25rem !important;
+            overflow: hidden !important;
+        }
+
+        body.theme-pixelated #quickPadGrid button span.font-outfit {
+            font-size: 0.68rem !important;
+            line-height: 1.2 !important;
+        }
+
+        body.theme-pixelated #quickPadGrid button span[class*="text-[11px]"] {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.54rem !important;
+            line-height: 1.2 !important;
+        }
+
+        body.theme-pixelated #totalFedDisplay,
+        body.theme-pixelated #totalDiapersDisplay,
+        body.theme-pixelated #totalPumpedDisplay,
+        body.theme-pixelated #totalSleepDisplay {
+            font-family: 'Press Start 2P', monospace !important;
+            font-size: 1.15rem !important;
+            line-height: 1.2 !important;
+        }
+
+        body.theme-pixelated #totalFedAlternateDisplay,
+        body.theme-pixelated #totalPumpedAlternateDisplay {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.62rem !important;
+            display: inline-block !important;
+        }
+
+        body.theme-pixelated #feedGoalTargetDisplay,
+        body.theme-pixelated #feedGoalPercentDisplay {
+            font-family: 'Silkscreen', monospace !important;
+            font-size: 0.62rem !important;
+        }
+
+        body.theme-pixelated #diaperTrackerCard .text-3xl {
+            font-size: 1.2rem !important;
+        }
+
+        /* Side-by-side reminders responsive auto-fit grid */
+        #remindersGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+            gap: 1rem;
         }
 
         /* 4. Retro Digital Clock (Nightstand LED) */
@@ -850,7 +1088,9 @@
                 <a href="/home" class="flex items-center space-x-2 group" title="Return to Nonsenseian Home">
                     <span
                         class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-200 via-rose-200 to-sky-200 dark:from-amber-600/30 dark:to-sky-600/30 flex items-center justify-center text-2xl shadow-sm group-hover:scale-105 transition-transform">
-                        👶
+                        <span class="theme-icon-svg">👶</span>
+                        <span class="theme-icon-emoji">👶</span>
+                        <span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h4v1h-4z M4 1h2v1h-2z M10 1h2v1h-2z M3 2h1v1h-1z M12 2h1v1h-1z M2 3h2v1h-2z M12 3h2v1h-2z M2 4h1v1h-1z M1 5h1v1h-1z M1 6h1v1h-1z M4 6h1v1h-1z M13 6h1v1h-1z M1 7h1v1h-1z M4 7h1v1h-1z M13 7h1v1h-1z M1 8h1v1h-1z M13 8h1v1h-1z M1 9h1v1h-1z M1 10h1v1h-1z M6 10h4v1h-4z M2 11h1v1h-1z M6 11h4v1h-4z M2 12h2v1h-2z M3 13h2v1h-2z M4 14h8v1h-8z"/><path fill="#92400e" d="M6 1h4v1h-4z M4 2h8v1h-8z M4 3h8v1h-8z"/><path fill="#fed7aa" d="M3 4h12v1h-12z M2 5h14v1h-14z M2 6h2v1h-2z M5 6h8v1h-8z M14 6h2v1h-2z M2 7h2v1h-2z M6 7h7v1h-7z M15 7h1v1h-1z M2 8h11v1h-11z M15 8h1v1h-1z M2 9h2v1h-2z M6 9h6v1h-6z M14 9h2v1h-2z M2 10h4v1h-4z M10 10h6v1h-6z M3 11h3v1h-3z M10 11h5v1h-5z M4 12h10v1h-10z M5 13h8v1h-8z"/><path fill="#ffffff" d="M5 7h1v1h-1z M14 7h1v1h-1z M14 8h1v1h-1z"/><path fill="#f472b6" d="M4 9h2v1h-2z M12 9h2v1h-2z"/></svg></span>
                     </span>
                 </a>
                 <div>
@@ -967,14 +1207,18 @@
                         </button>
                         <div class="flex items-center justify-between mb-2 pr-12">
                             <span class="text-xs font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 inline-block text-sky-600 dark:text-sky-400 shrink-0"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9 2h6v2H9z" />
-                                    <path
-                                        d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z"
-                                        fill="currentColor" fill-opacity="0.3" />
-                                </svg>
+                                <span class="theme-icon-svg">
+                                    <svg class="w-4 h-4 inline-block text-sky-600 dark:text-sky-400 shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 2h6v2H9z" />
+                                        <path
+                                            d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z"
+                                            fill="currentColor" fill-opacity="0.3" />
+                                    </svg>
+                                </span>
+                                <span class="theme-icon-emoji text-base shrink-0" aria-hidden="true">🍼</span>
+                                <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h1v1h-1z M9 0h1v1h-1z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h2v1h-2z M9 2h2v1h-2z M4 3h1v1h-1z M11 3h1v1h-1z M4 4h1v1h-1z M11 4h1v1h-1z M3 5h1v1h-1z M12 5h1v1h-1z M3 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M6 7h3v1h-3z M12 7h1v1h-1z M3 8h1v1h-1z M12 8h1v1h-1z M3 9h1v1h-1z M6 9h3v1h-3z M12 9h1v1h-1z M3 10h1v1h-1z M12 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M3 12h1v1h-1z M12 12h1v1h-1z M3 13h1v1h-1z M12 13h1v1h-1z M4 14h8v1h-8z"/><path fill="#f59e0b" d="M7 0h2v1h-2z M7 1h2v1h-2z M7 2h2v1h-2z"/><path fill="#38bdf8" d="M5 3h6v1h-6z M5 4h6v1h-6z"/><path fill="#94a3b8" d="M4 5h8v1h-8z M4 6h1v1h-1z M11 6h1v1h-1z M4 7h1v1h-1z M11 7h1v1h-1z M4 8h1v1h-1z M11 8h1v1h-1z M4 9h1v1h-1z M11 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M4 11h1v1h-1z M11 11h1v1h-1z M4 12h1v1h-1z M11 12h1v1h-1z M4 13h8v1h-8z"/><path fill="#e2e8f0" d="M5 6h1v1h-1z M10 6h1v1h-1z M5 7h1v1h-1z M10 7h1v1h-1z M5 8h1v1h-1z M10 8h1v1h-1z M5 9h1v1h-1z M10 9h1v1h-1z M5 10h1v1h-1z M10 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M5 12h1v1h-1z M10 12h1v1h-1z"/><path fill="#ffffff" d="M6 6h4v1h-4z M9 7h1v1h-1z M6 8h4v1h-4z M9 9h1v1h-1z M6 10h4v1h-4z M6 11h4v1h-4z M6 12h4v1h-4z"/></svg></span>
                                 <span>Feed Timer</span>
                                 <span id="feedLiveBadge"
                                     class="text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase">Ready</span>
@@ -1019,14 +1263,18 @@
                         </button>
                         <div class="flex items-center justify-between mb-2 pr-12">
                             <span class="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 inline-block text-rose-600 dark:text-rose-400 shrink-0"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
-                                        fill="currentColor" fill-opacity="0.3" />
-                                    <circle cx="12" cy="10" r="2" fill="currentColor" />
-                                </svg>
+                                <span class="theme-icon-svg">
+                                    <svg class="w-4 h-4 inline-block text-rose-600 dark:text-rose-400 shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                                            fill="currentColor" fill-opacity="0.3" />
+                                        <circle cx="12" cy="10" r="2" fill="currentColor" />
+                                    </svg>
+                                </span>
+                                <span class="theme-icon-emoji text-base shrink-0" aria-hidden="true">🤱</span>
+                                <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M2 1h4v1h-4z M10 1h4v1h-4z M1 2h1v1h-1z M6 2h1v1h-1z M9 2h1v1h-1z M14 2h1v1h-1z M1 3h1v1h-1z M6 3h4v1h-4z M14 3h1v1h-1z M0 4h1v1h-1z M15 4h1v1h-1z M0 5h1v1h-1z M15 5h1v1h-1z M0 6h1v1h-1z M15 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M2 8h1v1h-1z M13 8h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M6 12h1v1h-1z M9 12h1v1h-1z M7 13h2v1h-2z"/><path fill="#f43f5e" d="M2 2h4v1h-4z M10 2h4v1h-4z M2 3h1v1h-1z M5 3h1v1h-1z M10 3h4v1h-4z M1 4h2v1h-2z M5 4h10v1h-10z M1 5h14v1h-14z M1 6h14v1h-14z M2 7h12v1h-12z M3 8h10v1h-10z M4 9h8v1h-8z M5 10h6v1h-6z M6 11h4v1h-4z M7 12h2v1h-2z"/><path fill="#ffffff" d="M3 3h2v1h-2z M3 4h2v1h-2z"/></svg></span>
                                 <span>Nursing Timer</span>
                                 <span id="nursingSideBadge"
                                     class="text-[10px] px-1.5 py-0.2 rounded bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-extrabold uppercase">L
@@ -1067,14 +1315,18 @@
                         <div class="flex items-center justify-between mb-2 pr-12">
                             <span
                                 class="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 inline-block text-amber-600 dark:text-amber-400 shrink-0"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M7 3h4v4H7z" />
-                                    <path d="M11 5h6l3 4v2h-9" />
-                                    <rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor"
-                                        fill-opacity="0.3" />
-                                </svg>
+                                <span class="theme-icon-svg">
+                                    <svg class="w-4 h-4 inline-block text-amber-600 dark:text-amber-400 shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M7 3h4v4H7z" />
+                                        <path d="M11 5h6l3 4v2h-9" />
+                                        <rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor"
+                                            fill-opacity="0.3" />
+                                    </svg>
+                                </span>
+                                <span class="theme-icon-emoji text-base shrink-0" aria-hidden="true">🥛</span>
+                                <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M4 0h4v1h-4z M3 1h1v1h-1z M9 1h1v1h-1z M3 2h1v1h-1z M9 2h4v1h-4z M4 3h2v1h-2z M7 3h2v1h-2z M13 3h1v1h-1z M5 4h1v1h-1z M8 4h1v1h-1z M13 4h1v1h-1z M5 5h1v1h-1z M8 5h5v1h-5z M4 6h1v1h-1z M8 6h1v1h-1z M3 7h1v1h-1z M9 7h1v1h-1z M3 8h1v1h-1z M9 8h1v1h-1z M3 9h1v1h-1z M9 9h1v1h-1z M3 10h1v1h-1z M9 10h1v1h-1z M3 11h1v1h-1z M9 11h1v1h-1z M3 12h1v1h-1z M9 12h1v1h-1z M3 13h1v1h-1z M9 13h1v1h-1z M4 14h5v1h-5z"/><path fill="#a855f7" d="M4 1h1v1h-1z M8 1h1v1h-1z M4 2h1v1h-1z M8 2h1v1h-1z M6 3h1v1h-1z M6 4h1v1h-1z M6 5h1v1h-1z M5 6h3v1h-3z"/><path fill="#c084fc" d="M5 1h3v1h-3z"/><path fill="#ffffff" d="M5 2h3v1h-3z M5 8h3v1h-3z M5 9h3v1h-3z M5 10h3v1h-3z M5 11h3v1h-3z M5 12h3v1h-3z"/><path fill="#38bdf8" d="M9 3h4v1h-4z M7 4h1v1h-1z M9 4h4v1h-4z M7 5h1v1h-1z"/><path fill="#64748b" d="M4 7h5v1h-5z M4 8h1v1h-1z M8 8h1v1h-1z M4 9h1v1h-1z M8 9h1v1h-1z M4 10h1v1h-1z M8 10h1v1h-1z M4 11h1v1h-1z M8 11h1v1h-1z M4 12h1v1h-1z M8 12h1v1h-1z M4 13h5v1h-5z"/></svg></span>
                                 <span>Pump Stopwatch</span>
                                 <span id="pumpingLiveBadge"
                                     class="text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase">Ready</span>
@@ -1106,14 +1358,18 @@
                         <div class="flex items-center justify-between mb-2 pr-12">
                             <span
                                 class="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 inline-block text-indigo-600 dark:text-indigo-400 shrink-0"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" fill="currentColor"
-                                        fill-opacity="0.3" />
-                                    <path d="M19 3v4" />
-                                    <path d="M21 5h-4" />
-                                </svg>
+                                <span class="theme-icon-svg">
+                                    <svg class="w-4 h-4 inline-block text-indigo-600 dark:text-indigo-400 shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" fill="currentColor"
+                                            fill-opacity="0.3" />
+                                        <path d="M19 3v4" />
+                                        <path d="M21 5h-4" />
+                                    </svg>
+                                </span>
+                                <span class="theme-icon-emoji text-base shrink-0" aria-hidden="true">😴</span>
+                                <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h4v1h-4z M4 1h2v1h-2z M10 1h2v1h-2z M13 1h2v1h-2z M3 2h1v1h-1z M12 2h2v1h-2z M15 2h1v1h-1z M2 3h1v1h-1z M7 3h5v1h-5z M13 3h2v1h-2z M1 4h1v1h-1z M6 4h1v1h-1z M1 5h1v1h-1z M6 5h1v1h-1z M1 6h1v1h-1z M6 6h1v1h-1z M13 6h2v1h-2z M1 7h1v1h-1z M6 7h1v1h-1z M12 7h2v1h-2z M15 7h1v1h-1z M1 8h1v1h-1z M6 8h1v1h-1z M13 8h2v1h-2z M1 9h1v1h-1z M6 9h1v1h-1z M2 10h1v1h-1z M7 10h5v1h-5z M3 11h1v1h-1z M12 11h1v1h-1z M4 12h2v1h-2z M10 12h2v1h-2z M6 13h4v1h-4z"/><path fill="#facc15" d="M6 1h4v1h-4z M4 2h8v1h-8z M3 3h4v1h-4z M2 4h4v1h-4z M2 5h4v1h-4z M2 6h4v1h-4z M2 7h4v1h-4z M2 8h4v1h-4z M2 9h4v1h-4z M3 10h4v1h-4z M4 11h8v1h-8z M6 12h4v1h-4z"/><path fill="#ffffff" d="M14 2h1v1h-1z M14 7h1v1h-1z"/></svg></span>
                                 <span>Nap / Sleep Timer</span>
                             </span>
                         </div>
@@ -1143,13 +1399,17 @@
                         <div class="flex items-center justify-between mb-2 pr-12">
                             <span
                                 class="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 inline-block text-emerald-600 dark:text-emerald-400 shrink-0"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <ellipse cx="12" cy="13" rx="6" ry="4" fill="currentColor" fill-opacity="0.3" />
-                                    <circle cx="19" cy="13" r="2.5" />
-                                    <path d="M8 9l-2-2M16 9l2-2M8 17l-2 2M16 17l2 2" />
-                                </svg>
+                                <span class="theme-icon-svg">
+                                    <svg class="w-4 h-4 inline-block text-emerald-600 dark:text-emerald-400 shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <ellipse cx="12" cy="13" rx="6" ry="4" fill="currentColor" fill-opacity="0.3" />
+                                        <circle cx="19" cy="13" r="2.5" />
+                                        <path d="M8 9l-2-2M16 9l2-2M8 17l-2 2M16 17l2 2" />
+                                    </svg>
+                                </span>
+                                <span class="theme-icon-emoji text-base shrink-0" aria-hidden="true">🐢</span>
+                                <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 1h4v1h-4z M4 2h2v1h-2z M10 2h2v1h-2z M3 3h1v1h-1z M7 3h2v1h-2z M12 3h1v1h-1z M2 4h1v1h-1z M5 4h2v1h-2z M9 4h2v1h-2z M13 4h1v1h-1z M2 5h1v1h-1z M5 5h2v1h-2z M9 5h2v1h-2z M13 5h1v1h-1z M1 6h1v1h-1z M3 6h2v1h-2z M7 6h2v1h-2z M11 6h2v1h-2z M14 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M0 8h4v1h-4z M12 8h4v1h-4z M0 9h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M15 9h1v1h-1z M0 10h4v1h-4z M12 10h4v1h-4z M1 11h1v1h-1z M14 11h1v1h-1z M2 12h1v1h-1z M13 12h1v1h-1z M0 13h2v1h-2z M3 13h2v1h-2z M11 13h2v1h-2z M14 13h2v1h-2z M0 14h1v1h-1z M2 14h1v1h-1z M5 14h6v1h-6z M13 14h1v1h-1z M15 14h1v1h-1z M0 15h2v1h-2z M14 15h2v1h-2z"/><path fill="#22c55e" d="M6 2h4v1h-4z M4 3h3v1h-3z M9 3h3v1h-3z M3 4h2v1h-2z M7 4h2v1h-2z M11 4h2v1h-2z M3 5h2v1h-2z M7 5h2v1h-2z M11 5h2v1h-2z M2 6h1v1h-1z M5 6h2v1h-2z M9 6h2v1h-2z M13 6h1v1h-1z M2 7h12v1h-12z M4 8h8v1h-8z M4 9h8v1h-8z M4 10h8v1h-8z M2 11h12v1h-12z M3 12h10v1h-10z M5 13h6v1h-6z"/><path fill="#86efac" d="M1 9h2v1h-2z M13 9h2v1h-2z M1 14h1v1h-1z M14 14h1v1h-1z"/></svg></span>
                                 <span>Tummy Time</span>
                             </span>
                         </div>
@@ -1172,9 +1432,14 @@
             </section>
         </div>
 
-        <!-- 1. NEXT FEED REMINDER & COUNTDOWN WIDGET (~3 Hours Interval from End of Last Feed) -->
-        <div id="block-feed-countdown" data-layout-id="block-feed-countdown" data-layout-title="Next Feed Reminder"
-            data-layout-icon="🍼" class="layout-card-block relative">
+        <!-- NEXT FEED & PUMP REMINDERS ROW (Side-by-side on same line, auto-expands if one hidden) -->
+        <div id="block-reminders-row" data-layout-id="block-reminders-row" data-layout-title="Feed & Pump Reminders"
+            data-layout-icon="⏰" class="layout-card-block relative">
+            <div id="remindersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- 1. NEXT FEED REMINDER -->
+                <div id="block-feed-countdown" data-sub-group="reminders" data-sub-id="block-feed-countdown"
+                    data-sub-title="Next Feed Reminder" data-sub-icon="🍼" class="reminder-card-item layout-sub-item relative">
             <section id="feedCountdownCard"
                 class="bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-indigo-500/10 border border-sky-300/80 dark:border-sky-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0 flex flex-col justify-between">
                 <!-- Tier 1: Header Row (Title, Status Badge & Interval Selector) -->
@@ -1183,15 +1448,19 @@
                     <div class="flex items-center space-x-2.5 min-w-0">
                         <div
                             class="w-10 h-10 rounded-xl bg-sky-200/80 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 flex items-center justify-center text-xl shrink-0 shadow-xs">
-                            <svg class="w-5 h-5 text-sky-600 dark:text-sky-300" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 2h6v2H9z" />
-                                <path
-                                    d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z"
-                                    fill="currentColor" fill-opacity="0.3" />
-                                <line x1="10" y1="13" x2="14" y2="13" />
-                                <line x1="10" y1="16" x2="13" y2="16" />
-                            </svg>
+                            <span class="theme-icon-svg">
+                                <svg class="w-5 h-5 text-sky-600 dark:text-sky-300" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 2h6v2H9z" />
+                                    <path
+                                        d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z"
+                                        fill="currentColor" fill-opacity="0.3" />
+                                    <line x1="10" y1="13" x2="14" y2="13" />
+                                    <line x1="10" y1="16" x2="13" y2="16" />
+                                </svg>
+                            </span>
+                            <span class="theme-icon-emoji text-2xl" aria-hidden="true">🍼</span>
+                            <span class="theme-icon-pixel" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h1v1h-1z M9 0h1v1h-1z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h2v1h-2z M9 2h2v1h-2z M4 3h1v1h-1z M11 3h1v1h-1z M4 4h1v1h-1z M11 4h1v1h-1z M3 5h1v1h-1z M12 5h1v1h-1z M3 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M6 7h3v1h-3z M12 7h1v1h-1z M3 8h1v1h-1z M12 8h1v1h-1z M3 9h1v1h-1z M6 9h3v1h-3z M12 9h1v1h-1z M3 10h1v1h-1z M12 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M3 12h1v1h-1z M12 12h1v1h-1z M3 13h1v1h-1z M12 13h1v1h-1z M4 14h8v1h-8z"/><path fill="#f59e0b" d="M7 0h2v1h-2z M7 1h2v1h-2z M7 2h2v1h-2z"/><path fill="#38bdf8" d="M5 3h6v1h-6z M5 4h6v1h-6z"/><path fill="#94a3b8" d="M4 5h8v1h-8z M4 6h1v1h-1z M11 6h1v1h-1z M4 7h1v1h-1z M11 7h1v1h-1z M4 8h1v1h-1z M11 8h1v1h-1z M4 9h1v1h-1z M11 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M4 11h1v1h-1z M11 11h1v1h-1z M4 12h1v1h-1z M11 12h1v1h-1z M4 13h8v1h-8z"/><path fill="#e2e8f0" d="M5 6h1v1h-1z M10 6h1v1h-1z M5 7h1v1h-1z M10 7h1v1h-1z M5 8h1v1h-1z M10 8h1v1h-1z M5 9h1v1h-1z M10 9h1v1h-1z M5 10h1v1h-1z M10 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M5 12h1v1h-1z M10 12h1v1h-1z"/><path fill="#ffffff" d="M6 6h4v1h-4z M9 7h1v1h-1z M6 8h4v1h-4z M9 9h1v1h-1z M6 10h4v1h-4z M6 11h4v1h-4z M6 12h4v1h-4z"/></svg></span>
                         </div>
                         <div class="min-w-0 flex items-center gap-2 flex-wrap">
                             <h3
@@ -1213,6 +1482,7 @@
                             <option value="3" selected>Every 3h (~Standard)</option>
                             <option value="3.5">Every 3.5h</option>
                             <option value="4">Every 4h</option>
+                            <option value="custom">Custom...</option>
                         </select>
                     </div>
                 </div>
@@ -1234,22 +1504,26 @@
                 <div class="pt-2 w-full">
                     <button id="logFeedNowBtn"
                         class="w-full py-2.5 px-4 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 2h6v2H9z" />
-                            <path
-                                d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z"
-                                fill="currentColor" fill-opacity="0.3" />
-                        </svg>
+                        <span class="theme-icon-svg">
+                            <svg class="w-4 h-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 2h6v2H9z" />
+                                <path
+                                    d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z"
+                                    fill="currentColor" fill-opacity="0.3" />
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-base" aria-hidden="true">🍼</span>
+                        <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h1v1h-1z M9 0h1v1h-1z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h2v1h-2z M9 2h2v1h-2z M4 3h1v1h-1z M11 3h1v1h-1z M4 4h1v1h-1z M11 4h1v1h-1z M3 5h1v1h-1z M12 5h1v1h-1z M3 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M6 7h3v1h-3z M12 7h1v1h-1z M3 8h1v1h-1z M12 8h1v1h-1z M3 9h1v1h-1z M6 9h3v1h-3z M12 9h1v1h-1z M3 10h1v1h-1z M12 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M3 12h1v1h-1z M12 12h1v1h-1z M3 13h1v1h-1z M12 13h1v1h-1z M4 14h8v1h-8z"/><path fill="#f59e0b" d="M7 0h2v1h-2z M7 1h2v1h-2z M7 2h2v1h-2z"/><path fill="#38bdf8" d="M5 3h6v1h-6z M5 4h6v1h-6z"/><path fill="#94a3b8" d="M4 5h8v1h-8z M4 6h1v1h-1z M11 6h1v1h-1z M4 7h1v1h-1z M11 7h1v1h-1z M4 8h1v1h-1z M11 8h1v1h-1z M4 9h1v1h-1z M11 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M4 11h1v1h-1z M11 11h1v1h-1z M4 12h1v1h-1z M11 12h1v1h-1z M4 13h8v1h-8z"/><path fill="#e2e8f0" d="M5 6h1v1h-1z M10 6h1v1h-1z M5 7h1v1h-1z M10 7h1v1h-1z M5 8h1v1h-1z M10 8h1v1h-1z M5 9h1v1h-1z M10 9h1v1h-1z M5 10h1v1h-1z M10 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M5 12h1v1h-1z M10 12h1v1h-1z"/><path fill="#ffffff" d="M6 6h4v1h-4z M9 7h1v1h-1z M6 8h4v1h-4z M9 9h1v1h-1z M6 10h4v1h-4z M6 11h4v1h-4z M6 12h4v1h-4z"/></svg></span>
                         <span>Log Feed Now</span>
                     </button>
                 </div>
             </section>
         </div>
 
-        <!-- 2. NEXT PUMP REMINDER & COUNTDOWN WIDGET (~3 Hours Interval) -->
-        <div id="block-pump-countdown" data-layout-id="block-pump-countdown" data-layout-title="Next Pump Reminder"
-            data-layout-icon="⚡" class="layout-card-block relative">
+                <!-- 2. NEXT PUMP REMINDER -->
+                <div id="block-pump-countdown" data-sub-group="reminders" data-sub-id="block-pump-countdown"
+                    data-sub-title="Next Pump Reminder" data-sub-icon="🥛" class="reminder-card-item layout-sub-item relative">
             <section id="pumpCountdownCard"
                 class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0 flex flex-col justify-between">
                 <!-- Tier 1: Header Row (Title, Status Badge & Interval Selector) -->
@@ -1258,14 +1532,18 @@
                     <div class="flex items-center space-x-2.5 min-w-0">
                         <div
                             class="w-10 h-10 rounded-xl bg-amber-200/80 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 flex items-center justify-center text-xl shrink-0 shadow-xs">
-                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-300" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M7 3h4v4H7z" />
-                                <path d="M11 5h6l3 4v2h-9" />
-                                <rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor"
-                                    fill-opacity="0.3" />
-                                <line x1="9" y1="15" x2="13" y2="15" />
-                            </svg>
+                            <span class="theme-icon-svg">
+                                <svg class="w-5 h-5 text-amber-600 dark:text-amber-300" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M7 3h4v4H7z" />
+                                    <path d="M11 5h6l3 4v2h-9" />
+                                    <rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor"
+                                        fill-opacity="0.3" />
+                                    <line x1="9" y1="15" x2="13" y2="15" />
+                                </svg>
+                            </span>
+                            <span class="theme-icon-emoji text-2xl" aria-hidden="true">🥛</span>
+                            <span class="theme-icon-pixel" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M4 0h4v1h-4z M3 1h1v1h-1z M9 1h1v1h-1z M3 2h1v1h-1z M9 2h4v1h-4z M4 3h2v1h-2z M7 3h2v1h-2z M13 3h1v1h-1z M5 4h1v1h-1z M8 4h1v1h-1z M13 4h1v1h-1z M5 5h1v1h-1z M8 5h5v1h-5z M4 6h1v1h-1z M8 6h1v1h-1z M3 7h1v1h-1z M9 7h1v1h-1z M3 8h1v1h-1z M9 8h1v1h-1z M3 9h1v1h-1z M9 9h1v1h-1z M3 10h1v1h-1z M9 10h1v1h-1z M3 11h1v1h-1z M9 11h1v1h-1z M3 12h1v1h-1z M9 12h1v1h-1z M3 13h1v1h-1z M9 13h1v1h-1z M4 14h5v1h-5z"/><path fill="#a855f7" d="M4 1h1v1h-1z M8 1h1v1h-1z M4 2h1v1h-1z M8 2h1v1h-1z M6 3h1v1h-1z M6 4h1v1h-1z M6 5h1v1h-1z M5 6h3v1h-3z"/><path fill="#c084fc" d="M5 1h3v1h-3z"/><path fill="#ffffff" d="M5 2h3v1h-3z M5 8h3v1h-3z M5 9h3v1h-3z M5 10h3v1h-3z M5 11h3v1h-3z M5 12h3v1h-3z"/><path fill="#38bdf8" d="M9 3h4v1h-4z M7 4h1v1h-1z M9 4h4v1h-4z M7 5h1v1h-1z"/><path fill="#64748b" d="M4 7h5v1h-5z M4 8h1v1h-1z M8 8h1v1h-1z M4 9h1v1h-1z M8 9h1v1h-1z M4 10h1v1h-1z M8 10h1v1h-1z M4 11h1v1h-1z M8 11h1v1h-1z M4 12h1v1h-1z M8 12h1v1h-1z M4 13h5v1h-5z"/></svg></span>
                         </div>
                         <div class="min-w-0 flex items-center gap-2 flex-wrap">
                             <h3
@@ -1287,6 +1565,7 @@
                             <option value="3" selected>Every 3h (~Standard)</option>
                             <option value="3.5">Every 3.5h</option>
                             <option value="4">Every 4h</option>
+                            <option value="custom">Custom...</option>
                         </select>
                     </div>
                 </div>
@@ -1308,18 +1587,23 @@
                 <div class="pt-2 w-full">
                     <button id="logPumpNowBtn"
                         class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M7 3h4v4H7z" />
-                            <path d="M11 5h6l3 4v2h-9" />
-                            <rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.3" />
-                        </svg>
+                        <span class="theme-icon-svg">
+                            <svg class="w-4 h-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 3h4v4H7z" />
+                                <path d="M11 5h6l3 4v2h-9" />
+                                <rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.3" />
+                            </svg>
+                        </span>
+                        <span class="theme-icon-emoji text-base" aria-hidden="true">🥛</span>
+                        <span class="theme-icon-pixel shrink-0" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M4 0h4v1h-4z M3 1h1v1h-1z M9 1h1v1h-1z M3 2h1v1h-1z M9 2h4v1h-4z M4 3h2v1h-2z M7 3h2v1h-2z M13 3h1v1h-1z M5 4h1v1h-1z M8 4h1v1h-1z M13 4h1v1h-1z M5 5h1v1h-1z M8 5h5v1h-5z M4 6h1v1h-1z M8 6h1v1h-1z M3 7h1v1h-1z M9 7h1v1h-1z M3 8h1v1h-1z M9 8h1v1h-1z M3 9h1v1h-1z M9 9h1v1h-1z M3 10h1v1h-1z M9 10h1v1h-1z M3 11h1v1h-1z M9 11h1v1h-1z M3 12h1v1h-1z M9 12h1v1h-1z M3 13h1v1h-1z M9 13h1v1h-1z M4 14h5v1h-5z"/><path fill="#a855f7" d="M4 1h1v1h-1z M8 1h1v1h-1z M4 2h1v1h-1z M8 2h1v1h-1z M6 3h1v1h-1z M6 4h1v1h-1z M6 5h1v1h-1z M5 6h3v1h-3z"/><path fill="#c084fc" d="M5 1h3v1h-3z"/><path fill="#ffffff" d="M5 2h3v1h-3z M5 8h3v1h-3z M5 9h3v1h-3z M5 10h3v1h-3z M5 11h3v1h-3z M5 12h3v1h-3z"/><path fill="#38bdf8" d="M9 3h4v1h-4z M7 4h1v1h-1z M9 4h4v1h-4z M7 5h1v1h-1z"/><path fill="#64748b" d="M4 7h5v1h-5z M4 8h1v1h-1z M8 8h1v1h-1z M4 9h1v1h-1z M8 9h1v1h-1z M4 10h1v1h-1z M8 10h1v1h-1z M4 11h1v1h-1z M8 11h1v1h-1z M4 12h1v1h-1z M8 12h1v1h-1z M4 13h5v1h-5z"/></svg></span>
                         <span>Log Pump Now</span>
                     </button>
                 </div>
             </section>
-
         </div>
+    </div>
+</div>
 
         <!-- Enhanced Quick Action Pad: Large Tactile Fast Logging & Nightstand Mode -->
         <div id="block-quick-pad" data-layout-id="block-quick-pad" data-layout-title="Quick Logging Pad"
@@ -1381,6 +1665,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">💧</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0369a1" d="M7 0h2v1h-2z M6 1h1v1h-1z M9 1h1v1h-1z M6 2h1v1h-1z M9 2h1v1h-1z M5 3h1v1h-1z M5 4h1v1h-1z M4 5h1v1h-1z M12 5h1v1h-1z M4 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M13 7h1v1h-1z M3 8h1v1h-1z M13 8h1v1h-1z M2 9h1v1h-1z M14 9h1v1h-1z M2 10h1v1h-1z M14 10h1v1h-1z M2 11h1v1h-1z M14 11h1v1h-1z M3 12h1v1h-1z M13 12h1v1h-1z M4 13h1v1h-1z M12 13h1v1h-1z M5 14h7v1h-7z"/><path fill="#38bdf8" d="M7 1h2v1h-2z M7 2h2v1h-2z M6 3h1v1h-1z M9 3h2v1h-2z M6 4h1v1h-1z M9 4h2v1h-2z M5 5h2v1h-2z M9 5h3v1h-3z M5 6h7v1h-7z M4 7h9v1h-9z M4 8h9v1h-9z M3 9h11v1h-11z M3 10h11v1h-11z M3 11h11v1h-11z M4 12h9v1h-9z M5 13h7v1h-7z"/><path fill="#ffffff" d="M7 3h2v1h-2z M7 4h2v1h-2z M7 5h2v1h-2z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-amber-900 dark:text-amber-100 tracking-tight">Pee</span>
@@ -1404,6 +1689,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">💩</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#451a03" d="M7 0h2v1h-2z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h1v1h-1z M10 2h1v1h-1z M4 3h1v1h-1z M3 4h2v1h-2z M12 4h2v1h-2z M2 5h1v1h-1z M14 5h1v1h-1z M1 6h1v1h-1z M14 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M0 8h2v1h-2z M15 8h1v1h-1z M0 9h1v1h-1z M15 9h1v1h-1z M0 10h1v1h-1z M15 10h1v1h-1z M0 11h1v1h-1z M15 11h1v1h-1z M1 12h1v1h-1z M14 12h1v1h-1z M2 13h2v1h-2z M12 13h2v1h-2z M4 14h8v1h-8z"/><path fill="#b45309" d="M7 1h2v1h-2z M6 2h4v1h-4z M5 3h1v1h-1z M7 3h5v1h-5z M5 4h7v1h-7z M3 5h11v1h-11z M2 6h2v1h-2z M5 6h9v1h-9z M2 7h12v1h-12z M2 8h13v1h-13z M1 9h14v1h-14z M1 10h1v1h-1z M3 10h12v1h-12z M1 11h14v1h-14z M2 12h12v1h-12z M4 13h8v1h-8z"/><path fill="#fef3c7" d="M6 3h1v1h-1z M4 6h1v1h-1z M2 10h1v1h-1z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-orange-900 dark:text-orange-100 tracking-tight">Poop</span>
@@ -1430,6 +1716,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🍼</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h1v1h-1z M9 0h1v1h-1z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h2v1h-2z M9 2h2v1h-2z M4 3h1v1h-1z M11 3h1v1h-1z M4 4h1v1h-1z M11 4h1v1h-1z M3 5h1v1h-1z M12 5h1v1h-1z M3 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M6 7h3v1h-3z M12 7h1v1h-1z M3 8h1v1h-1z M12 8h1v1h-1z M3 9h1v1h-1z M6 9h3v1h-3z M12 9h1v1h-1z M3 10h1v1h-1z M12 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M3 12h1v1h-1z M12 12h1v1h-1z M3 13h1v1h-1z M12 13h1v1h-1z M4 14h8v1h-8z"/><path fill="#f59e0b" d="M7 0h2v1h-2z M7 1h2v1h-2z M7 2h2v1h-2z"/><path fill="#38bdf8" d="M5 3h6v1h-6z M5 4h6v1h-6z"/><path fill="#94a3b8" d="M4 5h8v1h-8z M4 6h1v1h-1z M11 6h1v1h-1z M4 7h1v1h-1z M11 7h1v1h-1z M4 8h1v1h-1z M11 8h1v1h-1z M4 9h1v1h-1z M11 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M4 11h1v1h-1z M11 11h1v1h-1z M4 12h1v1h-1z M11 12h1v1h-1z M4 13h8v1h-8z"/><path fill="#e2e8f0" d="M5 6h1v1h-1z M10 6h1v1h-1z M5 7h1v1h-1z M10 7h1v1h-1z M5 8h1v1h-1z M10 8h1v1h-1z M5 9h1v1h-1z M10 9h1v1h-1z M5 10h1v1h-1z M10 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M5 12h1v1h-1z M10 12h1v1h-1z"/><path fill="#ffffff" d="M6 6h4v1h-4z M9 7h1v1h-1z M6 8h4v1h-4z M9 9h1v1h-1z M6 10h4v1h-4z M6 11h4v1h-4z M6 12h4v1h-4z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-sky-900 dark:text-sky-100 tracking-tight">Formula</span>
@@ -1454,6 +1741,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🤱</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M2 1h4v1h-4z M10 1h4v1h-4z M1 2h1v1h-1z M6 2h1v1h-1z M9 2h1v1h-1z M14 2h1v1h-1z M1 3h1v1h-1z M6 3h4v1h-4z M14 3h1v1h-1z M0 4h1v1h-1z M15 4h1v1h-1z M0 5h1v1h-1z M15 5h1v1h-1z M0 6h1v1h-1z M15 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M2 8h1v1h-1z M13 8h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M6 12h1v1h-1z M9 12h1v1h-1z M7 13h2v1h-2z"/><path fill="#f43f5e" d="M2 2h4v1h-4z M10 2h4v1h-4z M2 3h1v1h-1z M5 3h1v1h-1z M10 3h4v1h-4z M1 4h2v1h-2z M5 4h10v1h-10z M1 5h14v1h-14z M1 6h14v1h-14z M2 7h12v1h-12z M3 8h10v1h-10z M4 9h8v1h-8z M5 10h6v1h-6z M6 11h4v1h-4z M7 12h2v1h-2z"/><path fill="#ffffff" d="M3 3h2v1h-2z M3 4h2v1h-2z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-pink-900 dark:text-pink-100 tracking-tight">Breast</span>
@@ -1479,6 +1767,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🥛</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M4 0h4v1h-4z M3 1h1v1h-1z M9 1h1v1h-1z M3 2h1v1h-1z M9 2h4v1h-4z M4 3h2v1h-2z M7 3h2v1h-2z M13 3h1v1h-1z M5 4h1v1h-1z M8 4h1v1h-1z M13 4h1v1h-1z M5 5h1v1h-1z M8 5h5v1h-5z M4 6h1v1h-1z M8 6h1v1h-1z M3 7h1v1h-1z M9 7h1v1h-1z M3 8h1v1h-1z M9 8h1v1h-1z M3 9h1v1h-1z M9 9h1v1h-1z M3 10h1v1h-1z M9 10h1v1h-1z M3 11h1v1h-1z M9 11h1v1h-1z M3 12h1v1h-1z M9 12h1v1h-1z M3 13h1v1h-1z M9 13h1v1h-1z M4 14h5v1h-5z"/><path fill="#a855f7" d="M4 1h1v1h-1z M8 1h1v1h-1z M4 2h1v1h-1z M8 2h1v1h-1z M6 3h1v1h-1z M6 4h1v1h-1z M6 5h1v1h-1z M5 6h3v1h-3z"/><path fill="#c084fc" d="M5 1h3v1h-3z"/><path fill="#ffffff" d="M5 2h3v1h-3z M5 8h3v1h-3z M5 9h3v1h-3z M5 10h3v1h-3z M5 11h3v1h-3z M5 12h3v1h-3z"/><path fill="#38bdf8" d="M9 3h4v1h-4z M7 4h1v1h-1z M9 4h4v1h-4z M7 5h1v1h-1z"/><path fill="#64748b" d="M4 7h5v1h-5z M4 8h1v1h-1z M8 8h1v1h-1z M4 9h1v1h-1z M8 9h1v1h-1z M4 10h1v1h-1z M8 10h1v1h-1z M4 11h1v1h-1z M8 11h1v1h-1z M4 12h1v1h-1z M8 12h1v1h-1z M4 13h5v1h-5z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-purple-900 dark:text-purple-100 tracking-tight">Pump</span>
@@ -1504,6 +1793,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">😴</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h4v1h-4z M4 1h2v1h-2z M10 1h2v1h-2z M13 1h2v1h-2z M3 2h1v1h-1z M12 2h2v1h-2z M15 2h1v1h-1z M2 3h1v1h-1z M7 3h5v1h-5z M13 3h2v1h-2z M1 4h1v1h-1z M6 4h1v1h-1z M1 5h1v1h-1z M6 5h1v1h-1z M1 6h1v1h-1z M6 6h1v1h-1z M13 6h2v1h-2z M1 7h1v1h-1z M6 7h1v1h-1z M12 7h2v1h-2z M15 7h1v1h-1z M1 8h1v1h-1z M6 8h1v1h-1z M13 8h2v1h-2z M1 9h1v1h-1z M6 9h1v1h-1z M2 10h1v1h-1z M7 10h5v1h-5z M3 11h1v1h-1z M12 11h1v1h-1z M4 12h2v1h-2z M10 12h2v1h-2z M6 13h4v1h-4z"/><path fill="#facc15" d="M6 1h4v1h-4z M4 2h8v1h-8z M3 3h4v1h-4z M2 4h4v1h-4z M2 5h4v1h-4z M2 6h4v1h-4z M2 7h4v1h-4z M2 8h4v1h-4z M2 9h4v1h-4z M3 10h4v1h-4z M4 11h8v1h-8z M6 12h4v1h-4z"/><path fill="#ffffff" d="M14 2h1v1h-1z M14 7h1v1h-1z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-indigo-900 dark:text-indigo-100 tracking-tight">Sleep</span>
@@ -1528,6 +1818,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">💊</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M7 0h4v1h-4z M5 1h2v1h-2z M11 1h2v1h-2z M4 2h1v1h-1z M13 2h1v1h-1z M3 3h1v1h-1z M14 3h1v1h-1z M2 4h1v1h-1z M15 4h1v1h-1z M2 5h1v1h-1z M15 5h1v1h-1z M1 6h1v1h-1z M15 6h1v1h-1z M1 7h1v1h-1z M15 7h1v1h-1z M1 8h1v1h-1z M15 8h1v1h-1z M1 9h1v1h-1z M15 9h1v1h-1z M2 10h1v1h-1z M13 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M4 12h2v1h-2z M10 12h2v1h-2z M6 13h4v1h-4z"/><path fill="#10b981" d="M7 1h4v1h-4z M5 2h8v1h-8z M4 3h2v1h-2z M8 3h6v1h-6z M3 4h2v1h-2z M7 4h6v1h-6z M3 5h6v1h-6z M2 6h6v1h-6z M2 7h4v1h-4z"/><path fill="#ffffff" d="M6 3h2v1h-2z M5 4h2v1h-2z"/><path fill="#f59e0b" d="M13 4h2v1h-2z M9 5h6v1h-6z M8 6h7v1h-7z M6 7h9v1h-9z M2 8h13v1h-13z M2 9h13v1h-13z M3 10h10v1h-10z M4 11h8v1h-8z M6 12h4v1h-4z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-teal-900 dark:text-teal-100 tracking-tight">Vitamins</span>
@@ -1552,6 +1843,7 @@
                                     </svg>
                                 </span>
                                 <span class="theme-icon-emoji text-2xl sm:text-3xl" aria-hidden="true">🐢</span>
+                                <span class="theme-icon-pixel text-2xl sm:text-3xl" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 1h4v1h-4z M4 2h2v1h-2z M10 2h2v1h-2z M3 3h1v1h-1z M7 3h2v1h-2z M12 3h1v1h-1z M2 4h1v1h-1z M5 4h2v1h-2z M9 4h2v1h-2z M13 4h1v1h-1z M2 5h1v1h-1z M5 5h2v1h-2z M9 5h2v1h-2z M13 5h1v1h-1z M1 6h1v1h-1z M3 6h2v1h-2z M7 6h2v1h-2z M11 6h2v1h-2z M14 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M0 8h4v1h-4z M12 8h4v1h-4z M0 9h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M15 9h1v1h-1z M0 10h4v1h-4z M12 10h4v1h-4z M1 11h1v1h-1z M14 11h1v1h-1z M2 12h1v1h-1z M13 12h1v1h-1z M0 13h2v1h-2z M3 13h2v1h-2z M11 13h2v1h-2z M14 13h2v1h-2z M0 14h1v1h-1z M2 14h1v1h-1z M5 14h6v1h-6z M13 14h1v1h-1z M15 14h1v1h-1z M0 15h2v1h-2z M14 15h2v1h-2z"/><path fill="#22c55e" d="M6 2h4v1h-4z M4 3h3v1h-3z M9 3h3v1h-3z M3 4h2v1h-2z M7 4h2v1h-2z M11 4h2v1h-2z M3 5h2v1h-2z M7 5h2v1h-2z M11 5h2v1h-2z M2 6h1v1h-1z M5 6h2v1h-2z M9 6h2v1h-2z M13 6h1v1h-1z M2 7h12v1h-12z M4 8h8v1h-8z M4 9h8v1h-8z M4 10h8v1h-8z M2 11h12v1h-12z M3 12h10v1h-10z M5 13h6v1h-6z"/><path fill="#86efac" d="M1 9h2v1h-2z M13 9h2v1h-2z M1 14h1v1h-1z M14 14h1v1h-1z"/></svg></span>
                             </div>
                             <span
                                 class="font-outfit text-sm sm:text-base font-extrabold text-emerald-900 dark:text-emerald-100 tracking-tight">Tummy</span>
@@ -1842,6 +2134,7 @@
                                 class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5 pt-1">
                                 <span class="theme-icon-svg">🍼</span>
                                 <span class="theme-icon-emoji text-sm" aria-hidden="true">🍼</span>
+                                <span class="theme-icon-pixel" aria-hidden="true"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h1v1h-1z M9 0h1v1h-1z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h2v1h-2z M9 2h2v1h-2z M4 3h1v1h-1z M11 3h1v1h-1z M4 4h1v1h-1z M11 4h1v1h-1z M3 5h1v1h-1z M12 5h1v1h-1z M3 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M6 7h3v1h-3z M12 7h1v1h-1z M3 8h1v1h-1z M12 8h1v1h-1z M3 9h1v1h-1z M6 9h3v1h-3z M12 9h1v1h-1z M3 10h1v1h-1z M12 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M3 12h1v1h-1z M12 12h1v1h-1z M3 13h1v1h-1z M12 13h1v1h-1z M4 14h8v1h-8z"/><path fill="#f59e0b" d="M7 0h2v1h-2z M7 1h2v1h-2z M7 2h2v1h-2z"/><path fill="#38bdf8" d="M5 3h6v1h-6z M5 4h6v1h-6z"/><path fill="#94a3b8" d="M4 5h8v1h-8z M4 6h1v1h-1z M11 6h1v1h-1z M4 7h1v1h-1z M11 7h1v1h-1z M4 8h1v1h-1z M11 8h1v1h-1z M4 9h1v1h-1z M11 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M4 11h1v1h-1z M11 11h1v1h-1z M4 12h1v1h-1z M11 12h1v1h-1z M4 13h8v1h-8z"/><path fill="#e2e8f0" d="M5 6h1v1h-1z M10 6h1v1h-1z M5 7h1v1h-1z M10 7h1v1h-1z M5 8h1v1h-1z M10 8h1v1h-1z M5 9h1v1h-1z M10 9h1v1h-1z M5 10h1v1h-1z M10 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M5 12h1v1h-1z M10 12h1v1h-1z"/><path fill="#ffffff" d="M6 6h4v1h-4z M9 7h1v1h-1z M6 8h4v1h-4z M9 9h1v1h-1z M6 10h4v1h-4z M6 11h4v1h-4z M6 12h4v1h-4z"/></svg></span>
                                 <span>Feed Tracker</span>
                             </span>
                             <div class="flex flex-col items-end gap-1.5">
@@ -1897,13 +2190,13 @@
                             class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-nightBorder text-xs">
                             <div
                                 class="p-2 rounded-xl bg-sky-50/70 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30">
-                                <div class="text-slate-500 dark:text-slate-400 font-medium">🍼 Formula</div>
+                                <div class="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1"><span class="theme-icon-svg">🍼</span><span class="theme-icon-emoji">🍼</span><span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h1v1h-1z M9 0h1v1h-1z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h2v1h-2z M9 2h2v1h-2z M4 3h1v1h-1z M11 3h1v1h-1z M4 4h1v1h-1z M11 4h1v1h-1z M3 5h1v1h-1z M12 5h1v1h-1z M3 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M6 7h3v1h-3z M12 7h1v1h-1z M3 8h1v1h-1z M12 8h1v1h-1z M3 9h1v1h-1z M6 9h3v1h-3z M12 9h1v1h-1z M3 10h1v1h-1z M12 10h1v1h-1z M3 11h1v1h-1z M12 11h1v1h-1z M3 12h1v1h-1z M12 12h1v1h-1z M3 13h1v1h-1z M12 13h1v1h-1z M4 14h8v1h-8z"/><path fill="#f59e0b" d="M7 0h2v1h-2z M7 1h2v1h-2z M7 2h2v1h-2z"/><path fill="#38bdf8" d="M5 3h6v1h-6z M5 4h6v1h-6z"/><path fill="#94a3b8" d="M4 5h8v1h-8z M4 6h1v1h-1z M11 6h1v1h-1z M4 7h1v1h-1z M11 7h1v1h-1z M4 8h1v1h-1z M11 8h1v1h-1z M4 9h1v1h-1z M11 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M4 11h1v1h-1z M11 11h1v1h-1z M4 12h1v1h-1z M11 12h1v1h-1z M4 13h8v1h-8z"/><path fill="#e2e8f0" d="M5 6h1v1h-1z M10 6h1v1h-1z M5 7h1v1h-1z M10 7h1v1h-1z M5 8h1v1h-1z M10 8h1v1h-1z M5 9h1v1h-1z M10 9h1v1h-1z M5 10h1v1h-1z M10 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M5 12h1v1h-1z M10 12h1v1h-1z"/><path fill="#ffffff" d="M6 6h4v1h-4z M9 7h1v1h-1z M6 8h4v1h-4z M9 9h1v1h-1z M6 10h4v1h-4z M6 11h4v1h-4z M6 12h4v1h-4z"/></svg></span> Formula</div>
                                 <div class="font-bold text-sky-700 dark:text-sky-300 text-sm" id="formulaTotalDisplay">
                                     35 mL</div>
                             </div>
                             <div
                                 class="p-2 rounded-xl bg-pink-50/70 dark:bg-pink-950/20 border border-pink-100 dark:border-pink-900/30">
-                                <div class="text-slate-500 dark:text-slate-400 font-medium">🤱 Breastmilk</div>
+                                <div class="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1"><span class="theme-icon-svg">🤱</span><span class="theme-icon-emoji">🤱</span><span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M2 1h4v1h-4z M10 1h4v1h-4z M1 2h1v1h-1z M6 2h1v1h-1z M9 2h1v1h-1z M14 2h1v1h-1z M1 3h1v1h-1z M6 3h4v1h-4z M14 3h1v1h-1z M0 4h1v1h-1z M15 4h1v1h-1z M0 5h1v1h-1z M15 5h1v1h-1z M0 6h1v1h-1z M15 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M2 8h1v1h-1z M13 8h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M4 10h1v1h-1z M11 10h1v1h-1z M5 11h1v1h-1z M10 11h1v1h-1z M6 12h1v1h-1z M9 12h1v1h-1z M7 13h2v1h-2z"/><path fill="#f43f5e" d="M2 2h4v1h-4z M10 2h4v1h-4z M2 3h1v1h-1z M5 3h1v1h-1z M10 3h4v1h-4z M1 4h2v1h-2z M5 4h10v1h-10z M1 5h14v1h-14z M1 6h14v1h-14z M2 7h12v1h-12z M3 8h10v1h-10z M4 9h8v1h-8z M5 10h6v1h-6z M6 11h4v1h-4z M7 12h2v1h-2z"/><path fill="#ffffff" d="M3 3h2v1h-2z M3 4h2v1h-2z"/></svg></span> Breastmilk</div>
                                 <div class="font-bold text-pink-700 dark:text-pink-300 text-sm"
                                     id="breastmilkTotalDisplay">50 mL</div>
                             </div>
@@ -1924,7 +2217,10 @@
                         <div class="flex items-center justify-between mb-2">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
-                                🚼 Diaper Tracker
+                                <span class="theme-icon-svg">🚼</span>
+                                <span class="theme-icon-emoji">🚼</span>
+                                <span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M4 0h8v1h-8z M3 1h1v1h-1z M12 1h1v1h-1z M2 2h1v1h-1z M13 2h1v1h-1z M2 3h1v1h-1z M13 3h1v1h-1z M1 4h1v1h-1z M14 4h1v1h-1z M1 5h1v1h-1z M4 5h2v1h-2z M10 5h2v1h-2z M14 5h1v1h-1z M1 6h1v1h-1z M4 6h2v1h-2z M10 6h2v1h-2z M14 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M2 8h1v1h-1z M13 8h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M4 10h2v1h-2z M10 10h2v1h-2z M6 11h4v1h-4z"/><path fill="#f59e0b" d="M4 1h8v1h-8z M3 2h2v1h-2z M11 2h2v1h-2z M3 3h1v1h-1z M12 3h1v1h-1z"/><path fill="#ffffff" d="M5 2h6v1h-6z M4 3h8v1h-8z M2 4h12v1h-12z M2 5h2v1h-2z M6 5h4v1h-4z M12 5h2v1h-2z M2 6h2v1h-2z M6 6h4v1h-4z M12 6h2v1h-2z M2 7h12v1h-12z M3 8h10v1h-10z M4 9h8v1h-8z M6 10h4v1h-4z"/></svg></span>
+                                <span>Diaper Tracker</span>
                             </span>
                             <span
                                 class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300"
@@ -1950,7 +2246,7 @@
                         <div class="grid grid-cols-2 gap-2 mt-4 pt-1">
                             <div
                                 class="p-3 rounded-xl bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200/60 dark:border-yellow-900/30 flex items-center space-x-2.5">
-                                <span class="text-2xl">🟡</span>
+                                <span class="text-2xl flex items-center justify-center"><span class="theme-icon-svg">🟡</span><span class="theme-icon-emoji">🟡</span><span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0369a1" d="M7 0h2v1h-2z M6 1h1v1h-1z M9 1h1v1h-1z M6 2h1v1h-1z M9 2h1v1h-1z M5 3h1v1h-1z M5 4h1v1h-1z M4 5h1v1h-1z M12 5h1v1h-1z M4 6h1v1h-1z M12 6h1v1h-1z M3 7h1v1h-1z M13 7h1v1h-1z M3 8h1v1h-1z M13 8h1v1h-1z M2 9h1v1h-1z M14 9h1v1h-1z M2 10h1v1h-1z M14 10h1v1h-1z M2 11h1v1h-1z M14 11h1v1h-1z M3 12h1v1h-1z M13 12h1v1h-1z M4 13h1v1h-1z M12 13h1v1h-1z M5 14h7v1h-7z"/><path fill="#38bdf8" d="M7 1h2v1h-2z M7 2h2v1h-2z M6 3h1v1h-1z M9 3h2v1h-2z M6 4h1v1h-1z M9 4h2v1h-2z M5 5h2v1h-2z M9 5h3v1h-3z M5 6h7v1h-7z M4 7h9v1h-9z M4 8h9v1h-9z M3 9h11v1h-11z M3 10h11v1h-11z M3 11h11v1h-11z M4 12h9v1h-9z M5 13h7v1h-7z"/><path fill="#ffffff" d="M7 3h2v1h-2z M7 4h2v1h-2z M7 5h2v1h-2z"/></svg></span></span>
                                 <div>
                                     <div class="text-xs text-yellow-800 dark:text-yellow-300 font-semibold">Wet (Pee)
                                     </div>
@@ -1961,7 +2257,7 @@
 
                             <div
                                 class="p-3 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-900/30 flex items-center space-x-2.5">
-                                <span class="text-2xl">💩</span>
+                                <span class="text-2xl flex items-center justify-center"><span class="theme-icon-svg">💩</span><span class="theme-icon-emoji">💩</span><span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#451a03" d="M7 0h2v1h-2z M6 1h1v1h-1z M9 1h1v1h-1z M5 2h1v1h-1z M10 2h1v1h-1z M4 3h1v1h-1z M3 4h2v1h-2z M12 4h2v1h-2z M2 5h1v1h-1z M14 5h1v1h-1z M1 6h1v1h-1z M14 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M0 8h2v1h-2z M15 8h1v1h-1z M0 9h1v1h-1z M15 9h1v1h-1z M0 10h1v1h-1z M15 10h1v1h-1z M0 11h1v1h-1z M15 11h1v1h-1z M1 12h1v1h-1z M14 12h1v1h-1z M2 13h2v1h-2z M12 13h2v1h-2z M4 14h8v1h-8z"/><path fill="#b45309" d="M7 1h2v1h-2z M6 2h4v1h-4z M5 3h1v1h-1z M7 3h5v1h-5z M5 4h7v1h-7z M3 5h11v1h-11z M2 6h2v1h-2z M5 6h9v1h-9z M2 7h12v1h-12z M2 8h13v1h-13z M1 9h14v1h-14z M1 10h1v1h-1z M3 10h12v1h-12z M1 11h14v1h-14z M2 12h12v1h-12z M4 13h8v1h-8z"/><path fill="#fef3c7" d="M6 3h1v1h-1z M4 6h1v1h-1z M2 10h1v1h-1z"/></svg></span></span>
                                 <div>
                                     <div class="text-xs text-orange-800 dark:text-orange-300 font-semibold">Dirty (Poop)
                                     </div>
@@ -1986,10 +2282,16 @@
                         <div class="flex items-center justify-between mb-2">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400 flex items-center gap-1.5">
-                                🥛 Pump & Sleep Summary
+                                <span class="theme-icon-svg">🥛</span>
+                                <span class="theme-icon-emoji">🥛</span>
+                                <span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M4 0h4v1h-4z M3 1h1v1h-1z M9 1h1v1h-1z M3 2h1v1h-1z M9 2h4v1h-4z M4 3h2v1h-2z M7 3h2v1h-2z M13 3h1v1h-1z M5 4h1v1h-1z M8 4h1v1h-1z M13 4h1v1h-1z M5 5h1v1h-1z M8 5h5v1h-5z M4 6h1v1h-1z M8 6h1v1h-1z M3 7h1v1h-1z M9 7h1v1h-1z M3 8h1v1h-1z M9 8h1v1h-1z M3 9h1v1h-1z M9 9h1v1h-1z M3 10h1v1h-1z M9 10h1v1h-1z M3 11h1v1h-1z M9 11h1v1h-1z M3 12h1v1h-1z M9 12h1v1h-1z M3 13h1v1h-1z M9 13h1v1h-1z M4 14h5v1h-5z"/><path fill="#a855f7" d="M4 1h1v1h-1z M8 1h1v1h-1z M4 2h1v1h-1z M8 2h1v1h-1z M6 3h1v1h-1z M6 4h1v1h-1z M6 5h1v1h-1z M5 6h3v1h-3z"/><path fill="#c084fc" d="M5 1h3v1h-3z"/><path fill="#ffffff" d="M5 2h3v1h-3z M5 8h3v1h-3z M5 9h3v1h-3z M5 10h3v1h-3z M5 11h3v1h-3z M5 12h3v1h-3z"/><path fill="#38bdf8" d="M9 3h4v1h-4z M7 4h1v1h-1z M9 4h4v1h-4z M7 5h1v1h-1z"/><path fill="#64748b" d="M4 7h5v1h-5z M4 8h1v1h-1z M8 8h1v1h-1z M4 9h1v1h-1z M8 9h1v1h-1z M4 10h1v1h-1z M8 10h1v1h-1z M4 11h1v1h-1z M8 11h1v1h-1z M4 12h1v1h-1z M8 12h1v1h-1z M4 13h5v1h-5z"/></svg></span>
+                                <span>Pump & Sleep Summary</span>
                             </span>
-                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400" id="tummyTimeSummary">
-                                🐢 12m Tummy
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1" id="tummyTimeSummary">
+                                <span class="theme-icon-svg">🐢</span>
+                                <span class="theme-icon-emoji">🐢</span>
+                                <span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 1h4v1h-4z M4 2h2v1h-2z M10 2h2v1h-2z M3 3h1v1h-1z M7 3h2v1h-2z M12 3h1v1h-1z M2 4h1v1h-1z M5 4h2v1h-2z M9 4h2v1h-2z M13 4h1v1h-1z M2 5h1v1h-1z M5 5h2v1h-2z M9 5h2v1h-2z M13 5h1v1h-1z M1 6h1v1h-1z M3 6h2v1h-2z M7 6h2v1h-2z M11 6h2v1h-2z M14 6h1v1h-1z M1 7h1v1h-1z M14 7h1v1h-1z M0 8h4v1h-4z M12 8h4v1h-4z M0 9h1v1h-1z M3 9h1v1h-1z M12 9h1v1h-1z M15 9h1v1h-1z M0 10h4v1h-4z M12 10h4v1h-4z M1 11h1v1h-1z M14 11h1v1h-1z M2 12h1v1h-1z M13 12h1v1h-1z M0 13h2v1h-2z M3 13h2v1h-2z M11 13h2v1h-2z M14 13h2v1h-2z M0 14h1v1h-1z M2 14h1v1h-1z M5 14h6v1h-6z M13 14h1v1h-1z M15 14h1v1h-1z M0 15h2v1h-2z M14 15h2v1h-2z"/><path fill="#22c55e" d="M6 2h4v1h-4z M4 3h3v1h-3z M9 3h3v1h-3z M3 4h2v1h-2z M7 4h2v1h-2z M11 4h2v1h-2z M3 5h2v1h-2z M7 5h2v1h-2z M11 5h2v1h-2z M2 6h1v1h-1z M5 6h2v1h-2z M9 6h2v1h-2z M13 6h1v1h-1z M2 7h12v1h-12z M4 8h8v1h-8z M4 9h8v1h-8z M4 10h8v1h-8z M2 11h12v1h-12z M3 12h10v1h-10z M5 13h6v1h-6z"/><path fill="#86efac" d="M1 9h2v1h-2z M13 9h2v1h-2z M1 14h1v1h-1z M14 14h1v1h-1z"/></svg></span>
+                                <span>12m Tummy</span>
                             </span>
                         </div>
 
@@ -2038,7 +2340,7 @@
                     <div
                         class="mt-3 pt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between border-t border-slate-100 dark:border-nightBorder">
                         <span id="lastSleepTimeAgo">Awake for 1h 15m</span>
-                        <span id="sleepStatusIndicator">🌙 Rested</span>
+                        <span id="sleepStatusIndicator" class="flex items-center gap-1"><span class="theme-icon-svg">🌙</span><span class="theme-icon-emoji">🌙</span><span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M6 0h4v1h-4z M4 1h2v1h-2z M10 1h2v1h-2z M13 1h2v1h-2z M3 2h1v1h-1z M12 2h2v1h-2z M15 2h1v1h-1z M2 3h1v1h-1z M7 3h5v1h-5z M13 3h2v1h-2z M1 4h1v1h-1z M6 4h1v1h-1z M1 5h1v1h-1z M6 5h1v1h-1z M1 6h1v1h-1z M6 6h1v1h-1z M13 6h2v1h-2z M1 7h1v1h-1z M6 7h1v1h-1z M12 7h2v1h-2z M15 7h1v1h-1z M1 8h1v1h-1z M6 8h1v1h-1z M13 8h2v1h-2z M1 9h1v1h-1z M6 9h1v1h-1z M2 10h1v1h-1z M7 10h5v1h-5z M3 11h1v1h-1z M12 11h1v1h-1z M4 12h2v1h-2z M10 12h2v1h-2z M6 13h4v1h-4z"/><path fill="#facc15" d="M6 1h4v1h-4z M4 2h8v1h-8z M3 3h4v1h-4z M2 4h4v1h-4z M2 5h4v1h-4z M2 6h4v1h-4z M2 7h4v1h-4z M2 8h4v1h-4z M2 9h4v1h-4z M3 10h4v1h-4z M4 11h8v1h-8z M6 12h4v1h-4z"/><path fill="#ffffff" d="M14 2h1v1h-1z M14 7h1v1h-1z"/></svg></span> <span>Rested</span></span>
                     </div>
                 </div>
 
@@ -2054,7 +2356,9 @@
                     <div class="flex items-center space-x-2.5">
                         <div
                             class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xl shrink-0">
-                            📅
+                            <span class="theme-icon-svg">📅</span>
+                            <span class="theme-icon-emoji">📅</span>
+                            <span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M3 0h10v1h-10z M3 1h1v1h-1z M12 1h1v1h-1z M2 2h2v1h-2z M12 2h2v1h-2z M1 3h1v1h-1z M14 3h1v1h-1z M1 4h1v1h-1z M14 4h1v1h-1z M1 5h1v1h-1z M3 5h1v1h-1z M6 5h1v1h-1z M8 5h1v1h-1z M11 5h1v1h-1z M13 5h2v1h-2z M1 6h1v1h-1z M14 6h1v1h-1z M1 7h1v1h-1z M3 7h1v1h-1z M6 7h1v1h-1z M8 7h1v1h-1z M11 7h1v1h-1z M13 7h2v1h-2z M1 8h1v1h-1z M14 8h1v1h-1z M1 9h1v1h-1z M3 9h1v1h-1z M6 9h1v1h-1z M8 9h1v1h-1z M11 9h1v1h-1z M13 9h2v1h-2z M1 10h1v1h-1z M14 10h1v1h-1z M2 11h12v1h-12z"/><path fill="#ef4444" d="M4 1h8v1h-8z M4 2h8v1h-8z"/><path fill="#ffffff" d="M2 3h12v1h-12z M2 4h12v1h-12z M2 5h1v1h-1z M7 5h1v1h-1z M12 5h1v1h-1z M2 6h12v1h-12z M2 7h1v1h-1z M7 7h1v1h-1z M12 7h1v1h-1z M2 8h12v1h-12z M2 9h1v1h-1z M7 9h1v1h-1z M12 9h1v1h-1z M2 10h12v1h-12z"/><path fill="#3b82f6" d="M4 5h2v1h-2z M9 5h2v1h-2z M4 7h2v1h-2z M9 7h2v1h-2z M4 9h2v1h-2z M9 9h2v1h-2z"/></svg></span>
                         </div>
                         <div>
                             <h3
@@ -2273,8 +2577,13 @@
         <div
             class="bg-white dark:bg-nightCard border border-amber-200/80 dark:border-nightBorder rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
 
+            <button id="modalDefaultsSettingsBtn" type="button"
+                class="absolute top-5 right-14 text-slate-400 hover:text-amber-500 text-base font-bold p-1 cursor-pointer transition-colors"
+                title="Adjust Default Values & Quick-Fill Settings">
+                ⚙️
+            </button>
             <button id="closeLogModalBtn"
-                class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1">
+                class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer">
                 ✕
             </button>
 
@@ -2290,6 +2599,42 @@
                     <p class="text-xs text-slate-500 dark:text-slate-400">
                         Record newborn feed, pump, diaper, sleep, or milestone
                     </p>
+                </div>
+            </div>
+
+            <!-- Default Values & Quick-Fill Settings Panel (Collapsible) -->
+            <div id="modalDefaultsPanel" class="hidden mb-4 p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 transition-all">
+                <div class="flex items-center justify-between pb-2 mb-3 border-b border-amber-200/60 dark:border-nightBorder">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">⚙️</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Default Values & Quick-Fill Settings</span>
+                    </div>
+                    <button type="button" id="closeDefaultsPanelBtn" class="text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">✕</button>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-xs mb-3">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Default Bottle Volume (mL)</label>
+                        <input type="number" id="defaultFeedVolumeInput" min="10" max="500" step="5" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightBg font-bold text-slate-800 dark:text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Default Pump Output (mL)</label>
+                        <input type="number" id="defaultPumpVolumeInput" min="10" max="500" step="5" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightBg font-bold text-slate-800 dark:text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Default Feed Duration (mins)</label>
+                        <input type="number" id="defaultDurationInput" min="1" max="120" step="1" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightBg font-bold text-slate-800 dark:text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Default Diaper Size</label>
+                        <select id="defaultDiaperSizeSelect" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-nightBorder bg-white dark:bg-nightBg font-bold text-slate-800 dark:text-slate-200">
+                            <option value="small">Small / Newborn (NB)</option>
+                            <option value="medium">Medium (Size 1-2)</option>
+                            <option value="large">Large (Size 3+)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="saveDefaultsBtn" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-all shadow-xs active:scale-95">Save Defaults ✨</button>
                 </div>
             </div>
 
@@ -4380,8 +4725,7 @@
             defaultQuickOrder: ['pee', 'poop', 'formula', 'breastmilk', 'pump', 'sleep', 'vitamins', 'tummy'],
             defaultBlocks: [
                 { id: 'block-timers', title: 'Active Timers Bar', icon: '⏱️' },
-                { id: 'block-feed-countdown', title: 'Next Feed Reminder', icon: '🍼' },
-                { id: 'block-pump-countdown', title: 'Next Pump Reminder', icon: '🥛' },
+                { id: 'block-reminders-row', title: 'Feed & Pump Reminders Bar', icon: '⏰' },
                 { id: 'block-quick-pad', title: 'Quick Action Pad', icon: '⚡' },
                 { id: 'block-sound-machine', title: 'Sound Machine & Audio', icon: '🎶' },
                 { id: 'block-date-nav', title: 'Date & Calendar Navigator', icon: '📅' },
@@ -4392,6 +4736,17 @@
             ],
 
             subGroups: {
+                reminders: {
+                    gridId: 'remindersGrid',
+                    label: 'Reminder',
+                    badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+                    storageOrderKey: 'bt_custom_reminders_order',
+                    storageHiddenKey: 'bt_custom_reminders_hidden',
+                    defaultItems: [
+                        { id: 'block-feed-countdown', title: 'Next Feed Reminder', icon: '🍼' },
+                        { id: 'block-pump-countdown', title: 'Next Pump Reminder', icon: '🥛' }
+                    ]
+                },
                 timers: {
                     gridId: 'timersGrid',
                     label: 'Live Timer',
@@ -4452,7 +4807,11 @@
                         const parsed = JSON.parse(raw);
                         if (Array.isArray(parsed) && parsed.length > 0) {
                             const defaultIds = this.defaultBlocks.map(b => b.id);
-                            const valid = parsed.filter(id => defaultIds.includes(id));
+                            const normalized = parsed.map(id => (id === 'block-feed-countdown' || id === 'block-pump-countdown') ? 'block-reminders-row' : id);
+                            const valid = [];
+                            normalized.forEach(id => {
+                                if (defaultIds.includes(id) && !valid.includes(id)) valid.push(id);
+                            });
                             defaultIds.forEach(id => {
                                 if (!valid.includes(id)) valid.push(id);
                             });
@@ -5447,6 +5806,30 @@
         }
 
         function updateFeedCountdownUI() {
+            const isFeedingInProgress = Boolean(AppState.timers?.feed?.active) || Boolean(AppState.timers?.nursing?.activeSide);
+            const countdownDisplay = document.getElementById('feedCountdownDisplay');
+            const statusBadge = document.getElementById('feedStatusBadge');
+            const targetDesc = document.getElementById('feedTargetTimeDesc');
+            const card = document.getElementById('feedCountdownCard');
+
+            if (!countdownDisplay || !statusBadge) return;
+
+            if (isFeedingInProgress) {
+                // Active feed stopwatch or nursing session: pause countdown and postpone target
+                AppState.feedReminder.nextFeedTargetTime = Date.now() + (AppState.feedReminder.intervalHours * 3600 * 1000);
+                AppState.feedReminder.chimeFired = true; // suppress chime alarm while active
+                countdownDisplay.textContent = 'FEEDING...';
+                statusBadge.textContent = '🍼 In Progress';
+                statusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-sky-500 text-white whitespace-nowrap inline-block shrink-0 shadow-xs';
+                if (card) {
+                    card.classList.remove('feed-due-pulse', 'border-rose-500');
+                }
+                if (targetDesc) {
+                    targetDesc.textContent = 'Feeding in progress • Next countdown begins once feed completes';
+                }
+                return;
+            }
+
             const now = Date.now();
             let target = AppState.feedReminder.nextFeedTargetTime;
             if (!target) {
@@ -5455,12 +5838,6 @@
             }
 
             const diffMs = target - now;
-            const countdownDisplay = document.getElementById('feedCountdownDisplay');
-            const statusBadge = document.getElementById('feedStatusBadge');
-            const targetDesc = document.getElementById('feedTargetTimeDesc');
-            const card = document.getElementById('feedCountdownCard');
-
-            if (!countdownDisplay || !statusBadge) return;
 
             const targetDate = new Date(target);
             const targetTimeStr = formatDisplayTime(targetDate);
@@ -5535,7 +5912,41 @@
 
             const feedIntervalSelect = document.getElementById('feedIntervalSelect');
             if (feedIntervalSelect) {
+                const currentInt = AppState.feedReminder.intervalHours || 3;
+                let matchedOpt = feedIntervalSelect.querySelector(`option[value="${currentInt}"]`);
+                if (!matchedOpt && currentInt) {
+                    const customOpt = document.createElement('option');
+                    customOpt.value = currentInt;
+                    customOpt.setAttribute('data-custom', 'true');
+                    customOpt.textContent = `Every ${currentInt}h (Custom)`;
+                    customOpt.selected = true;
+                    feedIntervalSelect.insertBefore(customOpt, feedIntervalSelect.lastElementChild);
+                } else if (matchedOpt) {
+                    feedIntervalSelect.value = String(currentInt);
+                }
+
                 feedIntervalSelect.onchange = (e) => {
+                    if (e.target.value === 'custom') {
+                        const userVal = prompt('Enter custom feed reminder interval in hours (e.g. 1.5, 4.5, 5):', AppState.feedReminder.intervalHours || 3);
+                        if (userVal !== null && !isNaN(parseFloat(userVal)) && parseFloat(userVal) > 0) {
+                            const hours = Math.round(parseFloat(userVal) * 10) / 10;
+                            let customOpt = feedIntervalSelect.querySelector('option[data-custom="true"]');
+                            if (!customOpt) {
+                                customOpt = document.createElement('option');
+                                customOpt.setAttribute('data-custom', 'true');
+                                feedIntervalSelect.insertBefore(customOpt, feedIntervalSelect.lastElementChild);
+                            }
+                            customOpt.value = hours;
+                            customOpt.textContent = `Every ${hours}h (Custom)`;
+                            feedIntervalSelect.value = hours;
+                            AppState.feedReminder.intervalHours = hours;
+                            scheduleNextFeed(AppState.feedReminder.lastFeedEndTime || Date.now());
+                            showToast(`Next feed reminder set to every ${hours} hours 🍼`, 'success');
+                        } else {
+                            feedIntervalSelect.value = String(AppState.feedReminder.intervalHours || 3);
+                        }
+                        return;
+                    }
                     const newInterval = parseFloat(e.target.value) || 3.0;
                     AppState.feedReminder.intervalHours = newInterval;
                     scheduleNextFeed(AppState.feedReminder.lastFeedEndTime || Date.now());
@@ -5723,7 +6134,44 @@
             // Interval selector change
             const pumpIntervalSelect = document.getElementById('pumpIntervalSelect');
             if (pumpIntervalSelect) {
+                const currentInt = AppState.pumpReminder.intervalHours || 3;
+                let matchedOpt = pumpIntervalSelect.querySelector(`option[value="${currentInt}"]`);
+                if (!matchedOpt && currentInt) {
+                    const customOpt = document.createElement('option');
+                    customOpt.value = currentInt;
+                    customOpt.setAttribute('data-custom', 'true');
+                    customOpt.textContent = `Every ${currentInt}h (Custom)`;
+                    customOpt.selected = true;
+                    pumpIntervalSelect.insertBefore(customOpt, pumpIntervalSelect.lastElementChild);
+                } else if (matchedOpt) {
+                    pumpIntervalSelect.value = String(currentInt);
+                }
+
                 pumpIntervalSelect.onchange = (e) => {
+                    if (e.target.value === 'custom') {
+                        const userVal = prompt('Enter custom pump reminder interval in hours (e.g. 1.5, 5, 6):', AppState.pumpReminder.intervalHours || 3);
+                        if (userVal !== null && !isNaN(parseFloat(userVal)) && parseFloat(userVal) > 0) {
+                            const hours = Math.round(parseFloat(userVal) * 10) / 10;
+                            let customOpt = pumpIntervalSelect.querySelector('option[data-custom="true"]');
+                            if (!customOpt) {
+                                customOpt = document.createElement('option');
+                                customOpt.setAttribute('data-custom', 'true');
+                                pumpIntervalSelect.insertBefore(customOpt, pumpIntervalSelect.lastElementChild);
+                            }
+                            customOpt.value = hours;
+                            customOpt.textContent = `Every ${hours}h (Custom)`;
+                            pumpIntervalSelect.value = hours;
+                            AppState.pumpReminder.intervalHours = hours;
+                            AppState.pumpReminder.nextPumpTargetTime = (AppState.pumpReminder.lastPumpStartTime || Date.now()) + (hours * 3600 * 1000);
+                            savePumpReminderLocally();
+                            SyncEngine.broadcast();
+                            updatePumpCountdownUI();
+                            showToast(`Pump reminder set to every ${hours} hours 🥛`, 'success');
+                        } else {
+                            pumpIntervalSelect.value = String(AppState.pumpReminder.intervalHours || 3);
+                        }
+                        return;
+                    }
                     const newInterval = parseFloat(e.target.value) || 3.0;
                     AppState.pumpReminder.intervalHours = newInterval;
                     // Re-calculate target based on last pump start
@@ -5818,16 +6266,30 @@
         }
 
         function updatePumpCountdownUI() {
-            const now = Date.now();
-            const target = AppState.pumpReminder.nextPumpTargetTime || (now + 3 * 3600 * 1000);
-            const diffMs = target - now;
-
+            const isPumpingInProgress = Boolean(AppState.pumpReminder?.isPumping);
             const countdownDisplay = document.getElementById('pumpCountdownDisplay');
             const statusBadge = document.getElementById('pumpStatusBadge');
             const targetDesc = document.getElementById('pumpTargetTimeDesc');
             const card = document.getElementById('pumpCountdownCard');
 
             if (!countdownDisplay || !statusBadge) return;
+
+            if (isPumpingInProgress) {
+                // Pump stopwatch active: pause countdown and reset target
+                AppState.pumpReminder.nextPumpTargetTime = Date.now() + (AppState.pumpReminder.intervalHours * 3600 * 1000);
+                countdownDisplay.textContent = 'PUMPING...';
+                statusBadge.textContent = '🥛 In Progress';
+                statusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-amber-500 text-white whitespace-nowrap inline-block shrink-0 shadow-xs';
+                if (card) card.classList.remove('pump-due-pulse', 'border-rose-500');
+                if (targetDesc) {
+                    targetDesc.textContent = 'Pumping in progress • Next countdown begins once pump completes';
+                }
+                return;
+            }
+
+            const now = Date.now();
+            const target = AppState.pumpReminder.nextPumpTargetTime || (now + 3 * 3600 * 1000);
+            const diffMs = target - now;
 
             const targetDate = new Date(target);
             const targetTimeStr = formatDisplayTime(targetDate);
@@ -6766,6 +7228,48 @@
             analyserInterval: null,
             restartTimeout: null,
             userDisabled: false,
+            cachedFemaleVoice: null,
+
+            getBestFemaleVoice() {
+                if (!window.speechSynthesis) return null;
+                const voices = window.speechSynthesis.getVoices();
+                if (!voices || !voices.length) return null;
+
+                const femaleNames = [
+                    'jenny', 'aria', 'zira', 'samantha', 'victoria',
+                    'karen', 'ava', 'allison', 'susan', 'zoe',
+                    'catherine', 'moira', 'tessa', 'fiona', 'serena', 'amanda', 'hazel'
+                ];
+
+                // 1. First priority: English natural / neural / online female voice
+                const naturalFemale = voices.find(v => {
+                    const n = (v.name || '').toLowerCase();
+                    const isEn = v.lang && v.lang.toLowerCase().startsWith('en');
+                    const hasFemaleName = femaleNames.some(fn => n.includes(fn)) || n.includes('female') || n.includes('woman');
+                    const isNatural = n.includes('natural') || n.includes('neural') || n.includes('online');
+                    return isEn && hasFemaleName && isNatural;
+                });
+                if (naturalFemale) return naturalFemale;
+
+                // 2. Second priority: Any standard English female voice
+                const standardFemale = voices.find(v => {
+                    const n = (v.name || '').toLowerCase();
+                    const isEn = v.lang && v.lang.toLowerCase().startsWith('en');
+                    return isEn && (femaleNames.some(fn => n.includes(fn)) || n.includes('female') || n.includes('woman'));
+                });
+                if (standardFemale) return standardFemale;
+
+                // 3. Third priority: Google US English or Google UK English Female
+                const googleFemale = voices.find(v => {
+                    const n = (v.name || '').toLowerCase();
+                    return n.includes('google') && (n.includes('us english') || n.includes('uk english female'));
+                });
+                if (googleFemale) return googleFemale;
+
+                // 4. Any English voice
+                const anyEn = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+                return anyEn || voices[0];
+            },
 
             init() {
                 // Initialize default voice settings
@@ -6782,6 +7286,16 @@
                     try {
                         Object.assign(AppState.voiceSettings, JSON.parse(savedSettings));
                     } catch (e) { }
+                }
+
+                // Pre-cache female voice when voices are loaded by browser
+                if (window.speechSynthesis) {
+                    this.cachedFemaleVoice = this.getBestFemaleVoice();
+                    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                        window.speechSynthesis.onvoiceschanged = () => {
+                            this.cachedFemaleVoice = this.getBestFemaleVoice();
+                        };
+                    }
                 }
 
                 // Sync modal form controls
@@ -6984,9 +7498,15 @@
                 try {
                     window.speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.rate = 1.05;
-                    utterance.pitch = 1.0;
-                    utterance.lang = 'en-US';
+                    const voice = this.cachedFemaleVoice || this.getBestFemaleVoice();
+                    if (voice) {
+                        utterance.voice = voice;
+                        utterance.lang = voice.lang || 'en-US';
+                    } else {
+                        utterance.lang = 'en-US';
+                    }
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.05; // Slightly warmer, gentle maternal tone for baby tracking
                     window.speechSynthesis.speak(utterance);
                 } catch (e) {
                     console.warn('speechSynthesis error:', e);
@@ -7316,6 +7836,15 @@
                         ThemeEngine.setTheme('simple-moonlight');
                     }
                     this.speak('Simple Moonlight theme enabled.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
+                if (command.includes('pixel') || command.includes('8 bit') || command.includes('eight bit') || command.includes('arcade')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('pixelated');
+                    }
+                    this.speak('Pixelated 8 bit arcade theme enabled.');
                     AudioSynth.playChime('success');
                     return;
                 }
@@ -7916,6 +8445,73 @@
         const cancelModalBtn = document.getElementById('cancelModalBtn');
         const activityForm = document.getElementById('activityForm');
 
+        // Custom Entry Default Values Management
+        function getCustomEntryDefaults() {
+            try {
+                const raw = localStorage.getItem('bt_custom_entry_defaults');
+                if (raw) return JSON.parse(raw);
+            } catch (e) { }
+            return {
+                feedVolume: 50,
+                pumpVolume: 100,
+                duration: 30,
+                diaperSize: 'small'
+            };
+        }
+
+        function saveCustomEntryDefaults(defs) {
+            localStorage.setItem('bt_custom_entry_defaults', JSON.stringify(defs));
+        }
+
+        const modalDefaultsSettingsBtn = document.getElementById('modalDefaultsSettingsBtn');
+        const modalDefaultsPanel = document.getElementById('modalDefaultsPanel');
+        const closeDefaultsPanelBtn = document.getElementById('closeDefaultsPanelBtn');
+        const saveDefaultsBtn = document.getElementById('saveDefaultsBtn');
+
+        if (modalDefaultsSettingsBtn && modalDefaultsPanel) {
+            modalDefaultsSettingsBtn.onclick = () => {
+                const isHidden = modalDefaultsPanel.classList.contains('hidden');
+                if (isHidden) {
+                    const currentDefs = getCustomEntryDefaults();
+                    const feedInput = document.getElementById('defaultFeedVolumeInput');
+                    const pumpInput = document.getElementById('defaultPumpVolumeInput');
+                    const durInput = document.getElementById('defaultDurationInput');
+                    const diaperSelect = document.getElementById('defaultDiaperSizeSelect');
+
+                    if (feedInput) feedInput.value = currentDefs.feedVolume;
+                    if (pumpInput) pumpInput.value = currentDefs.pumpVolume;
+                    if (durInput) durInput.value = currentDefs.duration;
+                    if (diaperSelect) diaperSelect.value = currentDefs.diaperSize || 'small';
+                    modalDefaultsPanel.classList.remove('hidden');
+                } else {
+                    modalDefaultsPanel.classList.add('hidden');
+                }
+            };
+        }
+
+        if (closeDefaultsPanelBtn && modalDefaultsPanel) {
+            closeDefaultsPanelBtn.onclick = () => modalDefaultsPanel.classList.add('hidden');
+        }
+
+        if (saveDefaultsBtn) {
+            saveDefaultsBtn.onclick = () => {
+                const feedVol = parseFloat(document.getElementById('defaultFeedVolumeInput')?.value) || 50;
+                const pumpVol = parseFloat(document.getElementById('defaultPumpVolumeInput')?.value) || 100;
+                const dur = parseInt(document.getElementById('defaultDurationInput')?.value, 10) || 30;
+                const diaper = document.getElementById('defaultDiaperSizeSelect')?.value || 'small';
+
+                saveCustomEntryDefaults({
+                    feedVolume: feedVol,
+                    pumpVolume: pumpVol,
+                    duration: dur,
+                    diaperSize: diaper
+                });
+
+                if (modalDefaultsPanel) modalDefaultsPanel.classList.add('hidden');
+                showToast('Default values saved! ✨', 'success');
+            };
+        }
+
         openLogModalBtn.onclick = () => openLogModal('feeding');
         closeLogModalBtn.onclick = () => logActivityModal.classList.add('hidden');
         cancelModalBtn.onclick = () => logActivityModal.classList.add('hidden');
@@ -7928,17 +8524,36 @@
             document.getElementById('modalDateInput').value = AppState.selectedDate || getTodayDateString();
             document.getElementById('modalTimeInput').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
+            const defs = getCustomEntryDefaults();
+
             if (defaultCategory === 'feeding') {
-                document.getElementById('feedAmountInput').value = AppState.unit === 'oz' ? '1.7' : '50';
-                document.getElementById('feedDurationInput').value = '30';
+                const isOz = AppState.unit === 'oz';
+                document.getElementById('feedAmountInput').value = isOz ? (defs.feedVolume / ML_PER_OZ).toFixed(1) : defs.feedVolume;
+                document.getElementById('feedDurationInput').value = defs.duration;
             } else {
                 document.getElementById('feedAmountInput').value = '';
                 document.getElementById('feedDurationInput').value = '';
             }
-            document.getElementById('pumpLeftAmountInput').value = '';
-            document.getElementById('pumpRightAmountInput').value = '';
-            document.getElementById('pumpTotalAmountDisplay').textContent = `0 ${AppState.unit}`;
-            document.getElementById('pumpDurationInput').value = '';
+
+            if (defaultCategory === 'pumping') {
+                const isOz = AppState.unit === 'oz';
+                const halfPump = (defs.pumpVolume || 100) / 2;
+                document.getElementById('pumpLeftAmountInput').value = isOz ? (halfPump / ML_PER_OZ).toFixed(1) : halfPump;
+                document.getElementById('pumpRightAmountInput').value = isOz ? (halfPump / ML_PER_OZ).toFixed(1) : halfPump;
+                updatePumpTotalDisplay();
+                document.getElementById('pumpDurationInput').value = defs.duration;
+            } else {
+                document.getElementById('pumpLeftAmountInput').value = '';
+                document.getElementById('pumpRightAmountInput').value = '';
+                document.getElementById('pumpTotalAmountDisplay').textContent = `0 ${AppState.unit}`;
+                document.getElementById('pumpDurationInput').value = '';
+            }
+
+            if (defs.diaperSize) {
+                const sizeRadio = document.querySelector(`input[name="diaperSizeRadio"][value="${defs.diaperSize}"]`);
+                if (sizeRadio) sizeRadio.checked = true;
+            }
+
             document.getElementById('sleepDurationInput').value = '';
             document.getElementById('tummyDurationInput').value = '';
             document.getElementById('modalNotesInput').value = '';
@@ -9112,7 +9727,7 @@
                 if (appointments.length === 0) {
                     container.innerHTML = `
                         <div class="p-6 text-center text-slate-400 dark:text-slate-500 rounded-2xl border border-dashed border-slate-200 dark:border-nightBorder space-y-1">
-                            <span class="text-2xl block">🗓️</span>
+                            <span class="text-2xl block"><span class="theme-icon-svg">🗓️</span><span class="theme-icon-emoji">🗓️</span><span class="theme-icon-pixel"><svg viewBox="0 0 16 16" width="24" height="24" class="pixel-sprite shrink-0" shape-rendering="crispEdges" style="image-rendering:pixelated;"><path fill="#0f172a" d="M3 0h10v1h-10z M3 1h1v1h-1z M12 1h1v1h-1z M2 2h2v1h-2z M12 2h2v1h-2z M1 3h1v1h-1z M14 3h1v1h-1z M1 4h1v1h-1z M14 4h1v1h-1z M1 5h1v1h-1z M3 5h1v1h-1z M6 5h1v1h-1z M8 5h1v1h-1z M11 5h1v1h-1z M13 5h2v1h-2z M1 6h1v1h-1z M14 6h1v1h-1z M1 7h1v1h-1z M3 7h1v1h-1z M6 7h1v1h-1z M8 7h1v1h-1z M11 7h1v1h-1z M13 7h2v1h-2z M1 8h1v1h-1z M14 8h1v1h-1z M1 9h1v1h-1z M3 9h1v1h-1z M6 9h1v1h-1z M8 9h1v1h-1z M11 9h1v1h-1z M13 9h2v1h-2z M1 10h1v1h-1z M14 10h1v1h-1z M2 11h12v1h-12z"/><path fill="#ef4444" d="M4 1h8v1h-8z M4 2h8v1h-8z"/><path fill="#ffffff" d="M2 3h12v1h-12z M2 4h12v1h-12z M2 5h1v1h-1z M7 5h1v1h-1z M12 5h1v1h-1z M2 6h12v1h-12z M2 7h1v1h-1z M7 7h1v1h-1z M12 7h1v1h-1z M2 8h12v1h-12z M2 9h1v1h-1z M7 9h1v1h-1z M12 9h1v1h-1z M2 10h12v1h-12z"/><path fill="#3b82f6" d="M4 5h2v1h-2z M9 5h2v1h-2z M4 7h2v1h-2z M9 7h2v1h-2z M4 9h2v1h-2z M9 9h2v1h-2z"/></svg></span></span>
                             <p class="text-xs font-bold text-slate-600 dark:text-slate-400">No baby appointments scheduled yet</p>
                             <p class="text-[11px]">Track pediatrician visits, vaccine milestones & checkups with 1-tap Google/Apple Calendar sync!</p>
                         </div>
@@ -9840,6 +10455,13 @@
                     icon: '📟',
                     badge: 'Nightstand LED',
                     desc: 'Glowing green phosphorescent digital nightstand clock'
+                },
+                {
+                    id: 'pixelated',
+                    name: 'Pixelated 8-Bit',
+                    icon: '👾',
+                    badge: 'Retro Arcade',
+                    desc: 'Chunky 8-bit arcade fonts, scanlines, and hard pixel drop-shadows'
                 }
             ],
 
@@ -9875,8 +10497,8 @@
                 });
                 document.body.classList.remove('night-vision');
 
-                // Toggle Tailwind dark class for dark themes (Simple Moonlight, Retro Digital, Night Vision)
-                const isDark = (theme.id === 'simple-moonlight' || theme.id === 'night-vision' || theme.id === 'retro-digital');
+                // Toggle Tailwind dark class for dark themes (Simple Moonlight, Retro Digital, Night Vision, Pixelated)
+                const isDark = (theme.id === 'simple-moonlight' || theme.id === 'night-vision' || theme.id === 'retro-digital' || theme.id === 'pixelated');
                 if (isDark) {
                     document.documentElement.classList.add('dark');
                 } else {
