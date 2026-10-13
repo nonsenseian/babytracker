@@ -97,16 +97,21 @@
             color: #fca5a5 !important;
         }
 
+        /* Night-vision: tint the entire root red so no white/blue light leaks from any element.
+           Applied to <html> (not <body>) so fixed-position modals/toasts keep viewport positioning. */
+        html[data-theme="night-vision"] {
+            filter: grayscale(100%) sepia(100%) saturate(600%) hue-rotate(-50deg) brightness(0.75);
+            background-color: #070709;
+        }
+
         /* 2. E-Ink Monochrome Paper Mode */
+        html[data-theme="e-ink"] {
+            filter: grayscale(100%);
+            background-color: #f5f5f2;
+        }
         body.theme-e-ink {
             background-color: #f5f5f2 !important;
             color: #111111 !important;
-            filter: grayscale(100%);
-        }
-        body.theme-e-ink.dark {
-            background-color: #18181b !important;
-            color: #f4f4f5 !important;
-            filter: grayscale(100%);
         }
         body.theme-e-ink .bg-white,
         body.theme-e-ink .bg-cream,
@@ -120,18 +125,6 @@
             border-width: 1.5px !important;
             box-shadow: 2px 2px 0px #18181b !important;
             color: #111111 !important;
-        }
-        body.theme-e-ink.dark .bg-white,
-        body.theme-e-ink.dark .bg-cream,
-        body.theme-e-ink.dark .cute-card,
-        body.theme-e-ink.dark section,
-        body.theme-e-ink.dark header,
-        body.theme-e-ink.dark footer,
-        body.theme-e-ink.dark .dark\:bg-nightCard {
-            background-color: #27272a !important;
-            border-color: #71717a !important;
-            box-shadow: 2px 2px 0px #71717a !important;
-            color: #f4f4f5 !important;
         }
         body.theme-e-ink button {
             border-color: #18181b !important;
@@ -160,13 +153,6 @@
             background-color: #ffffff !important;
             color: #111111 !important;
         }
-        body.theme-e-ink.dark input,
-        body.theme-e-ink.dark select,
-        body.theme-e-ink.dark textarea {
-            border-color: #71717a !important;
-            background-color: #27272a !important;
-            color: #f4f4f5 !important;
-        }
         body.theme-e-ink .timer-card-active {
             border: 3px solid #000000 !important;
             box-shadow: 4px 4px 0px #000000 !important;
@@ -176,9 +162,6 @@
             font-weight: 800 !important;
             letter-spacing: -0.03em !important;
             color: #000000 !important;
-        }
-        body.theme-e-ink.dark .font-mono {
-            color: #ffffff !important;
         }
         body.theme-e-ink .rounded-2xl,
         body.theme-e-ink .rounded-xl,
@@ -252,7 +235,131 @@
         }
         body.theme-retro-digital .timer-card-active {
             border-color: #10b981 !important;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+        }
+
+        /* 5. Simple Daylight Theme (Flat, Uncongested, Crisp Colored Borders, Pure White Cards) */
+        body.theme-default,
+        body[data-theme="default"] {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        body.theme-default .bg-white,
+        body.theme-default .bg-cream,
+        body.theme-default .cute-card,
+        body.theme-default section,
+        body.theme-default header,
+        body.theme-default footer,
+        body[data-theme="default"] .cute-card {
+            background-color: #ffffff !important;
+            background-image: none !important;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05) !important;
+        }
+        /* Crisp colored borders in Simple Daylight */
+        body.theme-default #feedCountdownCard,
+        body[data-theme="default"] #feedCountdownCard {
+            border: 2px solid #38bdf8 !important;
+            background: #ffffff !important;
+        }
+        body.theme-default #pumpCountdownCard,
+        body[data-theme="default"] #pumpCountdownCard {
+            border: 2px solid #fbbf24 !important;
+            background: #ffffff !important;
+        }
+        body.theme-default #feedTimerCard,
+        body[data-theme="default"] #feedTimerCard {
+            border: 1.5px solid #38bdf8 !important;
+            background: #ffffff !important;
+        }
+        body.theme-default #nursingTimerCard,
+        body[data-theme="default"] #nursingTimerCard {
+            border: 1.5px solid #f472b6 !important;
+            background: #ffffff !important;
+        }
+        body.theme-default #pumpingTimerCard,
+        body[data-theme="default"] #pumpingTimerCard {
+            border: 1.5px solid #fbbf24 !important;
+            background: #ffffff !important;
+        }
+        body.theme-default #sleepTimerCard,
+        body[data-theme="default"] #sleepTimerCard {
+            border: 1.5px solid #818cf8 !important;
+            background: #ffffff !important;
+        }
+        body.theme-default #tummyTimerCard,
+        body[data-theme="default"] #tummyTimerCard {
+            border: 1.5px solid #34d399 !important;
+            background: #ffffff !important;
+        }
+
+        /* 6. Simple Moonlight Theme (Minimalist Flat Dark Sibling with Crisp Colored Borders) */
+        body.theme-simple-moonlight,
+        body[data-theme="simple-moonlight"] {
+            background-color: #0b0f19 !important;
+            color: #f8fafc !important;
+        }
+        body.theme-simple-moonlight .bg-white,
+        body.theme-simple-moonlight .bg-cream,
+        body.theme-simple-moonlight .cute-card,
+        body.theme-simple-moonlight section,
+        body.theme-simple-moonlight header,
+        body.theme-simple-moonlight footer,
+        body[data-theme="simple-moonlight"] .cute-card {
+            background-color: #111827 !important;
+            color: #f8fafc !important;
+            background-image: none !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4) !important;
+        }
+        /* Crisp colored borders in Simple Moonlight */
+        body.theme-simple-moonlight #feedCountdownCard,
+        body[data-theme="simple-moonlight"] #feedCountdownCard {
+            border: 2px solid #0284c7 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight #pumpCountdownCard,
+        body[data-theme="simple-moonlight"] #pumpCountdownCard {
+            border: 2px solid #d97706 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight #feedTimerCard,
+        body[data-theme="simple-moonlight"] #feedTimerCard {
+            border: 1.5px solid #0284c7 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight #nursingTimerCard,
+        body[data-theme="simple-moonlight"] #nursingTimerCard {
+            border: 1.5px solid #db2777 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight #pumpingTimerCard,
+        body[data-theme="simple-moonlight"] #pumpingTimerCard {
+            border: 1.5px solid #d97706 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight #sleepTimerCard,
+        body[data-theme="simple-moonlight"] #sleepTimerCard {
+            border: 1.5px solid #6366f1 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight #tummyTimerCard,
+        body[data-theme="simple-moonlight"] #tummyTimerCard {
+            border: 1.5px solid #059669 !important;
+            background: #111827 !important;
+        }
+        body.theme-simple-moonlight input,
+        body.theme-simple-moonlight select,
+        body.theme-simple-moonlight textarea,
+        body[data-theme="simple-moonlight"] select {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        body.theme-simple-moonlight .text-slate-900,
+        body.theme-simple-moonlight .text-slate-800 {
+            color: #f8fafc !important;
+        }
+        body.theme-simple-moonlight .text-slate-600,
+        body.theme-simple-moonlight .text-slate-500 {
+            color: #94a3b8 !important;
         }
 
         /* Cute Card Hover Transitions */
@@ -395,11 +502,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Dark / Light Theme Toggle -->
-                <button id="themeToggleBtn" class="p-2 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs shadow-sm transition-all" title="Toggle Light/Dark Theme">
-                    ☀️
-                </button>
             </div>
         </div>
     </header>
@@ -411,7 +513,11 @@
         <section class="bg-white dark:bg-nightCard border border-amber-100 dark:border-nightBorder rounded-2xl p-4 shadow-sm cute-card">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                 <div class="flex items-center space-x-2">
-                    <span class="text-lg">⏱️</span>
+                    <svg class="w-5 h-5 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="13" r="8"/>
+                        <path d="M12 9v4l2.5 2.5"/>
+                        <path d="M10 2h4"/>
+                    </svg>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                         Live Timers & Quick Tools
                     </h2>
@@ -430,7 +536,10 @@
                     </button>
                     <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
-                            🍼 Feed Timer
+                            <svg class="w-4 h-4 inline-block text-sky-600 dark:text-sky-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 2h6v2H9z"/><path d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity="0.3"/>
+                            </svg>
+                            <span>Feed Timer</span>
                             <span id="feedLiveBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase">Ready</span>
                         </span>
                     </div>
@@ -463,7 +572,10 @@
                     </button>
                     <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
-                            🤱 Nursing Timer
+                            <svg class="w-4 h-4 inline-block text-rose-600 dark:text-rose-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="currentColor" fill-opacity="0.3"/><circle cx="12" cy="10" r="2" fill="currentColor"/>
+                            </svg>
+                            <span>Nursing Timer</span>
                             <span id="nursingSideBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 font-extrabold uppercase">L & R</span>
                         </span>
                     </div>
@@ -492,7 +604,10 @@
                     </button>
                     <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                            🥛 Pump Stopwatch
+                            <svg class="w-4 h-4 inline-block text-amber-600 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 3h4v4H7z"/><path d="M11 5h6l3 4v2h-9"/><rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.3"/>
+                            </svg>
+                            <span>Pump Stopwatch</span>
                             <span id="pumpingLiveBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-extrabold uppercase">Ready</span>
                         </span>
                     </div>
@@ -516,7 +631,10 @@
                     </button>
                     <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
-                            😴 Nap / Sleep Timer
+                            <svg class="w-4 h-4 inline-block text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" fill="currentColor" fill-opacity="0.3"/><path d="M19 3v4"/><path d="M21 5h-4"/>
+                            </svg>
+                            <span>Nap / Sleep Timer</span>
                         </span>
                     </div>
                     <div class="flex items-center justify-center my-1">
@@ -539,7 +657,10 @@
                     </button>
                     <div class="flex items-center justify-between mb-2 pr-12">
                         <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
-                            🐢 Tummy Time
+                            <svg class="w-4 h-4 inline-block text-emerald-600 dark:text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="13" rx="6" ry="4" fill="currentColor" fill-opacity="0.3"/><circle cx="19" cy="13" r="2.5"/><path d="M8 9l-2-2M16 9l2-2M8 17l-2 2M16 17l2 2"/>
+                            </svg>
+                            <span>Tummy Time</span>
                         </span>
                     </div>
                     <div class="flex items-center justify-center my-1">
@@ -562,102 +683,106 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             
             <!-- 1. NEXT FEED REMINDER & COUNTDOWN WIDGET (~3 Hours Interval from End of Last Feed) -->
-            <section id="feedCountdownCard" class="bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-indigo-500/10 border border-sky-300/80 dark:border-sky-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0">
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 w-full min-w-0">
-                    
-                    <!-- Left: Info & Description -->
-                    <div class="flex items-center space-x-3 w-full md:w-auto min-w-0">
-                        <div class="w-12 h-12 rounded-2xl bg-sky-200/80 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
-                            🍼
+            <section id="feedCountdownCard" class="bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-indigo-500/10 border border-sky-300/80 dark:border-sky-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0 flex flex-col justify-between">
+                <!-- Tier 1: Header Row (Title, Status Badge & Interval Selector) -->
+                <div class="flex items-center justify-between gap-2 w-full pb-3 border-b border-sky-200/50 dark:border-sky-900/40">
+                    <div class="flex items-center space-x-2.5 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-sky-200/80 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 flex items-center justify-center text-xl shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-sky-600 dark:text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 2h6v2H9z"/><path d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity="0.3"/><line x1="10" y1="13" x2="14" y2="13"/><line x1="10" y1="16" x2="13" y2="16"/>
+                            </svg>
                         </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
-                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 shrink-0">
-                                    Next Feed Reminder
-                                </h3>
-                                <span id="feedStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300 shrink-0">
-                                    In 3h 00m
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="feedTargetTimeDesc">
-                                3h from end of last feed
-                            </p>
+                        <div class="min-w-0 flex items-center gap-2 flex-wrap">
+                            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white shrink-0">
+                                Next Feed Reminder
+                            </h3>
+                            <span id="feedStatusBadge" class="text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300 whitespace-nowrap shrink-0 inline-block shadow-xs">
+                                In 3h 00m
+                            </span>
                         </div>
                     </div>
-
-                    <!-- Right: Countdown Display & Interval Selector -->
-                    <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto shrink-0">
-                        <div class="text-left md:text-right">
-                            <div class="font-mono text-xl sm:text-2xl font-black text-sky-900 dark:text-sky-200 tracking-tight" id="feedCountdownDisplay">
-                                03:00:00
-                            </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Time Until Next Feed</span>
-                        </div>
-
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <select id="feedIntervalSelect" class="px-2 py-1.5 bg-white dark:bg-nightBg border border-sky-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" title="Change Feed Interval">
-                                <option value="2">Every 2h</option>
-                                <option value="2.5">Every 2.5h</option>
-                                <option value="3" selected>Every 3h (~Standard)</option>
-                                <option value="3.5">Every 3.5h</option>
-                                <option value="4">Every 4h</option>
-                            </select>
-                            <button id="logFeedNowBtn" class="px-3 py-1.5 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap shrink-0">
-                                Log Feed
-                            </button>
-                        </div>
+                    <div class="shrink-0 flex items-center">
+                        <select id="feedIntervalSelect" class="px-2 py-1 bg-white dark:bg-nightBg border border-sky-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs cursor-pointer" title="Change Feed Interval">
+                            <option value="2">Every 2h</option>
+                            <option value="2.5">Every 2.5h</option>
+                            <option value="3" selected>Every 3h (~Standard)</option>
+                            <option value="3.5">Every 3.5h</option>
+                            <option value="4">Every 4h</option>
+                        </select>
                     </div>
+                </div>
 
+                <!-- Tier 2: Hero Countdown Clock & Schedule Subtitle -->
+                <div class="py-4 text-center flex flex-col items-center justify-center">
+                    <div class="font-mono text-3xl sm:text-4xl font-black text-sky-900 dark:text-sky-200 tracking-tight leading-none mb-1.5" id="feedCountdownDisplay">
+                        03:00:00
+                    </div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block mb-1">Time Until Next Feed</span>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 font-medium" id="feedTargetTimeDesc">
+                        3h from end of last feed
+                    </p>
+                </div>
+
+                <!-- Tier 3: 1-Tap Full-Width Action Button -->
+                <div class="pt-2 w-full">
+                    <button id="logFeedNowBtn" class="w-full py-2.5 px-4 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 2h6v2H9z"/><path d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity="0.3"/>
+                        </svg>
+                        <span>Log Feed Now</span>
+                    </button>
                 </div>
             </section>
 
             <!-- 2. NEXT PUMP REMINDER & COUNTDOWN WIDGET (~3 Hours Interval) -->
-            <section id="pumpCountdownCard" class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0">
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 w-full min-w-0">
-                    
-                    <!-- Left: Info & Description -->
-                    <div class="flex items-center space-x-3 w-full md:w-auto min-w-0">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-200/80 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
-                            🥛
+            <section id="pumpCountdownCard" class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border border-amber-300/80 dark:border-amber-800/60 rounded-2xl p-4 sm:p-5 shadow-sm cute-card h-auto min-w-0 flex flex-col justify-between">
+                <!-- Tier 1: Header Row (Title, Status Badge & Interval Selector) -->
+                <div class="flex items-center justify-between gap-2 w-full pb-3 border-b border-amber-200/50 dark:border-amber-900/40">
+                    <div class="flex items-center space-x-2.5 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-amber-200/80 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 flex items-center justify-center text-xl shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 3h4v4H7z"/><path d="M11 5h6l3 4v2h-9"/><rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.3"/><line x1="9" y1="15" x2="13" y2="15"/>
+                            </svg>
                         </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
-                                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 shrink-0">
-                                    Next Pump Reminder
-                                </h3>
-                                <span id="pumpStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300 shrink-0">
-                                    In 2h 45m
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5" id="pumpTargetTimeDesc">
-                                Scheduled for 02:30 AM • Based on last pump start
-                            </p>
+                        <div class="min-w-0 flex items-center gap-2 flex-wrap">
+                            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white shrink-0">
+                                Next Pump Reminder
+                            </h3>
+                            <span id="pumpStatusBadge" class="text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300 whitespace-nowrap shrink-0 inline-block shadow-xs">
+                                In 2h 45m
+                            </span>
                         </div>
                     </div>
-
-                    <!-- Right: Countdown Display & Interval Selector -->
-                    <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto shrink-0">
-                        <div class="text-left md:text-right">
-                            <div class="font-mono text-xl sm:text-2xl font-black text-amber-900 dark:text-amber-200 tracking-tight" id="pumpCountdownDisplay">
-                                02:45:00
-                            </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Time Until Next Pump</span>
-                        </div>
-
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <select id="pumpIntervalSelect" class="px-2 py-1.5 bg-white dark:bg-nightBg border border-amber-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500" title="Change Pump Interval">
-                                <option value="2">Every 2h</option>
-                                <option value="2.5">Every 2.5h</option>
-                                <option value="3" selected>Every 3h (~Standard)</option>
-                                <option value="3.5">Every 3.5h</option>
-                                <option value="4">Every 4h</option>
-                            </select>
-                            <button id="logPumpNowBtn" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all whitespace-nowrap shrink-0">
-                                Log Pump
-                            </button>
-                        </div>
+                    <div class="shrink-0 flex items-center">
+                        <select id="pumpIntervalSelect" class="px-2 py-1 bg-white dark:bg-nightBg border border-amber-200 dark:border-nightBorder rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs cursor-pointer" title="Change Pump Interval">
+                            <option value="2">Every 2h</option>
+                            <option value="2.5">Every 2.5h</option>
+                            <option value="3" selected>Every 3h (~Standard)</option>
+                            <option value="3.5">Every 3.5h</option>
+                            <option value="4">Every 4h</option>
+                        </select>
                     </div>
+                </div>
 
+                <!-- Tier 2: Hero Countdown Clock & Schedule Subtitle -->
+                <div class="py-4 text-center flex flex-col items-center justify-center">
+                    <div class="font-mono text-3xl sm:text-4xl font-black text-amber-900 dark:text-amber-200 tracking-tight leading-none mb-1.5" id="pumpCountdownDisplay">
+                        02:45:00
+                    </div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block mb-1">Time Until Next Pump</span>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 font-medium" id="pumpTargetTimeDesc">
+                        Scheduled for 02:30 AM • Based on last pump start
+                    </p>
+                </div>
+
+                <!-- Tier 3: 1-Tap Full-Width Action Button -->
+                <div class="pt-2 w-full">
+                    <button id="logPumpNowBtn" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 3h4v4H7z"/><path d="M11 5h6l3 4v2h-9"/><rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.3"/>
+                        </svg>
+                        <span>Log Pump Now</span>
+                    </button>
                 </div>
             </section>
 
@@ -701,56 +826,89 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3.5">
                 <!-- 1. Pee -->
                 <button onclick="quickLogWithFeedback('pee', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-2 border-amber-200/90 dark:border-amber-800/60 active:scale-95 active:border-amber-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🟡</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="currentColor" fill-opacity="0.25"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-amber-900 dark:text-amber-100 tracking-tight">Pee</span>
                     <span class="text-[11px] font-semibold text-amber-700 dark:text-amber-300/80">Wet Diaper</span>
                 </button>
 
                 <!-- 2. Poop -->
                 <button onclick="quickLogWithFeedback('poop', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-orange-50/90 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-900/40 border-2 border-orange-200/90 dark:border-orange-800/60 active:scale-95 active:border-orange-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">💩</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 6h16c0 6-3 13-8 13S4 12 4 6z" fill="currentColor" fill-opacity="0.25"/>
+                            <path d="M4 9h4"/><path d="M16 9h4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-orange-900 dark:text-orange-100 tracking-tight">Poop</span>
                     <span class="text-[11px] font-semibold text-orange-700 dark:text-orange-300/80">Dirty Diaper</span>
                 </button>
 
                 <!-- 3. Formula -->
                 <button onclick="quickLogWithFeedback('formula', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-sky-50/90 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/40 border-2 border-sky-200/90 dark:border-sky-800/60 active:scale-95 active:border-sky-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🍼</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 2h6v2H9z"/><path d="M8 4h8a1 1 0 0 1 1 1v2a3 3 0 0 1-2 2.83V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.83A3 3 0 0 1 7 7V5a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity="0.25"/><line x1="10" y1="13" x2="14" y2="13"/><line x1="10" y1="16" x2="13" y2="16"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-sky-900 dark:text-sky-100 tracking-tight">Formula</span>
                     <span id="quickFormulaLabel" class="text-[11px] font-semibold text-sky-700 dark:text-sky-300/80">50 mL (30m)</span>
                 </button>
 
                 <!-- 4. Breastmilk -->
                 <button onclick="quickLogWithFeedback('breastmilk', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-pink-50/90 dark:bg-pink-950/30 hover:bg-pink-100 dark:hover:bg-pink-900/40 border-2 border-pink-200/90 dark:border-pink-800/60 active:scale-95 active:border-pink-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🤱</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-pink-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="currentColor" fill-opacity="0.25"/><circle cx="12" cy="10" r="2" fill="currentColor"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-pink-900 dark:text-pink-100 tracking-tight">Breast</span>
                     <span id="quickBreastLabel" class="text-[11px] font-semibold text-pink-700 dark:text-pink-300/80">50 mL (30m)</span>
                 </button>
 
                 <!-- 5. Pump -->
                 <button onclick="quickLogWithFeedback('pump', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-purple-50/90 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 border-2 border-purple-200/90 dark:border-purple-800/60 active:scale-95 active:border-purple-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🥛</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 3h4v4H7z"/><path d="M11 5h6l3 4v2h-9"/><rect x="7" y="11" width="8" height="10" rx="2" fill="currentColor" fill-opacity="0.25"/><line x1="9" y1="15" x2="13" y2="15"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-purple-900 dark:text-purple-100 tracking-tight">Pump</span>
                     <span id="quickPumpLabel" class="text-[11px] font-semibold text-purple-700 dark:text-purple-300/80">100 mL Total</span>
                 </button>
 
                 <!-- 6. Sleep -->
                 <button onclick="quickLogWithFeedback('sleep', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border-2 border-indigo-200/90 dark:border-indigo-800/60 active:scale-95 active:border-indigo-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">😴</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" fill="currentColor" fill-opacity="0.25"/><path d="M19 3v4"/><path d="M21 5h-4"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-indigo-900 dark:text-indigo-100 tracking-tight">Sleep</span>
                     <span class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300/80">1h Quick Nap</span>
                 </button>
 
                 <!-- 7. Vitamins -->
                 <button onclick="quickLogWithFeedback('vitamins', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-teal-50/90 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/40 border-2 border-teal-200/90 dark:border-teal-800/60 active:scale-95 active:border-teal-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log Daily Vitamins (20 mL milk, 20m)">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">💊</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-teal-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" fill="currentColor" fill-opacity="0.25"/><path d="m8.5 8.5 7 7"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-teal-900 dark:text-teal-100 tracking-tight">Vitamins</span>
                     <span id="quickVitaminsLabel" class="text-[11px] font-semibold text-teal-700 dark:text-teal-300/80">20 mL (20m)</span>
                 </button>
 
                 <!-- 8. Tummy Time -->
                 <button onclick="quickLogWithFeedback('tummy', this)" class="group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border-2 border-emerald-200/90 dark:border-emerald-800/60 active:scale-95 active:border-emerald-400 transition-all duration-150 shadow-xs hover:shadow-md cursor-pointer select-none text-center h-24 sm:h-28" title="Quick Log 1 Minute Tummy Time">
-                    <span class="text-3xl sm:text-4xl mb-1 group-hover:scale-110 transition-transform">🐢</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 mb-1 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="13" rx="6" ry="4" fill="currentColor" fill-opacity="0.25"/><circle cx="19" cy="13" r="2.5"/><path d="M8 9l-2-2M16 9l2-2M8 17l-2 2M16 17l2 2"/>
+                        </svg>
+                    </div>
                     <span class="font-outfit text-sm sm:text-base font-extrabold text-emerald-900 dark:text-emerald-100 tracking-tight">Tummy</span>
                     <span class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300/80">1 min</span>
                 </button>
@@ -1146,6 +1304,9 @@
                 <button id="restoreJsonBtn" class="hover:text-slate-700 dark:hover:text-slate-200">📂 Restore Data</button>
                 <input type="file" id="restoreFileInput" class="hidden" accept=".json">
             </div>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 mt-4 pt-3 border-t border-slate-200/40 dark:border-nightBorder/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed text-center">
+            <strong>Medical & Safety Notice:</strong> BabyTracker is an informational organizational aid for caregivers and is not a medical device. Reminders and public health references (e.g. CDC milk guidelines) are informational only and not a substitute for professional pediatric medical diagnosis or care. Always consult your pediatrician for infant medical needs.
         </div>
     </footer>
 
@@ -1825,10 +1986,14 @@
         </div>
     </div>
 
-    <!-- Toast Notification Overlay -->
-    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold pointer-events-none">
+    <!-- Toast Notification Overlay with 5-Second Undo Support -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2.5 text-xs font-bold pointer-events-none">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">Success</span>
+        <button id="toastUndoBtn" class="hidden ml-2 px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-lg text-xs font-extrabold shadow-xs transition-all pointer-events-auto cursor-pointer flex items-center gap-1 active:scale-95">
+            <span>↩️</span>
+            <span>Undo</span>
+        </button>
     </div>
 
     <!-- Application Logic -->
@@ -1881,6 +2046,9 @@
                     activeSide: null,
                     leftSeconds: 0,
                     rightSeconds: 0,
+                    sideStartTime: null,
+                    baseLeftSeconds: 0,
+                    baseRightSeconds: 0,
                     intervalId: null
                 },
                 sleep: {
@@ -2544,7 +2712,7 @@
 
                 countdownDisplay.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
                 statusBadge.textContent = `In ${hrs}h ${mins}m`;
-                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300';
+                statusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300 whitespace-nowrap inline-block shrink-0 shadow-xs';
                 if (card) {
                     card.classList.remove('feed-due-pulse', 'border-rose-500');
                 }
@@ -2553,7 +2721,7 @@
                 const overdueMins = Math.floor(-diffMs / 60000);
                 countdownDisplay.textContent = overdueMins > 0 ? `+${overdueMins}m DUE` : 'DUE NOW!';
                 statusBadge.textContent = '🔔 TIME TO FEED!';
-                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-rose-500 text-white animate-pulse';
+                statusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-rose-500 text-white animate-pulse whitespace-nowrap inline-block shrink-0 shadow-sm';
                 if (card) {
                     card.classList.add('feed-due-pulse', 'border-rose-500');
                 }
@@ -2578,16 +2746,79 @@
             }
         }
 
+        function syncAllActiveTimersOnWake() {
+            // 1. Feed live stopwatch
+            if (AppState.timers.feed.active && !AppState.timers.feed.isPaused && AppState.timers.feed.startTime) {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.feed.startTime) / 1000);
+                AppState.timers.feed.seconds = diffSecs;
+                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                const secs = String(diffSecs % 60).padStart(2, '0');
+                const disp = document.getElementById('feedTimerDisplay');
+                if (disp) disp.textContent = `${mins}:${secs}`;
+                if (diffSecs >= 3540 && !AppState.timers.feed.discardWarned) {
+                    AppState.timers.feed.discardWarned = true;
+                    document.getElementById('discardMilkAlertBanner')?.classList.remove('hidden');
+                    AudioSynth.playAlarm('alarm');
+                    showToast('⚠️ 59m Warning: Discard milk 1 hour after feed start per CDC guidelines!', 'warning');
+                }
+            }
+            // 2. Pumping live stopwatch
+            if (AppState.pumpReminder.isPumping && AppState.pumpReminder.pumpingStartTime) {
+                const diffSecs = Math.floor((Date.now() - AppState.pumpReminder.pumpingStartTime) / 1000);
+                AppState.pumpReminder.pumpingSeconds = diffSecs;
+                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                const secs = String(diffSecs % 60).padStart(2, '0');
+                const disp = document.getElementById('pumpingTimerDisplay');
+                if (disp) disp.textContent = `${mins}:${secs}`;
+            }
+            // 3. Sleep live stopwatch
+            if (AppState.timers.sleep.active && AppState.timers.sleep.startTime) {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.sleep.startTime) / 1000);
+                AppState.timers.sleep.seconds = diffSecs;
+                const hrs = String(Math.floor(diffSecs / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((diffSecs % 3600) / 60)).padStart(2, '0');
+                const secs = String(diffSecs % 60).padStart(2, '0');
+                const disp = document.getElementById('sleepTimerDisplay');
+                if (disp) disp.textContent = `${hrs}:${mins}:${secs}`;
+            }
+            // 4. Tummy live stopwatch
+            if (AppState.timers.tummy.active && AppState.timers.tummy.startTime) {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.tummy.startTime) / 1000);
+                AppState.timers.tummy.seconds = diffSecs;
+                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                const secs = String(diffSecs % 60).padStart(2, '0');
+                const disp = document.getElementById('tummyTimerDisplay');
+                if (disp) disp.textContent = `${mins}:${secs}`;
+            }
+            // 5. Nursing live stopwatch
+            if (AppState.timers.nursing.activeSide && AppState.timers.nursing.sideStartTime) {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.nursing.sideStartTime) / 1000);
+                if (AppState.timers.nursing.activeSide === 'left') {
+                    AppState.timers.nursing.leftSeconds = (AppState.timers.nursing.baseLeftSeconds || 0) + diffSecs;
+                } else if (AppState.timers.nursing.activeSide === 'right') {
+                    AppState.timers.nursing.rightSeconds = (AppState.timers.nursing.baseRightSeconds || 0) + diffSecs;
+                }
+                if (typeof updateNursingDisplay === 'function') {
+                    updateNursingDisplay();
+                }
+            }
+            // 6. Next Feed & Next Pump Countdowns
+            updateFeedCountdownUI();
+            updatePumpCountdownUI();
+        }
+
         function initFeedReminder() {
             updateFeedCountdownUI();
             setInterval(updateFeedCountdownUI, 1000);
 
-            // Re-check immediately when tab becomes visible after sleep
+            // Re-check immediately when tab becomes visible after iPad lock/sleep
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
-                    updateFeedCountdownUI();
+                    syncAllActiveTimersOnWake();
                 }
             });
+            window.addEventListener('pageshow', () => syncAllActiveTimersOnWake());
+            window.addEventListener('focus', () => syncAllActiveTimersOnWake());
 
             const feedIntervalSelect = document.getElementById('feedIntervalSelect');
             if (feedIntervalSelect) {
@@ -2635,9 +2866,10 @@
 
                         AppState.timers.feed.intervalId = setInterval(() => {
                             if (!AppState.timers.feed.isPaused) {
-                                AppState.timers.feed.seconds++;
-                                const mins = String(Math.floor(AppState.timers.feed.seconds / 60)).padStart(2, '0');
-                                const secs = String(AppState.timers.feed.seconds % 60).padStart(2, '0');
+                                const diffSecs = Math.floor((Date.now() - AppState.timers.feed.startTime) / 1000);
+                                AppState.timers.feed.seconds = diffSecs;
+                                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                                const secs = String(diffSecs % 60).padStart(2, '0');
                                 feedTimerDisplay.textContent = `${mins}:${secs}`;
 
                                 // 59-Minute Discard Milk Warning Alarm (CDC guidelines)
@@ -2674,6 +2906,7 @@
                         pauseFeedTimerBtn.textContent = '▶️';
                         showToast('Feed paused for baby burping/break ⏸️', 'info');
                     } else {
+                        AppState.timers.feed.startTime = Date.now() - (AppState.timers.feed.seconds * 1000);
                         feedLiveBadge.textContent = 'Feeding...';
                         feedLiveBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 font-extrabold uppercase animate-pulse';
                         pauseFeedTimerBtn.textContent = '⏸️';
@@ -2791,9 +3024,10 @@
                         document.getElementById('pumpingTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-amber-400');
 
                         AppState.pumpReminder.intervalId = setInterval(() => {
-                            AppState.pumpReminder.pumpingSeconds++;
-                            const mins = String(Math.floor(AppState.pumpReminder.pumpingSeconds / 60)).padStart(2, '0');
-                            const secs = String(AppState.pumpReminder.pumpingSeconds % 60).padStart(2, '0');
+                            const diffSecs = Math.floor((Date.now() - AppState.pumpReminder.pumpingStartTime) / 1000);
+                            AppState.pumpReminder.pumpingSeconds = diffSecs;
+                            const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                            const secs = String(diffSecs % 60).padStart(2, '0');
                             document.getElementById('pumpingTimerDisplay').textContent = `${mins}:${secs}`;
                         }, 1000);
 
@@ -2868,19 +3102,29 @@
 
                 countdownDisplay.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
                 statusBadge.textContent = `In ${hrs}h ${mins}m`;
-                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300';
+                statusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300 whitespace-nowrap inline-block shrink-0 shadow-xs';
                 if (card) card.classList.remove('pump-due-pulse', 'border-rose-500');
             } else {
                 // DUE NOW / OVERDUE
                 const overdueMins = Math.floor(-diffMs / 60000);
                 countdownDisplay.textContent = overdueMins > 0 ? `+${overdueMins}m DUE` : 'DUE NOW!';
                 statusBadge.textContent = '🔔 TIME TO PUMP!';
-                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-rose-500 text-white animate-pulse';
+                statusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-extrabold bg-rose-500 text-white animate-pulse whitespace-nowrap inline-block shrink-0 shadow-sm';
                 if (card) card.classList.add('pump-due-pulse', 'border-rose-500');
             }
         }
 
-        function scheduleNextPump(fromTimestamp = Date.now()) {
+        function getLatestPump() {
+            const pumpLogs = AppState.logs.filter(l => l.category === 'pumping');
+            if (!pumpLogs.length) return null;
+            return pumpLogs.reduce((latest, current) => current.timestamp > latest.timestamp ? current : latest, pumpLogs[0]);
+        }
+
+        function scheduleNextPump(fromTimestamp = null) {
+            if (!fromTimestamp) {
+                const latest = getLatestPump();
+                fromTimestamp = latest ? latest.timestamp : Date.now();
+            }
             AppState.pumpReminder.lastPumpStartTime = fromTimestamp;
             AppState.pumpReminder.nextPumpTargetTime = fromTimestamp + (AppState.pumpReminder.intervalHours * 3600 * 1000);
             savePumpReminderLocally();
@@ -3537,7 +3781,23 @@
                     scheduleNextFeed(feedEndTime);
                 }
 
-                showToast(`Logged ${getLogSummaryText(newLog)}! ✨`, 'success');
+                showToastWithUndo(`Logged ${getLogSummaryText(newLog)}! ✨`, () => {
+                    const idx = AppState.logs.findIndex(l => l.id === newLog.id);
+                    if (idx !== -1) {
+                        AppState.logs.splice(idx, 1);
+                        saveLogsToStorage();
+                        renderAll();
+                        SyncEngine.broadcast();
+
+                        // Restore countdown reminders if affected
+                        if (newLog.category === 'feeding') {
+                            scheduleNextFeed();
+                        } else if (newLog.category === 'pumping') {
+                            scheduleNextPump();
+                        }
+                        showToast('Quick log undone ↩️', 'info');
+                    }
+                });
             };
 
             if (type === 'vitamins') {
@@ -4236,13 +4496,22 @@
                     return;
                 }
 
-                if (command.includes('night mode off') || command.includes('red mode off') || command.includes('turn off night vision') || command.includes('daylight') || command.includes('default theme') || command.includes('normal mode')) {
+                if (command.includes('moonlight') || command.includes('simple moonlight') || command.includes('simple dark')) {
+                    if (typeof ThemeEngine !== 'undefined') {
+                        ThemeEngine.setTheme('simple-moonlight');
+                    }
+                    this.speak('Simple Moonlight theme enabled.');
+                    AudioSynth.playChime('success');
+                    return;
+                }
+
+                if (command.includes('night mode off') || command.includes('red mode off') || command.includes('turn off night vision') || command.includes('daylight') || command.includes('simple daylight') || command.includes('default theme') || command.includes('normal mode')) {
                     if (typeof ThemeEngine !== 'undefined') {
                         ThemeEngine.setTheme('default');
                     } else {
                         document.body.classList.remove('night-vision');
                     }
-                    this.speak('Daylight theme restored.');
+                    this.speak('Simple Daylight theme restored.');
                     AudioSynth.playChime('success');
                     return;
                 }
@@ -4335,7 +4604,21 @@
                 return;
             }
 
+            // If switching from one side to another, finalize previous side's accumulated time
+            if (AppState.timers.nursing.sideStartTime && AppState.timers.nursing.activeSide) {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.nursing.sideStartTime) / 1000);
+                if (AppState.timers.nursing.activeSide === 'left') {
+                    AppState.timers.nursing.leftSeconds = (AppState.timers.nursing.baseLeftSeconds || 0) + diffSecs;
+                } else if (AppState.timers.nursing.activeSide === 'right') {
+                    AppState.timers.nursing.rightSeconds = (AppState.timers.nursing.baseRightSeconds || 0) + diffSecs;
+                }
+            }
+
             AppState.timers.nursing.activeSide = side;
+            AppState.timers.nursing.sideStartTime = Date.now();
+            AppState.timers.nursing.baseLeftSeconds = AppState.timers.nursing.leftSeconds || 0;
+            AppState.timers.nursing.baseRightSeconds = AppState.timers.nursing.rightSeconds || 0;
+
             nursingSideBadge.textContent = side.toUpperCase();
             timerLeftBtn.className = side === 'left' 
                 ? 'flex-1 py-1.5 px-2 rounded-lg bg-rose-500 text-white text-xs font-bold' 
@@ -4347,10 +4630,11 @@
 
             if (!AppState.timers.nursing.intervalId) {
                 AppState.timers.nursing.intervalId = setInterval(() => {
+                    const diffSecs = Math.floor((Date.now() - AppState.timers.nursing.sideStartTime) / 1000);
                     if (AppState.timers.nursing.activeSide === 'left') {
-                        AppState.timers.nursing.leftSeconds++;
+                        AppState.timers.nursing.leftSeconds = AppState.timers.nursing.baseLeftSeconds + diffSecs;
                     } else if (AppState.timers.nursing.activeSide === 'right') {
-                        AppState.timers.nursing.rightSeconds++;
+                        AppState.timers.nursing.rightSeconds = AppState.timers.nursing.baseRightSeconds + diffSecs;
                     }
                     updateNursingDisplay();
                 }, 1000);
@@ -4358,7 +4642,16 @@
         }
 
         function pauseNursingTimer() {
+            if (AppState.timers.nursing.sideStartTime && AppState.timers.nursing.activeSide) {
+                const diffSecs = Math.floor((Date.now() - AppState.timers.nursing.sideStartTime) / 1000);
+                if (AppState.timers.nursing.activeSide === 'left') {
+                    AppState.timers.nursing.leftSeconds = (AppState.timers.nursing.baseLeftSeconds || 0) + diffSecs;
+                } else if (AppState.timers.nursing.activeSide === 'right') {
+                    AppState.timers.nursing.rightSeconds = (AppState.timers.nursing.baseRightSeconds || 0) + diffSecs;
+                }
+            }
             AppState.timers.nursing.activeSide = null;
+            AppState.timers.nursing.sideStartTime = null;
             nursingSideBadge.textContent = 'Paused';
             if (AppState.timers.nursing.intervalId) {
                 clearInterval(AppState.timers.nursing.intervalId);
@@ -4501,9 +4794,10 @@
                 document.getElementById('tummyTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-emerald-400');
 
                 AppState.timers.tummy.intervalId = setInterval(() => {
-                    AppState.timers.tummy.seconds++;
-                    const mins = String(Math.floor(AppState.timers.tummy.seconds / 60)).padStart(2, '0');
-                    const secs = String(AppState.timers.tummy.seconds % 60).padStart(2, '0');
+                    const diffSecs = Math.floor((Date.now() - AppState.timers.tummy.startTime) / 1000);
+                    AppState.timers.tummy.seconds = diffSecs;
+                    const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                    const secs = String(diffSecs % 60).padStart(2, '0');
                     tummyTimerDisplay.textContent = `${mins}:${secs}`;
                 }, 1000);
             } else {
@@ -5267,15 +5561,29 @@
             themes: [
                 {
                     id: 'default',
-                    name: 'Daylight Modern',
+                    name: 'Simple Daylight',
                     icon: '☀️',
-                    badge: 'Standard',
-                    desc: 'Clean modern pastel theme for daytime cares'
+                    badge: 'Flat & Clean',
+                    desc: 'Clean minimalist layout with white cards and crisp colored borders'
+                },
+                {
+                    id: 'simple-moonlight',
+                    name: 'Simple Moonlight',
+                    icon: '🌙',
+                    badge: 'Flat Dark',
+                    desc: 'Crisp minimalist dark mode with colored borders'
+                },
+                {
+                    id: 'cutesy',
+                    name: 'Cutesy Pastel',
+                    icon: '🧸',
+                    badge: 'Playful',
+                    desc: 'Soft strawberry milk & marshmallow tones with rounded pill cards'
                 },
                 {
                     id: 'night-vision',
                     name: '3 AM Red Night-Vision',
-                    icon: '🌙',
+                    icon: '🔴',
                     badge: 'Sleep Guard',
                     desc: 'Ultra-low glare crimson red to protect baby melatonin'
                 },
@@ -5285,13 +5593,6 @@
                     icon: '📖',
                     badge: 'Paper Glare-Free',
                     desc: 'High contrast black & white paper style with ink borders'
-                },
-                {
-                    id: 'cutesy',
-                    name: 'Cutesy Pastel',
-                    icon: '🧸',
-                    badge: 'Playful',
-                    desc: 'Soft strawberry milk & marshmallow tones'
                 },
                 {
                     id: 'retro-digital',
@@ -5334,20 +5635,28 @@
                 });
                 document.body.classList.remove('night-vision');
 
+                // Toggle Tailwind dark class for dark themes (Simple Moonlight, Retro Digital, Night Vision)
+                const isDark = (theme.id === 'simple-moonlight' || theme.id === 'night-vision' || theme.id === 'retro-digital');
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.removeItem('bt_theme');
+
                 // Apply active theme
-                if (theme.id !== 'default') {
-                    document.body.classList.add(`theme-${theme.id}`);
-                    if (theme.id === 'night-vision') {
-                        document.body.classList.add('night-vision');
-                    }
+                document.body.classList.add(`theme-${theme.id}`);
+                if (theme.id === 'night-vision') {
+                    document.body.classList.add('night-vision');
                 }
                 document.body.setAttribute('data-theme', theme.id);
+                document.documentElement.setAttribute('data-theme', theme.id);
 
                 // Update UI button icon and label
                 const iconEl = document.getElementById('currentThemeIcon');
                 const labelEl = document.getElementById('currentThemeLabel');
                 if (iconEl) iconEl.textContent = theme.icon;
-                if (labelEl) labelEl.textContent = theme.name.split(' ')[0];
+                if (labelEl) labelEl.textContent = theme.name;
 
                 this.updateDropdownActiveState();
                 this.closeDropdown();
@@ -5461,18 +5770,6 @@
         // Initialize Theme Engine
         ThemeEngine.init();
 
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        themeToggleBtn.onclick = () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('bt_theme', isDark ? 'dark' : 'light');
-            themeToggleBtn.textContent = isDark ? '🌙' : '☀️';
-        };
-
-        if (localStorage.getItem('bt_theme') === 'dark' || (!('bt_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            themeToggleBtn.textContent = '🌙';
-        }
-
         // ==================== BACKUP & RESTORE ====================
 
         document.getElementById('backupJsonBtn').onclick = () => {
@@ -5538,25 +5835,82 @@
             reader.readAsText(file);
         };
 
-        // Utility: Toast
+        // Utility: Toast & Quick-Log Undo System
+        let toastTimer = null;
+
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toastNotification');
             const msgSpan = document.getElementById('toastMessage');
             const iconSpan = document.getElementById('toastIcon');
+            const undoBtn = document.getElementById('toastUndoBtn');
+
+            if (!toast || !msgSpan || !iconSpan) return;
+
+            if (toastTimer) {
+                clearTimeout(toastTimer);
+                toastTimer = null;
+            }
+
+            if (undoBtn) {
+                undoBtn.classList.add('hidden');
+                undoBtn.onclick = null;
+            }
 
             msgSpan.textContent = message;
             if (type === 'success') {
                 iconSpan.textContent = '✨';
                 toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 transition-all duration-300 pointer-events-none';
+            } else if (type === 'warning') {
+                iconSpan.textContent = '⚠️';
+                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-rose-600 text-white transition-all duration-300 pointer-events-none';
             } else {
                 iconSpan.textContent = 'ℹ️';
                 toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-amber-500 text-white transition-all duration-300 pointer-events-none';
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
+            toastTimer = setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
+                toastTimer = null;
             }, 3000);
+        }
+
+        function showToastWithUndo(message, onUndo) {
+            const toast = document.getElementById('toastNotification');
+            const msgSpan = document.getElementById('toastMessage');
+            const iconSpan = document.getElementById('toastIcon');
+            const undoBtn = document.getElementById('toastUndoBtn');
+
+            if (!toast || !msgSpan || !iconSpan) return;
+
+            if (toastTimer) {
+                clearTimeout(toastTimer);
+                toastTimer = null;
+            }
+
+            msgSpan.textContent = message;
+            iconSpan.textContent = '⚡';
+            toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 transition-all duration-300 pointer-events-auto';
+
+            if (undoBtn && typeof onUndo === 'function') {
+                undoBtn.classList.remove('hidden');
+                undoBtn.onclick = () => {
+                    if (toastTimer) {
+                        clearTimeout(toastTimer);
+                        toastTimer = null;
+                    }
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                    undoBtn.classList.add('hidden');
+                    onUndo();
+                };
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                if (undoBtn) undoBtn.classList.add('hidden');
+                toastTimer = null;
+            }, 5000);
         }
 
         function setupEventListeners() {
