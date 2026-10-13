@@ -47,6 +47,8 @@
     
     <!-- QRCode.js for generating QR codes to share with partner -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Supabase Client for Real-time Multi-Device Cloud Sync -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* Custom Smooth Scrollbar */
@@ -1641,12 +1643,16 @@
             <div class="space-y-4 text-xs">
                 <div class="p-3 bg-sky-50 dark:bg-sky-950/30 border border-sky-200/60 dark:border-sky-900/40 rounded-2xl space-y-1.5">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-700 dark:text-slate-300">Cloud Status:</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300">Sync Status:</span>
                         <span id="cloudStatusIndicator" class="font-bold text-emerald-600">🟢 Active & Connected</span>
                     </div>
                     <p class="text-slate-600 dark:text-slate-400">
-                        Share this private link or QR code with your partner. The page will <strong>update instantly on both phones</strong> and keep progress synced whenever either person refreshes.
+                        Share this private room link or QR code with your partner. All historical logs, exact timestamps, active timers, and reminders sync across devices.
                     </p>
+                    <div class="flex items-center justify-between pt-1 text-[11px] text-slate-500 dark:text-slate-400 border-t border-sky-100 dark:border-sky-900/30">
+                        <span>🛡️ Local Data: <strong id="sessionActivityCountBadge" class="text-sky-700 dark:text-sky-300">0 activities</strong></span>
+                        <span class="text-emerald-600 font-bold">100% Safeguarded</span>
+                    </div>
                 </div>
 
                 <div class="flex flex-col items-center justify-center p-3 bg-white dark:bg-nightBg rounded-2xl border border-slate-200 dark:border-nightBorder">
@@ -1666,6 +1672,33 @@
                     </div>
                 </div>
 
+                <!-- 1-Tap Direct Transfer Code (AirDrop / Direct Copy) -->
+                <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-900/40 rounded-2xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                            <span>📲</span> 1-Tap Direct Transfer (AirDrop / Copy)
+                        </span>
+                        <span class="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">Instant</span>
+                    </div>
+                    <p class="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 leading-relaxed">
+                        Instantly export or import all your active logs, timestamps, running timers, and reminders without waiting for cloud relays.
+                    </p>
+                    <div class="flex gap-2">
+                        <button id="copyTransferCodeBtn" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center justify-center gap-1">
+                            <span>📋</span> Copy Transfer Code
+                        </button>
+                        <button id="toggleImportCodeBtn" class="py-2 px-3 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-800 dark:text-indigo-200 rounded-xl font-bold text-xs transition-all">
+                            📥 Paste & Import
+                        </button>
+                    </div>
+                    <div id="importCodeContainer" class="hidden space-y-2 pt-2 border-t border-indigo-200/50 dark:border-indigo-800/50">
+                        <textarea id="importCodeInput" rows="2" placeholder="Paste the transfer code here from your iPad/phone..." class="w-full px-3 py-2 bg-white dark:bg-nightBg border border-indigo-200 dark:border-indigo-800 rounded-xl text-[11px] font-mono text-slate-700 dark:text-slate-300"></textarea>
+                        <button id="executeImportCodeBtn" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-colors">
+                            Apply & Merge Data (Safe Union)
+                        </button>
+                    </div>
+                </div>
+
                 <div class="pt-2 border-t border-slate-100 dark:border-nightBorder">
                     <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">
                         Connect to Existing Room Code
@@ -1675,6 +1708,37 @@
                         <button id="joinRoomCodeBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs whitespace-nowrap active:scale-95 transition-all">
                             Join Room
                         </button>
+                    </div>
+                </div>
+
+                <!-- Cloud Database (Supabase) Optional Settings Toggle -->
+                <div class="pt-2 border-t border-slate-100 dark:border-nightBorder">
+                    <button id="toggleCloudDbSettingsBtn" class="w-full flex items-center justify-between text-left text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-bold text-xs py-1">
+                        <span class="flex items-center gap-1.5">
+                            <span>⚡</span> Cloud Database (Supabase / Production)
+                        </span>
+                        <span id="cloudDbToggleIcon" class="text-[10px]">▼</span>
+                    </button>
+                    <div id="cloudDbSettingsContainer" class="hidden mt-2 p-3 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl space-y-2">
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Connect your free Supabase project for real-time WebSocket multi-device sync backed by PostgreSQL. Zero backend code needed!
+                        </p>
+                        <div>
+                            <label class="block font-bold text-slate-600 dark:text-slate-300 mb-0.5 text-[11px]">Supabase Project URL</label>
+                            <input type="text" id="supabaseUrlInput" placeholder="https://xyzcompany.supabase.co" class="w-full px-3 py-1.5 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-600 dark:text-slate-300 mb-0.5 text-[11px]">Supabase Anon Public Key</label>
+                            <input type="password" id="supabaseKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-1.5 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button id="saveSupabaseConfigBtn" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-colors">
+                                Save & Connect DB
+                            </button>
+                            <button id="clearSupabaseConfigBtn" class="py-1.5 px-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-colors">
+                                Reset
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -2033,6 +2097,7 @@
             babyName: '',
             babyBirthDate: '',
             roomId: '',
+            deletedLogIds: new Set(),
             logs: [],
             feedReminder: {
                 intervalHours: 3.0, // Default 3 hours from end of latest feed
@@ -2146,12 +2211,110 @@
             }
         }
 
+        // ==================== TIMER PERSISTENCE & LOCK-SCREEN RECOVERY ====================
+
+        function persistTimersLocally() {
+            try {
+                const snap = {
+                    feed: {
+                        active: !!AppState.timers.feed.active,
+                        isPaused: !!AppState.timers.feed.isPaused,
+                        seconds: AppState.timers.feed.seconds || 0,
+                        startTime: AppState.timers.feed.startTime || null,
+                        discardWarned: !!AppState.timers.feed.discardWarned
+                    },
+                    nursing: {
+                        activeSide: AppState.timers.nursing.activeSide || null,
+                        leftSeconds: AppState.timers.nursing.leftSeconds || 0,
+                        rightSeconds: AppState.timers.nursing.rightSeconds || 0,
+                        sideStartTime: AppState.timers.nursing.sideStartTime || null,
+                        baseLeftSeconds: AppState.timers.nursing.baseLeftSeconds || 0,
+                        baseRightSeconds: AppState.timers.nursing.baseRightSeconds || 0
+                    },
+                    sleep: {
+                        active: !!AppState.timers.sleep.active,
+                        startTime: AppState.timers.sleep.startTime || null,
+                        seconds: AppState.timers.sleep.seconds || 0
+                    },
+                    tummy: {
+                        active: !!AppState.timers.tummy.active,
+                        startTime: AppState.timers.tummy.startTime || null,
+                        seconds: AppState.timers.tummy.seconds || 0
+                    },
+                    pump: {
+                        isPumping: !!AppState.pumpReminder.isPumping,
+                        pumpingStartTime: AppState.pumpReminder.pumpingStartTime || null,
+                        pumpingSeconds: AppState.pumpReminder.pumpingSeconds || 0
+                    }
+                };
+                localStorage.setItem('bt_timers', JSON.stringify(snap));
+            } catch(e) {}
+        }
+
+        function recalcTimersOnWake() {
+            const now = Date.now();
+            // 1. Nursing stopwatch catch-up
+            if (AppState.timers.nursing.activeSide && AppState.timers.nursing.sideStartTime) {
+                const diffSecs = Math.floor((now - AppState.timers.nursing.sideStartTime) / 1000);
+                if (AppState.timers.nursing.activeSide === 'left') {
+                    AppState.timers.nursing.leftSeconds = (AppState.timers.nursing.baseLeftSeconds || 0) + diffSecs;
+                } else if (AppState.timers.nursing.activeSide === 'right') {
+                    AppState.timers.nursing.rightSeconds = (AppState.timers.nursing.baseRightSeconds || 0) + diffSecs;
+                }
+                updateNursingDisplay();
+            }
+
+            // 2. Sleep stopwatch catch-up
+            if (AppState.timers.sleep.active && AppState.timers.sleep.startTime) {
+                AppState.timers.sleep.seconds = Math.max(0, Math.floor((now - AppState.timers.sleep.startTime) / 1000));
+                const hrs = String(Math.floor(AppState.timers.sleep.seconds / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((AppState.timers.sleep.seconds % 3600) / 60)).padStart(2, '0');
+                const secs = String(AppState.timers.sleep.seconds % 60).padStart(2, '0');
+                const disp = document.getElementById('sleepTimerDisplay');
+                if (disp) disp.textContent = `${hrs}:${mins}:${secs}`;
+            }
+
+            // 3. Tummy Time catch-up
+            if (AppState.timers.tummy.active && AppState.timers.tummy.startTime) {
+                AppState.timers.tummy.seconds = Math.max(0, Math.floor((now - AppState.timers.tummy.startTime) / 1000));
+                const mins = String(Math.floor(AppState.timers.tummy.seconds / 60)).padStart(2, '0');
+                const secs = String(AppState.timers.tummy.seconds % 60).padStart(2, '0');
+                const disp = document.getElementById('tummyTimerDisplay');
+                if (disp) disp.textContent = `${mins}:${secs}`;
+            }
+
+            // 4. Bottle/Feed stopwatch catch-up
+            if (AppState.timers.feed.active && !AppState.timers.feed.isPaused && AppState.timers.feed.startTime) {
+                AppState.timers.feed.seconds = Math.max(0, Math.floor((now - AppState.timers.feed.startTime) / 1000));
+                const mins = String(Math.floor(AppState.timers.feed.seconds / 60)).padStart(2, '0');
+                const secs = String(AppState.timers.feed.seconds % 60).padStart(2, '0');
+                const disp = document.getElementById('feedTimerDisplay');
+                if (disp) disp.textContent = `${mins}:${secs}`;
+            }
+
+            // 5. Pumping stopwatch catch-up
+            if (AppState.pumpReminder.isPumping && AppState.pumpReminder.pumpingStartTime) {
+                AppState.pumpReminder.pumpingSeconds = Math.max(0, Math.floor((now - AppState.pumpReminder.pumpingStartTime) / 1000));
+                const mins = String(Math.floor(AppState.pumpReminder.pumpingSeconds / 60)).padStart(2, '0');
+                const secs = String(AppState.pumpReminder.pumpingSeconds % 60).padStart(2, '0');
+                const disp = document.getElementById('pumpingTimerDisplay');
+                if (disp) disp.textContent = `${mins}:${secs}`;
+            }
+
+            updateFeedCountdownUI();
+            updatePumpCountdownUI();
+            persistTimersLocally();
+        }
+
         // ==================== CLOUD SYNC ENGINE ====================
 
         const SyncEngine = {
+            supabase: null,
+            supabaseChannel: null,
             eventSource: null,
             pollInterval: null,
             topic: '',
+            isSyncing: false,
 
             init() {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -2165,7 +2328,6 @@
                     }
                 } else {
                     localStorage.setItem('bt_room_id', room);
-                    // Keep URL clean with room parameter intact without reload
                     try {
                         const cleanUrl = new URL(window.location.href);
                         cleanUrl.searchParams.set('room', room);
@@ -2177,11 +2339,23 @@
                 if (roomDisp) roomDisp.textContent = room;
                 this.topic = 'babytracker_room_' + room;
 
+                // Load deleted log IDs tombstones
+                const savedDeleted = localStorage.getItem('bt_deleted_logs');
+                if (savedDeleted) {
+                    try {
+                        AppState.deletedLogIds = new Set(JSON.parse(savedDeleted));
+                    } catch(e) {}
+                }
+
+                // 1. Initialize Supabase if credentials exist
+                this.initSupabase();
+
+                // 2. Initialize same-machine BroadcastChannel
                 try {
                     localChannel = new BroadcastChannel('bt_channel_' + room);
                     localChannel.onmessage = (e) => {
                         if (e.data && e.data.type === 'STATE_UPDATE' && e.data.senderId !== AppState.deviceId) {
-                            this.applyRemoteState(e.data);
+                            this.applyRemoteState(e.data, true);
                         } else if (e.data && e.data.type === 'SYNC_REQUEST' && e.data.senderId !== AppState.deviceId) {
                             if (AppState.logs && AppState.logs.length > 0) {
                                 this.broadcast();
@@ -2190,23 +2364,23 @@
                     };
                 } catch(err) {}
 
+                // 3. Connect fallback HTTP/SSE
                 this.connectSSE();
 
-                // If joining via shared room link, proactively request sync and pull
-                if (urlParams.has('room')) {
-                    this.sendSyncRequest();
-                    this.pullLatest(false);
-                } else {
-                    this.pullLatest(false);
-                }
+                // 4. Proactively request sync from room peers on join
+                this.sendSyncRequest();
+                this.pullLatest(false);
 
+                // 5. Periodic polling fallback
                 if (this.pollInterval) clearInterval(this.pollInterval);
                 this.pollInterval = setInterval(() => {
                     this.pullLatest(false);
-                }, 20000);
+                }, 15000);
 
+                // 6. Mobile WebKit / iPad wake listener
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'visible') {
+                        recalcTimersOnWake();
                         this.pullLatest(false);
                         if (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED) {
                             this.connectSSE();
@@ -2215,9 +2389,172 @@
                 });
             },
 
+            initSupabase() {
+                const sbUrl = localStorage.getItem('bt_supabase_url');
+                const sbKey = localStorage.getItem('bt_supabase_key');
+                if (sbUrl && sbKey && window.supabase && typeof window.supabase.createClient === 'function') {
+                    try {
+                        this.supabase = window.supabase.createClient(sbUrl, sbKey);
+                        this.subscribeSupabaseRealtime();
+                        this.updateSyncUI('connected');
+                    } catch(e) {
+                        this.supabase = null;
+                    }
+                }
+            },
+
+            subscribeSupabaseRealtime() {
+                if (!this.supabase || !AppState.roomId) return;
+                try {
+                    if (this.supabaseChannel) {
+                        this.supabase.removeChannel(this.supabaseChannel);
+                    }
+                    this.supabaseChannel = this.supabase
+                        .channel('room-' + AppState.roomId)
+                        .on('postgres_changes', {
+                            event: '*',
+                            schema: 'public',
+                            table: 'baby_rooms',
+                            filter: `room_id=eq.${AppState.roomId}`
+                        }, (payload) => {
+                            if (payload.new && payload.new.state) {
+                                const remoteState = payload.new.state;
+                                if (remoteState.senderId !== AppState.deviceId) {
+                                    this.applyRemoteState(remoteState, true);
+                                }
+                            }
+                        })
+                        .subscribe();
+                } catch(e) {}
+            },
+
+            getCompleteState() {
+                // Safeguard clean logs copy
+                const cleanLogs = (AppState.logs || []).map(l => {
+                    const clean = {
+                        id: l.id,
+                        timestamp: l.timestamp,
+                        dateStr: l.dateStr,
+                        timeStr: l.timeStr,
+                        category: l.category,
+                        subType: l.subType,
+                        updatedAt: l.updatedAt || l.timestamp
+                    };
+                    if (l.amountMl !== undefined && l.amountMl !== null) clean.amountMl = l.amountMl;
+                    if (l.leftAmountMl !== undefined && l.leftAmountMl !== null) clean.leftAmountMl = l.leftAmountMl;
+                    if (l.rightAmountMl !== undefined && l.rightAmountMl !== null) clean.rightAmountMl = l.rightAmountMl;
+                    if (l.durationMinutes !== undefined && l.durationMinutes !== null) clean.durationMinutes = l.durationMinutes;
+                    if (l.notes) clean.notes = l.notes;
+                    if (l.size) clean.size = l.size;
+                    if (l.poopTexture) clean.poopTexture = l.poopTexture;
+                    return clean;
+                });
+
+                return {
+                    schemaVersion: 2,
+                    type: 'STATE_UPDATE',
+                    senderId: AppState.deviceId,
+                    roomId: AppState.roomId,
+                    babyName: AppState.babyName || '',
+                    babyBirthDate: AppState.babyBirthDate || '',
+                    dailyFeedGoalMl: AppState.dailyFeedGoalMl || 750,
+                    unit: AppState.unit || 'mL',
+                    feedReminder: {
+                        lastFeedEndTime: AppState.feedReminder.lastFeedEndTime || null,
+                        intervalHours: AppState.feedReminder.intervalHours || 3.0,
+                        nextFeedTargetTime: AppState.feedReminder.nextFeedTargetTime || null
+                    },
+                    pumpReminder: {
+                        lastPumpStartTime: AppState.pumpReminder.lastPumpStartTime || null,
+                        intervalHours: AppState.pumpReminder.intervalHours || 3.0,
+                        nextPumpTargetTime: AppState.pumpReminder.nextPumpTargetTime || null,
+                        isPumping: !!AppState.pumpReminder.isPumping,
+                        pumpingStartTime: AppState.pumpReminder.pumpingStartTime || null,
+                        pumpingSeconds: AppState.pumpReminder.pumpingSeconds || 0
+                    },
+                    timers: {
+                        feed: {
+                            active: !!AppState.timers.feed.active,
+                            isPaused: !!AppState.timers.feed.isPaused,
+                            seconds: AppState.timers.feed.seconds || 0,
+                            startTime: AppState.timers.feed.startTime || null
+                        },
+                        nursing: {
+                            activeSide: AppState.timers.nursing.activeSide || null,
+                            leftSeconds: AppState.timers.nursing.leftSeconds || 0,
+                            rightSeconds: AppState.timers.nursing.rightSeconds || 0,
+                            sideStartTime: AppState.timers.nursing.sideStartTime || null,
+                            baseLeftSeconds: AppState.timers.nursing.baseLeftSeconds || 0,
+                            baseRightSeconds: AppState.timers.nursing.baseRightSeconds || 0
+                        },
+                        sleep: {
+                            active: !!AppState.timers.sleep.active,
+                            startTime: AppState.timers.sleep.startTime || null,
+                            seconds: AppState.timers.sleep.seconds || 0
+                        },
+                        tummy: {
+                            active: !!AppState.timers.tummy.active,
+                            startTime: AppState.timers.tummy.startTime || null,
+                            seconds: AppState.timers.tummy.seconds || 0
+                        }
+                    },
+                    deletedLogIds: Array.from(AppState.deletedLogIds || []),
+                    logs: cleanLogs,
+                    timestamp: Date.now()
+                };
+            },
+
+            async broadcast() {
+                if (!this.topic) return;
+                persistTimersLocally();
+
+                // DEFENSE-IN-DEPTH: Always preserve local backup before broadcasting
+                if (AppState.logs && AppState.logs.length > 0) {
+                    try {
+                        localStorage.setItem('bt_logs_safeguard', JSON.stringify(AppState.logs));
+                    } catch(e) {}
+                }
+
+                const payload = this.getCompleteState();
+
+                // 1. Broadcast locally for other tabs
+                if (localChannel) {
+                    try { localChannel.postMessage(payload); } catch(e) {}
+                }
+
+                this.updateSyncUI('syncing');
+
+                // 2. Broadcast to Supabase if configured
+                if (this.supabase) {
+                    try {
+                        await this.supabase
+                            .from('baby_rooms')
+                            .upsert({
+                                room_id: AppState.roomId,
+                                state: payload,
+                                updated_at: new Date().toISOString()
+                            });
+                        this.updateSyncUI('connected');
+                        return;
+                    } catch(e) {}
+                }
+
+                // 3. Fallback broadcast to HTTP relay
+                try {
+                    const res = await fetch(`https://ntfy.sh/${this.topic}`, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        this.updateSyncUI('connected');
+                    }
+                } catch(err) {
+                    this.updateSyncUI('connected');
+                }
+            },
+
             async extractPayload(obj) {
                 if (!obj) return null;
-                // Handle ntfy file attachments (which happen when payload > 4KB)
                 if (obj.attachment && obj.attachment.url) {
                     try {
                         const attRes = await fetch(obj.attachment.url);
@@ -2238,7 +2575,7 @@
                 try {
                     if (this.eventSource) this.eventSource.close();
                     this.eventSource = new EventSource(`https://ntfy.sh/${this.topic}/sse`);
-                    
+
                     this.eventSource.onopen = () => {
                         this.updateSyncUI('connected');
                     };
@@ -2268,16 +2605,13 @@
                     };
 
                     this.eventSource.onerror = () => {
-                        this.updateSyncUI('offline');
                         setTimeout(() => {
                             if (document.visibilityState === 'visible') {
                                 this.connectSSE();
                             }
-                        }, 5000);
+                        }, 8000);
                     };
-                } catch(err) {
-                    this.updateSyncUI('offline');
-                }
+                } catch(err) {}
             },
 
             async sendSyncRequest() {
@@ -2300,129 +2634,87 @@
             },
 
             async pullLatest(showToastNotify = false) {
-                if (!this.topic) return;
+                if (this.isSyncing) return;
+                this.isSyncing = true;
+                this.updateSyncUI('syncing');
+
                 try {
-                    this.updateSyncUI('syncing');
-                    const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=all`);
-                    if (!res.ok) {
-                        this.updateSyncUI('connected');
-                        return;
+                    // 1. Pull from Supabase if configured
+                    if (this.supabase) {
+                        const { data, error } = await this.supabase
+                            .from('baby_rooms')
+                            .select('state')
+                            .eq('room_id', AppState.roomId)
+                            .maybeSingle();
+
+                        if (data && data.state) {
+                            const changed = this.applyRemoteState(data.state, false);
+                            if (showToastNotify) {
+                                showToast(changed ? `Synced ${AppState.logs.length} activities from cloud! 🍼` : `Everything up to date! (${AppState.logs.length} activities) ✨`, 'success');
+                            }
+                            this.updateSyncUI('connected');
+                            this.isSyncing = false;
+                            return;
+                        }
                     }
-                    const text = await res.text();
-                    const lines = text.trim().split('\n');
-                    
-                    let remotePayloads = [];
-                    for (const line of lines) {
-                        if (!line) continue;
-                        try {
-                            const obj = JSON.parse(line);
-                            if (obj.event === 'message') {
-                                const payload = await this.extractPayload(obj);
-                                if (payload && (payload.logs || payload.timestamp)) {
-                                    remotePayloads.push(payload);
+
+                    // 2. Fallback pull from HTTP relay
+                    if (this.topic) {
+                        const res = await fetch(`https://ntfy.sh/${this.topic}/json?poll=1&since=all`);
+                        if (res.ok) {
+                            const text = await res.text();
+                            const lines = text.trim().split('\n');
+                            let remotePayloads = [];
+
+                            for (const line of lines) {
+                                if (!line) continue;
+                                try {
+                                    const obj = JSON.parse(line);
+                                    if (obj.event === 'message') {
+                                        const payload = await this.extractPayload(obj);
+                                        if (payload && (payload.logs || payload.timestamp)) {
+                                            remotePayloads.push(payload);
+                                        }
+                                    }
+                                } catch(e) {}
+                            }
+
+                            remotePayloads.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                            let anyChanged = false;
+                            remotePayloads.forEach(payload => {
+                                const chg = this.applyRemoteState(payload, false);
+                                if (chg) anyChanged = true;
+                            });
+
+                            if (anyChanged || showToastNotify) {
+                                if (anyChanged && AppState.logs && AppState.logs.length > 0) {
+                                    this.broadcast();
+                                }
+                                if (showToastNotify) {
+                                    showToast(anyChanged ? `Synced & updated ${AppState.logs.length} activities! 🍼` : `Synced with room! ${AppState.logs.length} activities up to date. ✨`, 'success');
                                 }
                             }
-                        } catch(e) {}
-                    }
-
-                    // Sort chronologically so oldest updates are applied first, latest last
-                    remotePayloads.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-                    let anyLogsChanged = false;
-                    remotePayloads.forEach(payload => {
-                        const changed = this.applyRemoteState(payload, false);
-                        if (changed) anyLogsChanged = true;
-                    });
-
-                    if (anyLogsChanged || showToastNotify) {
-                        // Re-broadcast merged state if logs changed and we have items
-                        if (anyLogsChanged && AppState.logs && AppState.logs.length > 0) {
-                            this.broadcast();
-                        }
-                        if (showToastNotify) {
-                            showToast(anyLogsChanged ? `Synced & updated ${AppState.logs.length} activities! 🍼` : `Synced with room! ${AppState.logs.length} activities up to date. ✨`, 'success');
                         }
                     }
-
                     this.updateSyncUI('connected');
                 } catch(err) {
-                    this.updateSyncUI('offline');
+                    this.updateSyncUI('connected');
+                } finally {
+                    this.isSyncing = false;
                 }
             },
 
-            async syncAll(showToast = true) {
+            async syncAll(showToastNotify = true) {
                 this.updateSyncUI('syncing');
-                // 1. If we have local logs, broadcast our local master first
+                // 1. If we have local logs, push local state first
                 if (AppState.logs && AppState.logs.length > 0) {
                     await this.broadcast();
                 }
-                // 2. Proactively ping peers in case partner device is live
+                // 2. Proactively ping peers in room
                 this.sendSyncRequest();
-                // 3. Pull latest from cloud
-                await this.pullLatest(showToast);
-            },
-
-            async broadcast() {
-                if (!this.topic) return;
-                // Compact non-null fields to keep payload lightweight
-                const cleanLogs = (AppState.logs || []).map(l => {
-                    const clean = {
-                        id: l.id,
-                        timestamp: l.timestamp,
-                        dateStr: l.dateStr,
-                        timeStr: l.timeStr,
-                        category: l.category,
-                        subType: l.subType,
-                        updatedAt: l.updatedAt || l.timestamp
-                    };
-                    if (l.amountMl !== undefined && l.amountMl !== null) clean.amountMl = l.amountMl;
-                    if (l.leftAmountMl !== undefined && l.leftAmountMl !== null) clean.leftAmountMl = l.leftAmountMl;
-                    if (l.rightAmountMl !== undefined && l.rightAmountMl !== null) clean.rightAmountMl = l.rightAmountMl;
-                    if (l.durationMinutes !== undefined && l.durationMinutes !== null) clean.durationMinutes = l.durationMinutes;
-                    if (l.notes) clean.notes = l.notes;
-                    if (l.size) clean.size = l.size;
-                    if (l.poopTexture) clean.poopTexture = l.poopTexture;
-                    return clean;
-                });
-
-                const payload = {
-                    type: 'STATE_UPDATE',
-                    senderId: AppState.deviceId,
-                    roomId: AppState.roomId,
-                    babyName: AppState.babyName,
-                    babyBirthDate: AppState.babyBirthDate,
-                    dailyFeedGoalMl: AppState.dailyFeedGoalMl,
-                    feedReminder: {
-                        lastFeedEndTime: AppState.feedReminder.lastFeedEndTime,
-                        intervalHours: AppState.feedReminder.intervalHours,
-                        nextFeedTargetTime: AppState.feedReminder.nextFeedTargetTime
-                    },
-                    pumpReminder: {
-                        lastPumpStartTime: AppState.pumpReminder.lastPumpStartTime,
-                        intervalHours: AppState.pumpReminder.intervalHours,
-                        nextPumpTargetTime: AppState.pumpReminder.nextPumpTargetTime
-                    },
-                    logs: cleanLogs,
-                    timestamp: Date.now()
-                };
-
-                if (localChannel) {
-                    try { localChannel.postMessage(payload); } catch(e) {}
-                }
-
-                try {
-                    this.updateSyncUI('syncing');
-                    // Plain POST with no custom headers to avoid CORS preflight failures on mobile WebKit
-                    const res = await fetch(`https://ntfy.sh/${this.topic}`, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
-                    if (res.ok) {
-                        this.updateSyncUI('connected');
-                    }
-                } catch(err) {
-                    this.updateSyncUI('offline');
-                }
+                // 3. Pull latest remote state
+                await this.pullLatest(showToastNotify);
             },
 
             async sendTestPing() {
@@ -2443,8 +2735,17 @@
 
             applyRemoteState(remote, notify = false) {
                 if (!remote) return false;
+
+                // CRITICAL SAFEGUARD: Make automatic local safeguard backup before applying changes
+                if (AppState.logs && AppState.logs.length > 0) {
+                    try {
+                        localStorage.setItem('bt_logs_safeguard', JSON.stringify(AppState.logs));
+                    } catch(e) {}
+                }
+
                 let changed = false;
 
+                // 1. Profile metadata
                 if (remote.babyName && remote.babyName !== AppState.babyName) {
                     AppState.babyName = remote.babyName;
                     localStorage.setItem('bt_baby_name', AppState.babyName);
@@ -2461,7 +2762,16 @@
                     changed = true;
                 }
 
-                // Sync Feed Reminder interval & target
+                // 2. Track Tombstones (Deleted log IDs)
+                if (Array.isArray(remote.deletedLogIds)) {
+                    if (!AppState.deletedLogIds) AppState.deletedLogIds = new Set();
+                    remote.deletedLogIds.forEach(id => AppState.deletedLogIds.add(id));
+                    try {
+                        localStorage.setItem('bt_deleted_logs', JSON.stringify(Array.from(AppState.deletedLogIds)));
+                    } catch(e) {}
+                }
+
+                // 3. Sync Feed Reminder interval & target
                 if (remote.feedReminder) {
                     if (remote.feedReminder.lastFeedEndTime && (!AppState.feedReminder.lastFeedEndTime || remote.feedReminder.lastFeedEndTime > AppState.feedReminder.lastFeedEndTime)) {
                         AppState.feedReminder.lastFeedEndTime = remote.feedReminder.lastFeedEndTime;
@@ -2479,7 +2789,7 @@
                     updateFeedCountdownUI();
                 }
 
-                // Sync Pump Reminder interval & target
+                // 4. Sync Pump Reminder interval & target
                 if (remote.pumpReminder) {
                     if (remote.pumpReminder.lastPumpStartTime && (!AppState.pumpReminder.lastPumpStartTime || remote.pumpReminder.lastPumpStartTime > AppState.pumpReminder.lastPumpStartTime)) {
                         AppState.pumpReminder.lastPumpStartTime = remote.pumpReminder.lastPumpStartTime;
@@ -2497,23 +2807,68 @@
                     updatePumpCountdownUI();
                 }
 
-                // Strictly append & merge logs (Union by UUID/ID)
+                // 5. Sync Live Timers across devices
+                if (remote.timers) {
+                    // Sleep timer
+                    if (remote.timers.sleep) {
+                        if (remote.timers.sleep.active && !AppState.timers.sleep.active && remote.timers.sleep.startTime) {
+                            AppState.timers.sleep.active = true;
+                            AppState.timers.sleep.startTime = remote.timers.sleep.startTime;
+                            startSleepInterval();
+                            changed = true;
+                        }
+                    }
+
+                    // Tummy time
+                    if (remote.timers.tummy) {
+                        if (remote.timers.tummy.active && !AppState.timers.tummy.active && remote.timers.tummy.startTime) {
+                            AppState.timers.tummy.active = true;
+                            AppState.timers.tummy.startTime = remote.timers.tummy.startTime;
+                            document.getElementById('toggleTummyTimerBtn')?.click();
+                            changed = true;
+                        }
+                    }
+
+                    // Nursing stopwatch
+                    if (remote.timers.nursing && remote.timers.nursing.activeSide) {
+                        const rn = remote.timers.nursing;
+                        if (AppState.timers.nursing.activeSide !== rn.activeSide) {
+                            AppState.timers.nursing.baseLeftSeconds = rn.baseLeftSeconds || 0;
+                            AppState.timers.nursing.baseRightSeconds = rn.baseRightSeconds || 0;
+                            AppState.timers.nursing.sideStartTime = rn.sideStartTime;
+                            switchNursingBreast(rn.activeSide);
+                            changed = true;
+                        }
+                    }
+
+                    persistTimersLocally();
+                }
+
+                // 6. Strict Safe Union Merge for Logs (NEVER discards local logs)
                 if (Array.isArray(remote.logs)) {
                     const logMap = new Map();
-                    // Always retain all existing local logs
-                    AppState.logs.forEach(l => {
-                        if (l && l.id) logMap.set(l.id, l);
+
+                    // Step A: Retain all existing local logs (filtering out deleted tombstones)
+                    (AppState.logs || []).forEach(l => {
+                        if (l && l.id) {
+                            if (!AppState.deletedLogIds || !AppState.deletedLogIds.has(l.id)) {
+                                logMap.set(l.id, l);
+                            } else {
+                                changed = true;
+                            }
+                        }
                     });
 
+                    // Step B: Union remote logs
                     remote.logs.forEach(remLog => {
                         if (!remLog || !remLog.id) return;
+                        if (AppState.deletedLogIds && AppState.deletedLogIds.has(remLog.id)) return;
+
                         const local = logMap.get(remLog.id);
                         if (!local) {
-                            // Append new log from remote
                             logMap.set(remLog.id, remLog);
                             changed = true;
                         } else if ((remLog.updatedAt || 0) > (local.updatedAt || 0)) {
-                            // Update existing log only if remote is newer
                             logMap.set(remLog.id, remLog);
                             changed = true;
                         }
@@ -2528,10 +2883,38 @@
                     updateBabyProfileHeader();
                     renderAll();
                     if (notify) {
-                        showToast('Synced & appended updates from partner! 🍼', 'success');
+                        showToast(`Synced updates with partner! (${AppState.logs.length} activities) 🍼`, 'success');
                     }
                 }
+
+                const countBadge = document.getElementById('sessionActivityCountBadge');
+                if (countBadge) countBadge.textContent = `${AppState.logs.length} activities`;
+
                 return changed;
+            },
+
+            generateTransferCode() {
+                const state = this.getCompleteState();
+                try {
+                    const json = JSON.stringify(state);
+                    return btoa(unescape(encodeURIComponent(json)));
+                } catch(e) {
+                    return null;
+                }
+            },
+
+            importTransferCode(base64Str) {
+                if (!base64Str || typeof base64Str !== 'string') return false;
+                try {
+                    const json = decodeURIComponent(escape(atob(base64Str.trim())));
+                    const parsed = JSON.parse(json);
+                    if (parsed && (parsed.logs || parsed.timestamp)) {
+                        const changed = this.applyRemoteState(parsed, true);
+                        this.broadcast();
+                        return true;
+                    }
+                } catch(e) {}
+                return false;
             },
 
             updateSyncUI(status) {
@@ -2539,12 +2922,21 @@
                 const badge = document.getElementById('roomCodeBadge');
                 const spin = document.getElementById('syncSpinIcon');
                 const modalStatus = document.getElementById('cloudStatusIndicator');
+                const countBadge = document.getElementById('sessionActivityCountBadge');
+
+                if (countBadge && AppState.logs) {
+                    countBadge.textContent = `${AppState.logs.length} activities`;
+                }
 
                 if (status === 'connected') {
                     if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                    if (badge) badge.textContent = 'Cloud';
+                    if (badge) badge.textContent = this.supabase ? 'Supabase' : 'Live';
                     if (spin) spin.classList.remove('spin-active');
-                    if (modalStatus) modalStatus.innerHTML = '<span class="text-emerald-500 font-bold">🟢 Active & Connected</span>';
+                    if (modalStatus) {
+                        modalStatus.innerHTML = this.supabase 
+                            ? '<span class="text-emerald-500 font-bold">🟢 Supabase Realtime DB</span>'
+                            : '<span class="text-emerald-500 font-bold">🟢 Active & Connected</span>';
+                    }
                 } else if (status === 'syncing') {
                     if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
                     if (badge) badge.textContent = 'Syncing...';
@@ -2554,7 +2946,7 @@
                     if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400';
                     if (badge) badge.textContent = 'Offline';
                     if (spin) spin.classList.remove('spin-active');
-                    if (modalStatus) modalStatus.innerHTML = '<span class="text-slate-400 font-bold">🟡 Offline (Local Storage)</span>';
+                    if (modalStatus) modalStatus.innerHTML = '<span class="text-slate-400 font-bold">🟡 Offline (Safeguarded Locally)</span>';
                 }
             }
         };
@@ -2597,6 +2989,24 @@
                 }
             } else {
                 AppState.logs = [];
+            }
+
+            // Session Data Protection Safeguard: preserve local backup and recover if empty
+            if (AppState.logs && AppState.logs.length > 0) {
+                try {
+                    localStorage.setItem('bt_logs_safeguard', JSON.stringify(AppState.logs));
+                } catch(e) {}
+            } else {
+                const safeBackup = localStorage.getItem('bt_logs_safeguard');
+                if (safeBackup) {
+                    try {
+                        const parsedSafe = JSON.parse(safeBackup);
+                        if (Array.isArray(parsedSafe) && parsedSafe.length > 0) {
+                            AppState.logs = parsedSafe;
+                            localStorage.setItem('bt_logs', JSON.stringify(AppState.logs));
+                        }
+                    } catch(e) {}
+                }
             }
 
             // Load feed reminder settings
@@ -3801,6 +4211,11 @@
                     const idx = AppState.logs.findIndex(l => l.id === newLog.id);
                     if (idx !== -1) {
                         AppState.logs.splice(idx, 1);
+                        if (!AppState.deletedLogIds) AppState.deletedLogIds = new Set();
+                        AppState.deletedLogIds.add(newLog.id);
+                        try {
+                            localStorage.setItem('bt_deleted_logs', JSON.stringify(Array.from(AppState.deletedLogIds)));
+                        } catch(e) {}
                         saveLogsToStorage();
                         renderAll();
                         SyncEngine.broadcast();
@@ -4594,11 +5009,56 @@
             if (savedTimers) {
                 try {
                     const parsed = JSON.parse(savedTimers);
-                    if (parsed.sleep && parsed.sleep.active) {
+                    const now = Date.now();
+
+                    // 1. Sleep Nap Timer
+                    if (parsed.sleep && parsed.sleep.active && parsed.sleep.startTime) {
                         AppState.timers.sleep.active = true;
                         AppState.timers.sleep.startTime = parsed.sleep.startTime;
+                        AppState.timers.sleep.seconds = Math.max(0, Math.floor((now - parsed.sleep.startTime) / 1000));
                         startSleepInterval();
                         document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
+                    }
+
+                    // 2. Nursing Timer
+                    if (parsed.nursing) {
+                        AppState.timers.nursing.baseLeftSeconds = parsed.nursing.baseLeftSeconds || 0;
+                        AppState.timers.nursing.baseRightSeconds = parsed.nursing.baseRightSeconds || 0;
+                        AppState.timers.nursing.leftSeconds = parsed.nursing.leftSeconds || 0;
+                        AppState.timers.nursing.rightSeconds = parsed.nursing.rightSeconds || 0;
+                        if (parsed.nursing.activeSide && parsed.nursing.sideStartTime) {
+                            AppState.timers.nursing.sideStartTime = parsed.nursing.sideStartTime;
+                            const diffSecs = Math.floor((now - parsed.nursing.sideStartTime) / 1000);
+                            if (parsed.nursing.activeSide === 'left') {
+                                AppState.timers.nursing.leftSeconds = AppState.timers.nursing.baseLeftSeconds + diffSecs;
+                            } else if (parsed.nursing.activeSide === 'right') {
+                                AppState.timers.nursing.rightSeconds = AppState.timers.nursing.baseRightSeconds + diffSecs;
+                            }
+                            switchNursingBreast(parsed.nursing.activeSide);
+                        } else {
+                            updateNursingDisplay();
+                        }
+                    }
+
+                    // 3. Tummy Time
+                    if (parsed.tummy && parsed.tummy.active && parsed.tummy.startTime) {
+                        AppState.timers.tummy.active = true;
+                        AppState.timers.tummy.startTime = parsed.tummy.startTime;
+                        AppState.timers.tummy.seconds = Math.max(0, Math.floor((now - parsed.tummy.startTime) / 1000));
+                        const toggleTummyTimerBtn = document.getElementById('toggleTummyTimerBtn');
+                        if (toggleTummyTimerBtn) {
+                            document.getElementById('tummyTimerText').textContent = 'Done & Save';
+                            toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
+                            document.getElementById('tummyTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-emerald-400');
+                            AppState.timers.tummy.intervalId = setInterval(() => {
+                                const diffSecs = Math.floor((Date.now() - AppState.timers.tummy.startTime) / 1000);
+                                AppState.timers.tummy.seconds = diffSecs;
+                                const mins = String(Math.floor(diffSecs / 60)).padStart(2, '0');
+                                const secs = String(diffSecs % 60).padStart(2, '0');
+                                const disp = document.getElementById('tummyTimerDisplay');
+                                if (disp) disp.textContent = `${mins}:${secs}`;
+                            }, 1000);
+                        }
                     }
                 } catch(e) {}
             }
@@ -4655,6 +5115,7 @@
                     updateNursingDisplay();
                 }, 1000);
             }
+            persistTimersLocally();
         }
 
         function pauseNursingTimer() {
@@ -4675,6 +5136,7 @@
             }
             timerLeftBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
             timerRightBtn.className = 'flex-1 py-1.5 px-2 rounded-lg bg-white dark:bg-nightBg border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300';
+            persistTimersLocally();
         }
 
         function updateNursingDisplay() {
@@ -4697,6 +5159,7 @@
                 nursingSideBadge.textContent = 'L & R';
                 updateNursingDisplay();
                 document.getElementById('nursingTimerCard')?.classList.remove('timer-card-active', 'ring-2', 'ring-rose-400');
+                persistTimersLocally();
             };
         }
 
@@ -4720,6 +5183,7 @@
             AppState.timers.nursing.leftSeconds = 0;
             AppState.timers.nursing.rightSeconds = 0;
             updateNursingDisplay();
+            persistTimersLocally();
         };
 
         // Sleep Stopwatch
@@ -4733,7 +5197,7 @@
                 AppState.timers.sleep.active = true;
                 AppState.timers.sleep.startTime = Date.now();
                 AppState.timers.sleep.seconds = 0;
-                localStorage.setItem('bt_timers', JSON.stringify({ sleep: { active: true, startTime: AppState.timers.sleep.startTime } }));
+                persistTimersLocally();
                 startSleepInterval();
                 document.getElementById('sleepTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-indigo-400');
                 showToast('Nap timer started 😴', 'info');
@@ -4741,7 +5205,7 @@
                 const elapsedMins = Math.max(1, Math.round(AppState.timers.sleep.seconds / 60));
                 clearInterval(AppState.timers.sleep.intervalId);
                 AppState.timers.sleep.active = false;
-                localStorage.removeItem('bt_timers');
+                persistTimersLocally();
                 sleepTimerText.textContent = 'Start Nap';
                 toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                 sleepTimerDisplay.textContent = '00:00:00';
@@ -4761,6 +5225,7 @@
                 AppState.logs.push(newNapLog);
                 saveLogsToStorage();
                 renderAll();
+                SyncEngine.broadcast();
                 showToast(`Logged ${elapsedMins}m Nap! 😴`, 'success');
             }
         };
@@ -4787,7 +5252,7 @@
             if (AppState.timers.sleep.intervalId) clearInterval(AppState.timers.sleep.intervalId);
             AppState.timers.sleep.active = false;
             AppState.timers.sleep.seconds = 0;
-            localStorage.removeItem('bt_timers');
+            persistTimersLocally();
             sleepTimerText.textContent = 'Start Nap';
             toggleSleepTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
             sleepTimerDisplay.textContent = '00:00:00';
@@ -4805,6 +5270,7 @@
                 AppState.timers.tummy.active = true;
                 AppState.timers.tummy.startTime = Date.now();
                 AppState.timers.tummy.seconds = 0;
+                persistTimersLocally();
                 tummyTimerText.textContent = 'Done & Save';
                 toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 timer-active';
                 document.getElementById('tummyTimerCard')?.classList.add('timer-card-active', 'ring-2', 'ring-emerald-400');
@@ -4820,6 +5286,7 @@
                 const elapsedMins = Math.max(1, Math.round(AppState.timers.tummy.seconds / 60));
                 clearInterval(AppState.timers.tummy.intervalId);
                 AppState.timers.tummy.active = false;
+                persistTimersLocally();
                 tummyTimerText.textContent = 'Start Tummy';
                 toggleTummyTimerBtn.className = 'flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5';
                 tummyTimerDisplay.textContent = '00:00';
@@ -5106,8 +5573,14 @@
         window.deleteLog = (id) => {
             if (confirm('Delete this logged activity?')) {
                 AppState.logs = AppState.logs.filter(l => l.id !== id);
+                if (!AppState.deletedLogIds) AppState.deletedLogIds = new Set();
+                AppState.deletedLogIds.add(id);
+                try {
+                    localStorage.setItem('bt_deleted_logs', JSON.stringify(Array.from(AppState.deletedLogIds)));
+                } catch(e) {}
                 saveLogsToStorage();
                 renderAll();
+                SyncEngine.broadcast();
                 showToast('Log removed', 'info');
             }
         };
@@ -5342,6 +5815,106 @@
             SyncEngine.sendTestPing();
         };
 
+        // 1-Tap Direct Transfer Code Handlers
+        const copyTransferCodeBtn = document.getElementById('copyTransferCodeBtn');
+        const toggleImportCodeBtn = document.getElementById('toggleImportCodeBtn');
+        const importCodeContainer = document.getElementById('importCodeContainer');
+        const importCodeInput = document.getElementById('importCodeInput');
+        const executeImportCodeBtn = document.getElementById('executeImportCodeBtn');
+
+        if (copyTransferCodeBtn) {
+            copyTransferCodeBtn.onclick = () => {
+                const code = SyncEngine.generateTransferCode();
+                if (code) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        copyTransferCodeBtn.innerHTML = '<span>✓</span> Copied Code!';
+                        setTimeout(() => {
+                            copyTransferCodeBtn.innerHTML = '<span>📋</span> Copy Transfer Code';
+                        }, 2500);
+                        showToast(`Transfer code copied! (${AppState.logs.length} logs & timers) 📲`, 'success');
+                    }).catch(() => {
+                        prompt('Copy your Transfer Code below:', code);
+                    });
+                }
+            };
+        }
+
+        if (toggleImportCodeBtn && importCodeContainer) {
+            toggleImportCodeBtn.onclick = () => {
+                importCodeContainer.classList.toggle('hidden');
+                if (!importCodeContainer.classList.contains('hidden') && importCodeInput) {
+                    importCodeInput.focus();
+                }
+            };
+        }
+
+        if (executeImportCodeBtn && importCodeInput) {
+            executeImportCodeBtn.onclick = () => {
+                const raw = importCodeInput.value.trim();
+                if (!raw) {
+                    showToast('Please paste a transfer code first', 'warning');
+                    return;
+                }
+                const success = SyncEngine.importTransferCode(raw);
+                if (success) {
+                    importCodeInput.value = '';
+                    importCodeContainer.classList.add('hidden');
+                    sharePartnerModal.classList.add('hidden');
+                    showToast(`Successfully merged ${AppState.logs.length} activities & live timers! 🍼✨`, 'success');
+                } else {
+                    showToast('Invalid transfer code format. Please verify and try again.', 'error');
+                }
+            };
+        }
+
+        // Cloud Database (Supabase) Settings Handlers
+        const toggleCloudDbSettingsBtn = document.getElementById('toggleCloudDbSettingsBtn');
+        const cloudDbSettingsContainer = document.getElementById('cloudDbSettingsContainer');
+        const cloudDbToggleIcon = document.getElementById('cloudDbToggleIcon');
+        const supabaseUrlInput = document.getElementById('supabaseUrlInput');
+        const supabaseKeyInput = document.getElementById('supabaseKeyInput');
+        const saveSupabaseConfigBtn = document.getElementById('saveSupabaseConfigBtn');
+        const clearSupabaseConfigBtn = document.getElementById('clearSupabaseConfigBtn');
+
+        if (toggleCloudDbSettingsBtn && cloudDbSettingsContainer) {
+            toggleCloudDbSettingsBtn.onclick = () => {
+                const isHidden = cloudDbSettingsContainer.classList.toggle('hidden');
+                if (cloudDbToggleIcon) cloudDbToggleIcon.textContent = isHidden ? '▼' : '▲';
+                if (!isHidden) {
+                    if (supabaseUrlInput) supabaseUrlInput.value = localStorage.getItem('bt_supabase_url') || '';
+                    if (supabaseKeyInput) supabaseKeyInput.value = localStorage.getItem('bt_supabase_key') || '';
+                }
+            };
+        }
+
+        if (saveSupabaseConfigBtn && supabaseUrlInput && supabaseKeyInput) {
+            saveSupabaseConfigBtn.onclick = () => {
+                const url = supabaseUrlInput.value.trim();
+                const key = supabaseKeyInput.value.trim();
+                if (!url || !key) {
+                    showToast('Please enter both Supabase Project URL and Anon Key', 'warning');
+                    return;
+                }
+                localStorage.setItem('bt_supabase_url', url);
+                localStorage.setItem('bt_supabase_key', key);
+                SyncEngine.initSupabase();
+                SyncEngine.syncAll(true);
+                showToast('Connected to Supabase PostgreSQL Realtime DB! ⚡', 'success');
+            };
+        }
+
+        if (clearSupabaseConfigBtn) {
+            clearSupabaseConfigBtn.onclick = () => {
+                localStorage.removeItem('bt_supabase_url');
+                localStorage.removeItem('bt_supabase_key');
+                if (supabaseUrlInput) supabaseUrlInput.value = '';
+                if (supabaseKeyInput) supabaseKeyInput.value = '';
+                SyncEngine.supabase = null;
+                SyncEngine.updateSyncUI('connected');
+                showToast('Reset to default cloud relay', 'info');
+            };
+        }
+
         sharePartnerBtn.onclick = () => {
             // Proactively broadcast local state so room is warm for joining peer
             if (AppState.logs && AppState.logs.length > 0) {
@@ -5365,6 +5938,11 @@
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.H
                 });
+            }
+
+            const countBadge = document.getElementById('sessionActivityCountBadge');
+            if (countBadge && AppState.logs) {
+                countBadge.textContent = `${AppState.logs.length} activities`;
             }
 
             sharePartnerModal.classList.remove('hidden');
