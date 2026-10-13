@@ -47,8 +47,6 @@
     
     <!-- QRCode.js for generating QR codes to share with partner -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Supabase Client for Real-time Multi-Device Cloud Sync -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* Custom Smooth Scrollbar */
@@ -1901,37 +1899,6 @@
                     </div>
                 </div>
 
-                <!-- Cloud Database (Supabase) Optional Settings Toggle -->
-                <div class="pt-2 border-t border-slate-100 dark:border-nightBorder">
-                    <button id="toggleCloudDbSettingsBtn" class="w-full flex items-center justify-between text-left text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-bold text-xs py-1">
-                        <span class="flex items-center gap-1.5">
-                            <span>⚡</span> Cloud Database (Supabase / Production)
-                        </span>
-                        <span id="cloudDbToggleIcon" class="text-[10px]">▼</span>
-                    </button>
-                    <div id="cloudDbSettingsContainer" class="hidden mt-2 p-3 bg-slate-50 dark:bg-nightBg border border-slate-200 dark:border-nightBorder rounded-2xl space-y-2">
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Connect your free Supabase project for real-time WebSocket multi-device sync backed by PostgreSQL. Zero backend code needed!
-                        </p>
-                        <div>
-                            <label class="block font-bold text-slate-600 dark:text-slate-300 mb-0.5 text-[11px]">Supabase Project URL</label>
-                            <input type="text" id="supabaseUrlInput" placeholder="https://xyzcompany.supabase.co" class="w-full px-3 py-1.5 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 dark:text-slate-300 mb-0.5 text-[11px]">Supabase Anon Public Key</label>
-                            <input type="password" id="supabaseKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-1.5 bg-white dark:bg-nightCard border border-slate-200 dark:border-nightBorder rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
-                        </div>
-                        <div class="flex gap-2 pt-1">
-                            <button id="saveSupabaseConfigBtn" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-colors">
-                                Save & Connect DB
-                            </button>
-                            <button id="clearSupabaseConfigBtn" class="py-1.5 px-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-colors">
-                                Reset
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="flex gap-2 pt-1">
                     <button id="testSyncBtn" class="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors">
                         🔔 Test Sync Ping
@@ -2716,14 +2683,16 @@
         // ==================== CLOUD SYNC ENGINE ====================
 
         const SyncEngine = {
-            supabase: null,
-            supabaseChannel: null,
             eventSource: null,
             pollInterval: null,
             topic: '',
             isSyncing: false,
 
             init() {
+                // Security Hardening: Purge any legacy unencrypted API keys or DB URLs from localStorage
+                localStorage.removeItem('bt_supabase_url');
+                localStorage.removeItem('bt_supabase_key');
+
                 const urlParams = new URLSearchParams(window.location.search);
                 let room = urlParams.get('room');
 
@@ -2754,10 +2723,7 @@
                     } catch(e) {}
                 }
 
-                // 1. Initialize Supabase if credentials exist
-                this.initSupabase();
-
-                // 2. Initialize same-machine BroadcastChannel
+                // 1. Initialize same-machine BroadcastChannel
                 try {
                     localChannel = new BroadcastChannel('bt_channel_' + room);
                     localChannel.onmessage = (e) => {
@@ -2771,20 +2737,20 @@
                     };
                 } catch(err) {}
 
-                // 3. Connect fallback HTTP/SSE
+                // 2. Connect fallback HTTP/SSE
                 this.connectSSE();
 
-                // 4. Proactively request sync from room peers on join
+                // 3. Proactively request sync from room peers on join
                 this.sendSyncRequest();
                 this.pullLatest(false);
 
-                // 5. Periodic polling fallback
+                // 4. Periodic polling fallback
                 if (this.pollInterval) clearInterval(this.pollInterval);
                 this.pollInterval = setInterval(() => {
                     this.pullLatest(false);
                 }, 15000);
 
-                // 6. Mobile WebKit / iPad wake listener
+                // 5. Mobile WebKit / iPad wake listener
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'visible') {
                         recalcTimersOnWake();
@@ -2794,45 +2760,6 @@
                         }
                     }
                 });
-            },
-
-            initSupabase() {
-                const sbUrl = localStorage.getItem('bt_supabase_url');
-                const sbKey = localStorage.getItem('bt_supabase_key');
-                if (sbUrl && sbKey && window.supabase && typeof window.supabase.createClient === 'function') {
-                    try {
-                        this.supabase = window.supabase.createClient(sbUrl, sbKey);
-                        this.subscribeSupabaseRealtime();
-                        this.updateSyncUI('connected');
-                    } catch(e) {
-                        this.supabase = null;
-                    }
-                }
-            },
-
-            subscribeSupabaseRealtime() {
-                if (!this.supabase || !AppState.roomId) return;
-                try {
-                    if (this.supabaseChannel) {
-                        this.supabase.removeChannel(this.supabaseChannel);
-                    }
-                    this.supabaseChannel = this.supabase
-                        .channel('room-' + AppState.roomId)
-                        .on('postgres_changes', {
-                            event: '*',
-                            schema: 'public',
-                            table: 'baby_rooms',
-                            filter: `room_id=eq.${AppState.roomId}`
-                        }, (payload) => {
-                            if (payload.new && payload.new.state) {
-                                const remoteState = payload.new.state;
-                                if (remoteState.senderId !== AppState.deviceId) {
-                                    this.applyRemoteState(remoteState, true);
-                                }
-                            }
-                        })
-                        .subscribe();
-                } catch(e) {}
             },
 
             getCompleteState() {
@@ -2933,24 +2860,7 @@
                 this.updateSyncUI('syncing');
 
                 try {
-                    // 2. Broadcast to Supabase if configured
-                    if (this.supabase) {
-                        try {
-                            await this.supabase
-                                .from('baby_rooms')
-                                .upsert({
-                                    room_id: AppState.roomId,
-                                    state: payload,
-                                    updated_at: new Date().toISOString()
-                                });
-                            this.updateSyncUI('connected');
-                            return;
-                        } catch(e) {
-                            console.warn('Supabase broadcast failed:', e);
-                        }
-                    }
-
-                    // 3. Fallback broadcast to HTTP relay with strict timeout
+                    // Broadcast to secure room relay with timeout
                     try {
                         const res = await safeFetchWithTimeout(`https://ntfy.sh/${this.topic}`, {
                             method: 'POST',
@@ -3022,7 +2932,7 @@
 
                     this.eventSource.onerror = () => {
                         setTimeout(() => {
-                            if (document.visibilityState === 'visible' && !this.supabase) {
+                            if (document.visibilityState === 'visible') {
                                 this.connectSSE();
                             }
                         }, 12000);
@@ -3055,27 +2965,6 @@
                 this.updateSyncUI('syncing');
 
                 try {
-                    // 1. Pull from Supabase if configured
-                    if (this.supabase) {
-                        try {
-                            const { data, error } = await this.supabase
-                                .from('baby_rooms')
-                                .select('state')
-                                .eq('room_id', AppState.roomId)
-                                .maybeSingle();
-
-                            if (data && data.state) {
-                                const changed = this.applyRemoteState(data.state, false);
-                                if (showToastNotify) {
-                                    showToast(changed ? `Synced ${AppState.logs.length} activities from cloud DB! 🍼` : `Everything up to date! (${AppState.logs.length} activities) ✨`, 'success');
-                                }
-                                this.updateSyncUI('connected');
-                                return;
-                            }
-                        } catch(sbErr) {
-                            console.warn('Supabase pull error:', sbErr);
-                        }
-                    }
 
                     // 2. Fallback pull from HTTP relay with strict timeout
                     if (this.topic) {
@@ -3181,7 +3070,7 @@
                 if (sent) {
                     showToast('Ping sent to partner! 🔔', 'success');
                 } else {
-                    showToast('Ping broadcast locally (Cloud relay offline — connect Supabase or use Transfer Code)', 'info');
+                    showToast('Ping broadcast locally (Use Transfer Code for direct device transfer)', 'info');
                 }
             },
 
@@ -3419,12 +3308,10 @@
 
                 if (status === 'connected') {
                     if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                    if (badge) badge.textContent = this.supabase ? 'Supabase' : 'Live';
+                    if (badge) badge.textContent = 'Live';
                     if (spin) spin.classList.remove('spin-active');
                     if (modalStatus) {
-                        modalStatus.innerHTML = this.supabase 
-                            ? '<span class="text-emerald-500 font-bold">🟢 Supabase Realtime DB Connected</span>'
-                            : '<span class="text-emerald-500 font-bold">🟢 Active & Connected</span>';
+                        modalStatus.innerHTML = '<span class="text-emerald-500 font-bold">🟢 Active & Connected</span>';
                     }
                 } else if (status === 'syncing') {
                     if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
@@ -7699,54 +7586,6 @@
                 } else {
                     showToast('Invalid transfer code format. Please verify and try again.', 'error');
                 }
-            };
-        }
-
-        // Cloud Database (Supabase) Settings Handlers
-        const toggleCloudDbSettingsBtn = document.getElementById('toggleCloudDbSettingsBtn');
-        const cloudDbSettingsContainer = document.getElementById('cloudDbSettingsContainer');
-        const cloudDbToggleIcon = document.getElementById('cloudDbToggleIcon');
-        const supabaseUrlInput = document.getElementById('supabaseUrlInput');
-        const supabaseKeyInput = document.getElementById('supabaseKeyInput');
-        const saveSupabaseConfigBtn = document.getElementById('saveSupabaseConfigBtn');
-        const clearSupabaseConfigBtn = document.getElementById('clearSupabaseConfigBtn');
-
-        if (toggleCloudDbSettingsBtn && cloudDbSettingsContainer) {
-            toggleCloudDbSettingsBtn.onclick = () => {
-                const isHidden = cloudDbSettingsContainer.classList.toggle('hidden');
-                if (cloudDbToggleIcon) cloudDbToggleIcon.textContent = isHidden ? '▼' : '▲';
-                if (!isHidden) {
-                    if (supabaseUrlInput) supabaseUrlInput.value = localStorage.getItem('bt_supabase_url') || '';
-                    if (supabaseKeyInput) supabaseKeyInput.value = localStorage.getItem('bt_supabase_key') || '';
-                }
-            };
-        }
-
-        if (saveSupabaseConfigBtn && supabaseUrlInput && supabaseKeyInput) {
-            saveSupabaseConfigBtn.onclick = () => {
-                const url = supabaseUrlInput.value.trim();
-                const key = supabaseKeyInput.value.trim();
-                if (!url || !key) {
-                    showToast('Please enter both Supabase Project URL and Anon Key', 'warning');
-                    return;
-                }
-                localStorage.setItem('bt_supabase_url', url);
-                localStorage.setItem('bt_supabase_key', key);
-                SyncEngine.initSupabase();
-                SyncEngine.syncAll(true);
-                showToast('Connected to Supabase PostgreSQL Realtime DB! ⚡', 'success');
-            };
-        }
-
-        if (clearSupabaseConfigBtn) {
-            clearSupabaseConfigBtn.onclick = () => {
-                localStorage.removeItem('bt_supabase_url');
-                localStorage.removeItem('bt_supabase_key');
-                if (supabaseUrlInput) supabaseUrlInput.value = '';
-                if (supabaseKeyInput) supabaseKeyInput.value = '';
-                SyncEngine.supabase = null;
-                SyncEngine.updateSyncUI('connected');
-                showToast('Reset to default cloud relay', 'info');
             };
         }
 
