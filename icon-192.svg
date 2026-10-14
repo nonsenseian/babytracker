@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="192" height="192">
+  <defs>
+    <linearGradient id="faceGrad192" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="100%" stop-color="#FED7AA" />
+    </linearGradient>
+    <linearGradient id="paciGrad192" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <filter id="softShadow192" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#78350F" flood-opacity="0.22" />
+    </filter>
+  </defs>
+
+  <!-- Background Flat Pastel Dark Orange Rounded Squircle -->
+  <rect width="512" height="512" rx="128" fill="#E87A42" />
+
+  <!-- Baby Face Circle with Warm Soft Shadow -->
+  <circle cx="256" cy="256" r="185" fill="url(#faceGrad192)" filter="url(#softShadow192)" />
+
+  <!-- Baby Hair Tuft at Top -->
+  <path d="M256 112 C238 72 274 52 256 36 C238 52 274 82 256 112 Z" fill="#92400E" />
+
+  <!-- Expressive Eyebrows -->
+  <path d="M174 192 Q194 180 214 192" stroke="#92400E" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.65" />
+  <path d="M298 192 Q318 180 338 192" stroke="#92400E" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.65" />
+
+  <!-- Big Kawaii Eyes -->
+  <!-- Left Eye -->
+  <circle cx="194" cy="236" r="28" fill="#1E293B" />
+  <circle cx="203" cy="226" r="10" fill="#FFFFFF" />
+  <circle cx="187" cy="245" r="4.5" fill="#FFFFFF" />
+
+  <!-- Right Eye -->
+  <circle cx="318" cy="236" r="28" fill="#1E293B" />
+  <circle cx="327" cy="226" r="10" fill="#FFFFFF" />
+  <circle cx="311" cy="245" r="4.5" fill="#FFFFFF" />
+
+  <!-- Rosy Cheeks -->
+  <circle cx="146" cy="278" r="30" fill="#F472B6" opacity="0.45" />
+  <circle cx="366" cy="278" r="30" fill="#F472B6" opacity="0.45" />
+
+  <!-- Cute Large Pacifier In Mouth -->
+  <!-- Ring Handle Hanging Below -->
+  <path d="M230 324 C230 376 282 376 282 324" stroke="#0284C7" stroke-width="12" stroke-linecap="round" fill="none" />
+
+  <!-- Pacifier Butterfly Shield -->
+  <path d="M256 286 C290 270 326 286 322 310 C318 334 286 338 256 328 C226 338 194 334 190 310 C186 286 222 270 256 286 Z" fill="url(#paciGrad192)" stroke="#0284C7" stroke-width="2.5" />
+
+  <!-- Ventilation Air Holes on Wings -->
+  <circle cx="218" cy="310" r="5" fill="#FED7AA" opacity="0.85" />
+  <circle cx="294" cy="310" r="5" fill="#FED7AA" opacity="0.85" />
+
+  <!-- Center Pacifier Button / Grip -->
+  <circle cx="256" cy="310" r="18" fill="#FFFFFF" stroke="#0284C7" stroke-width="2.5" />
+  <circle cx="256" cy="310" r="12" fill="#38BDF8" />
+  <circle cx="253" cy="306" r="3.5" fill="#FFFFFF" opacity="0.9" />
+</svg>
