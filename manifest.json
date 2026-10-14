@@ -1,0 +1,25 @@
+{
+  "name": "BabyTracker - Newborn Care & Health Analytics",
+  "short_name": "BabyTracker",
+  "description": "Zero-dependency offline pediatric baby tracking, feeding, sleep rhythms, and health analytics.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FAF7F2",
+  "theme_color": "#F59E0B",
+  "categories": ["medical", "health", "parenting", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
