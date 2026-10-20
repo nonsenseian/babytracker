@@ -1,0 +1,806 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+@import './variables.css';
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ==================== THEME 1: CUTESY / SOFT PASTEL ==================== */
+/* Pastel orange background with subtle nursery teddy bear wallpaper pattern */
+[data-theme="soft-pastel"] body,
+[data-theme="soft-pastel"],
+[data-theme="cutesy"] body,
+[data-theme="cutesy"] {
+    background-color: #fff2e6 !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='14' y='28' font-size='20' opacity='0.12'%3E🧸%3C/text%3E%3Ctext x='50' y='64' font-size='20' opacity='0.12'%3E🧸%3C/text%3E%3C/svg%3E") !important;
+    background-repeat: repeat !important;
+}
+
+/* ==================== VINTAGE WARMTH / SOIL (NIGHT MODE WITH VINTAGE PAPER TEXTURE) ==================== */
+[data-theme="vintage-warmth"] body,
+[data-theme="vintage-warmth"],
+[data-theme="soil"] body,
+[data-theme="soil"] {
+    background-color: #191410 !important;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)' fill='none'/%3E%3C/svg%3E") !important;
+    background-repeat: repeat !important;
+}
+
+/* ==================== THEME 2: 8-BIT RETRO ARCADE ==================== */
+/* Real CRT scanline raster effect, glowing pixel aesthetics, with normalized box metrics */
+[data-theme="pixelated-arcade"],
+[data-theme="pixelated"],
+[data-theme="arcade"] {
+    background-color: #161626 !important;
+    background-image: linear-gradient(rgba(18, 16, 38, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04)) !important;
+    background-size: 100% 4px, 6px 100% !important;
+    color: #ffd700 !important;
+    font-family: 'Silkscreen', monospace !important;
+    font-size: 13px;
+}
+
+/* Surface cards: keep 1px solid border so internal padding and flex flow match all other themes */
+[data-theme="pixelated-arcade"] .surface-card,
+[data-theme="pixelated-arcade"] .surface-elevated,
+[data-theme="pixelated"] .surface-card,
+[data-theme="pixelated"] .surface-elevated,
+[data-theme="arcade"] .surface-card,
+[data-theme="arcade"] .surface-elevated {
+    background-color: #12121f !important;
+    border: 1px solid #ffd700 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 0 0 1px #ffd700, 3px 3px 0px #000 !important;
+}
+
+/* Typography scale normalization: Pixel fonts have wider glyph bounds. Proportional scaling prevents wrapping & layout displacement */
+[data-theme="pixelated-arcade"] h1,
+[data-theme="pixelated"] h1,
+[data-theme="arcade"] h1 {
+    font-family: 'Press Start 2P', monospace !important;
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.5px !important;
+    text-shadow: 2px 2px 0px #000, 2px 2px 0px #d97706 !important;
+}
+
+[data-theme="pixelated-arcade"] h2,
+[data-theme="pixelated"] h2,
+[data-theme="arcade"] h2 {
+    font-family: 'Press Start 2P', monospace !important;
+    font-size: 12.5px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.4px !important;
+    text-shadow: 1px 1px 0px #000 !important;
+}
+
+[data-theme="pixelated-arcade"] h3,
+[data-theme="pixelated"] h3,
+[data-theme="arcade"] h3 {
+    font-family: 'Press Start 2P', monospace !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.3px !important;
+    text-shadow: 1px 1px 0px #000 !important;
+}
+
+[data-theme="pixelated-arcade"] .font-outfit,
+[data-theme="pixelated"] .font-outfit,
+[data-theme="arcade"] .font-outfit {
+    font-family: 'Press Start 2P', monospace !important;
+    font-size: 11px !important;
+    letter-spacing: -0.35px !important;
+    text-shadow: 1px 1px 0px #000 !important;
+}
+
+[data-theme="pixelated-arcade"] .font-mono,
+[data-theme="pixelated-arcade"] .arcade-pixel-text,
+[data-theme="pixelated"] .font-mono,
+[data-theme="pixelated"] .arcade-pixel-text,
+[data-theme="arcade"] .font-mono,
+[data-theme="arcade"] .arcade-pixel-text {
+    font-family: 'Press Start 2P', monospace !important;
+    font-size: 10.5px !important;
+    color: #ffd700 !important;
+    text-shadow: 1px 1px 0px #000 !important;
+}
+
+/* Button placement and height normalization: 1px border ensures button heights and positions match other themes */
+[data-theme="pixelated-arcade"] button,
+[data-theme="pixelated"] button,
+[data-theme="arcade"] button {
+    border-radius: 4px !important;
+    border: 1px solid #ffd700 !important;
+    box-shadow: 2px 2px 0px #000 !important;
+    font-family: 'Silkscreen', monospace !important;
+    font-size: 10.5px !important;
+    letter-spacing: -0.2px !important;
+    box-sizing: border-box !important;
+}
+
+[data-theme="pixelated-arcade"] button:active,
+[data-theme="pixelated"] button:active,
+[data-theme="arcade"] button:active {
+    transform: translate(1px, 1px) !important;
+    box-shadow: 1px 1px 0px #000 !important;
+}
+
+/* Normalized inputs and selects */
+[data-theme="pixelated-arcade"] input,
+[data-theme="pixelated-arcade"] select,
+[data-theme="arcade"] input,
+[data-theme="arcade"] select {
+    font-family: 'Silkscreen', monospace !important;
+    font-size: 10px !important;
+    letter-spacing: -0.25px !important;
+    box-sizing: border-box !important;
+}
+
+[data-theme="pixelated-arcade"] select,
+[data-theme="arcade"] select {
+    max-width: 105px !important;
+}
+
+/* ==================== ADAPTIVE ICON RULES ==================== */
+/* Default for all standard & dark themes: Vibrant Native Color Emojis */
+.theme-icon-svg {
+    display: none !important;
+}
+.theme-icon-emoji {
+    display: inline-flex !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    line-height: 1;
+    vertical-align: middle;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+    font-size: 1.65rem;
+}
+.theme-icon-pixel {
+    display: none !important;
+}
+
+/* Pixelated Arcade theme uses custom 8-bit crisp pixel sprites exclusively */
+[data-theme="pixelated-arcade"] .theme-icon-svg,
+[data-theme="pixelated-arcade"] .theme-icon-emoji,
+[data-theme="pixelated"] .theme-icon-svg,
+[data-theme="pixelated"] .theme-icon-emoji {
+    display: none !important;
+}
+[data-theme="pixelated-arcade"] .theme-icon-pixel,
+[data-theme="pixelated"] .theme-icon-pixel {
+    display: inline-flex !important;
+    image-rendering: pixelated !important;
+    shape-rendering: crispEdges !important;
+    filter: drop-shadow(2px 2px 0px #000);
+}
+
+/* ==================== DASHBOARD LAYOUT CUSTOMIZATION ==================== */
+@keyframes cardCustomizing {
+    0% {
+        transform: rotate(-0.11deg) translateY(-0.12px);
+    }
+    50% {
+        transform: rotate(0.11deg) translateY(0.12px);
+    }
+    100% {
+        transform: rotate(-0.11deg) translateY(-0.12px);
+    }
+}
+
+.layout-customizing-active {
+    position: relative !important;
+    animation: cardCustomizing 0.28s ease-in-out infinite alternate !important;
+    outline: 2px dashed rgba(245, 158, 11, 0.7) !important;
+    outline-offset: 4px;
+    border-radius: 16px !important;
+    user-select: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.layout-card-block {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.layout-remove-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    background: #ef4444;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-surface, #ffffff);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    cursor: pointer;
+    z-index: 50;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+    transition: transform 0.15s ease;
+}
+.layout-remove-badge:hover {
+    transform: scale(1.18);
+    background: #dc2626;
+}
+
+/* ==================== GLASSMORPHISM & CARD UTILITIES ==================== */
+.surface-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.surface-elevated {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+}
+
+/* Typography Helpers */
+.font-outfit {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', 'Silkscreen', monospace;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-accent);
+    color: var(--primary-accent-contrast, #ffffff);
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+
+/* ==================== HIGH CONTRAST DARK (BUTTON READABILITY FIX) ==================== */
+/* Bright yellow boxes and buttons must have black text for high contrast readability */
+[data-theme="high-contrast-dark"] .btn-primary,
+[data-theme="high-contrast-dark"] .btn-primary *,
+[data-theme="high-contrast-dark"] button.btn-primary,
+[data-theme="high-contrast-dark"] [style*="background: var(--primary-accent)"],
+[data-theme="high-contrast-dark"] [style*="background-color: var(--primary-accent)"],
+[data-theme="high-contrast-dark"] [style*="background: #ffff00"],
+[data-theme="high-contrast-dark"] [style*="background-color: #ffff00"],
+[data-theme="high-contrast-dark"] [style*="background: rgb(255, 255, 0)"],
+[data-theme="high-contrast-dark"] [style*="background-color: rgb(255, 255, 0)"] {
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+
+[data-theme="high-contrast-dark"] [style*="background: var(--primary-accent)"] *,
+[data-theme="high-contrast-dark"] [style*="background-color: var(--primary-accent)"] *,
+[data-theme="high-contrast-dark"] [style*="background: #ffff00"] *,
+[data-theme="high-contrast-dark"] [style*="background-color: #ffff00"] * {
+    color: #000000 !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-accent-hover);
+    transform: translateY(-1px);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+}
+
+.btn-ghost:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-surface-elevated);
+}
+
+/* Form Inputs */
+.input-field {
+    width: 100%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.input-field:focus {
+    border-color: var(--primary-accent);
+}
+
+/* Layout Utilities */
+.app-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 20px 16px 80px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+@keyframes sparkPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+.spark-pulse {
+    animation: sparkPulse 2.4s infinite ease-in-out;
+}
+
+@keyframes calendarPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6);
+        border-color: #f59e0b;
+    }
+    50% {
+        box-shadow: 0 0 0 12px rgba(245, 158, 11, 0);
+        border-color: #f59e0b;
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+.calendar-pulse {
+    animation: calendarPulse 1s ease-out 2;
+    transition: all 0.2s ease;
+}
+
+@keyframes quickLogCountdown {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 0%;
+    }
+}
+
+@keyframes voiceMicPulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(244, 63, 94, 0.45), inset 0 0 5px rgba(244, 63, 94, 0.2);
+        border-color: #f43f5e;
+    }
+    50% {
+        box-shadow: 0 0 18px rgba(244, 63, 94, 0.8), inset 0 0 8px rgba(244, 63, 94, 0.35);
+        border-color: #fb7185;
+    }
+}
+
+.btn-voice-glowing {
+    background: rgba(244, 63, 94, 0.14) !important;
+    border: 1.5px solid #f43f5e !important;
+    color: #f43f5e !important;
+    font-weight: 800 !important;
+    animation: voiceMicPulse 2s infinite ease-in-out !important;
+    transition: all 0.2s ease !important;
+}
+
+@keyframes soundMachinePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+        transform: scale(1);
+    }
+    30% {
+        box-shadow: 0 0 20px 4px rgba(99, 102, 241, 0.35);
+        transform: scale(1.01);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+        transform: scale(1);
+    }
+}
+
+.sound-machine-highlight {
+    animation: soundMachinePulse 1.6s ease-out !important;
+}
+
+/* ==================== PRINT & PDF EXPORT STYLES ==================== */
+@media print {
+    body {
+        background-color: #ffffff !important;
+        background-image: none !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    header, nav, .no-print, button, #btn-header-doctor-dossier {
+        display: none !important;
+    }
+
+    #doctor-dossier-modal-backdrop {
+        position: static !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    #doctor-dossier-modal {
+        max-width: 100% !important;
+        max-height: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    #doctor-dossier-print-content {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+}
+
+/* Calendar Day Activities Popup Scrollbar & Touch Scrolling */
+#calendar-day-modal-scroll-area {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 158, 11, 0.45) transparent;
+}
+
+#calendar-day-modal-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+#calendar-day-modal-scroll-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#calendar-day-modal-scroll-area::-webkit-scrollbar-thumb {
+    background-color: rgba(245, 158, 11, 0.45);
+    border-radius: 999px;
+}
+
+#calendar-day-modal-scroll-area::-webkit-scrollbar-thumb:hover {
+    background-color: #f59e0b;
+}
+
+/* Persistent Bottom Pill Menu Dock */
+#condensed-floating-header {
+    user-select: none;
+}
+
+.bottom-nav-action-btn:active {
+    transform: scale(0.92);
+}
+
+.bottom-nav-center-hero-btn:active {
+    transform: translateY(-4px) scale(0.94) !important;
+}
+
+.app-container {
+    padding-bottom: 95px;
+}
+
+/* Redundant top navigation tabs: visible on desktop, hidden on mobile */
+.desktop-only-nav-tabs {
+    display: flex;
+}
+
+@media (max-width: 768px) {
+    /* 1. Hide redundant top tabs on mobile */
+    .desktop-only-nav-tabs {
+        display: none !important;
+    }
+
+    /* 2. Top Header Mobile Ergonomic Overhaul */
+    .app-header {
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .header-main-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    .header-brand {
+        order: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+    }
+
+    .header-logo-badge {
+        width: 18px !important;
+        height: 18px !important;
+        border-radius: 5px !important;
+    }
+
+    .header-brand h1 {
+        font-size: 16px !important;
+        letter-spacing: -0.4px !important;
+        line-height: 1 !important;
+    }
+
+    .header-quick-actions {
+        order: 2 !important;
+        margin-left: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .header-quick-actions button {
+        padding: 4px 6px !important;
+    }
+
+    .header-quick-actions select {
+        max-width: 66px !important;
+        padding: 4px 3px !important;
+        font-size: 10px !important;
+        border-radius: 8px !important;
+    }
+
+    /* 3. Dual Dropdowns: Side-by-side equal 50/50 2-column grid */
+    .header-center-dropdowns {
+        order: 3 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        width: 100% !important;
+        gap: 8px !important;
+        margin-top: 2px !important;
+    }
+
+    .header-center-dropdowns > div {
+        width: 100% !important;
+    }
+
+    .header-center-dropdowns button {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 6px 10px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .header-center-dropdowns .dropdown-inner-text {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100px !important;
+        font-size: 12px !important;
+    }
+
+    /* 4. Sub-header Chips Ribbon: Horizontal swipeable ribbon with identical button heights */
+    .header-chips-ribbon {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x !important;
+        padding-bottom: 2px !important;
+        gap: 6px !important;
+    }
+
+    .header-chips-ribbon button,
+    .header-chips-ribbon > div {
+        flex-shrink: 0 !important;
+    }
+
+    .header-chips-ribbon button {
+        height: 28px !important;
+        padding: 4px 10px !important;
+        font-size: 11px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-chips-ribbon::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* 5. Persistent Bottom Navigation Menu on Mobile */
+    #condensed-floating-header {
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        padding: 4px 6px !important;
+        width: calc(100% - 16px) !important;
+        max-width: 480px !important;
+    }
+
+    #condensed-floating-header .bottom-tab-label {
+        font-size: 9.5px !important;
+        letter-spacing: -0.2px !important;
+        margin-top: 1px !important;
+        display: block !important;
+    }
+
+    #condensed-floating-header .bottom-nav-action-btn {
+        min-height: 48px !important;
+        padding: 4px 2px !important;
+    }
+
+    #condensed-floating-header .bottom-nav-center-hero-btn {
+        width: 52px !important;
+        height: 52px !important;
+        transform: translateY(-7px) !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .header-quick-actions select {
+        max-width: 60px !important;
+    }
+
+    #condensed-floating-header .bottom-tab-label {
+        font-size: 8.5px !important;
+    }
+
+    .header-center-dropdowns .dropdown-inner-text {
+        max-width: 85px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    #header-notifications-flyout {
+        position: fixed !important;
+        top: 72px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        z-index: 999 !important;
+    }
+}
+
+/* In-Feed Add Widget Shelf Animations */
+#add-widget-shelf {
+    animation: fadeIn 0.25s ease-out;
+}
+
+#add-widget-shelf button:hover {
+    transform: translateY(-1px);
+    border-color: #f59e0b !important;
+}
+
+#add-widget-shelf button:active {
+    transform: translateY(0);
+}
+
+/* Family Tree Responsive Carousels (Fix multi-child left-overflow cutoff bug) */
+.family-tree-children-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    justify-content: safe center;
+    gap: 14px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    box-sizing: border-box;
+    padding: 8px 16px 14px 16px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 158, 11, 0.4) transparent;
+}
+
+.family-tree-children-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.family-tree-children-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 999px;
+}
+
+.family-tree-children-scroll::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.35);
+    border-radius: 999px;
+}
+
+.family-tree-children-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 158, 11, 0.6);
+}
+
+.family-tree-children-scroll > * {
+    scroll-snap-align: start;
+}
+
+.family-tree-caregivers-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    justify-content: safe center;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    box-sizing: border-box;
+    padding: 4px 12px 8px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.4) transparent;
+}
+
+.family-tree-caregivers-scroll::-webkit-scrollbar {
+    height: 5px;
+}
+
+.family-tree-caregivers-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 999px;
+}
+
+.family-tree-caregivers-scroll::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.35);
+    border-radius: 999px;
+}
+
+
+

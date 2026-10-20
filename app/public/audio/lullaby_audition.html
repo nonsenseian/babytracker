@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brahms' Lullaby (Op. 49 No. 4) C Major Synthesis Audition</title>
+    <style>
+        :root {
+            --bg: #090d16;
+            --card: #131b2e;
+            --card-sub: #1a243b;
+            --border: #233150;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --success: #10b981;
+            --gold: #f59e0b;
+            --rose: #f43f5e;
+            --purple: #a855f7;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background: radial-gradient(circle at top, #152238 0%, var(--bg) 100%);
+            color: var(--text);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 840px;
+            width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .meta-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .meta-pill {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #7dd3fc;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-piano {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .badge-box {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+        }
+        .badge-legacy {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        audio {
+            width: 100%;
+            margin-top: 14px;
+            border-radius: 10px;
+            outline: none;
+        }
+        .playback-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            align-items: center;
+        }
+        .btn-live {
+            background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-live:hover {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+        }
+        .btn-live:active {
+            transform: translateY(1px);
+        }
+        .btn-stop {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            color: #fb7185;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .live-status {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: monospace;
+        }
+        .track-specs {
+            background: var(--card-sub);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .track-specs code {
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .sequence-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 16px;
+        }
+        .sequence-table th, .sequence-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        .sequence-table th {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .sequence-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .tag-note {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            font-family: monospace;
+        }
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎼 Brahms' Lullaby (Wiegenlied, Op. 49, No. 4)</h1>
+            <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">
+                Precise MIDI & Digital Audio Synthesizer Audition Suite
+            </p>
+            <div class="meta-pills">
+                <span class="meta-pill">Key: C Major (No sharps / flats)</span>
+                <span class="meta-pill">Time Signature: 3/4</span>
+                <span class="meta-pill">Tempo: 80 BPM (1 Beat = 0.75s)</span>
+                <span class="meta-pill">Dynamic: Dolce (Velocity 60–70)</span>
+                <span class="meta-pill">Sequence: M1–M17 (59 Beats / 44.25s)</span>
+            </div>
+        </div>
+
+        <!-- Solo Grand Piano -->
+        <div class="card" style="border-left: 4px solid var(--success);">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">
+                        🎹 Primary Track: Solo Grand Piano
+                    </div>
+                    <div class="card-subtitle">
+                        Warm felt hammer attack, 5 acoustic string partials, subtle ±3.5 cent unison detuning, Schroeder nursery room reverb.
+                    </div>
+                </div>
+                <span class="badge badge-piano">dolce piano</span>
+            </div>
+            
+            <audio id="audio-piano" controls src="/audio/brahms_c_major_piano_lullaby.wav" preload="metadata"></audio>
+            
+            <div class="track-specs">
+                <strong>Acoustic Modeling Parameters:</strong>
+                <ul style="margin-left: 20px; margin-top: 6px;">
+                    <li><strong>Attack & Filter:</strong> 12ms soft felt transient, damping high frequencies to prevent synthetic clicks.</li>
+                    <li><strong>Decay & Resonance:</strong> Warm wood soundboard resonance centered around 310 Hz.</li>
+                    <li><strong>Reverb Tail:</strong> Intimate nursery room convolution decay (45ms & 65ms stereo early reflections).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Music Box Version -->
+        <div class="card" style="border-left: 4px solid var(--purple);">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">
+                        🔔 Secondary Track: Bedtime Music Box (Chimes)
+                    </div>
+                    <div class="card-subtitle">
+                        Delicate bell tines, ethereal harmonic overtone shimmer, gentle nursery music box mechanical timbre.
+                    </div>
+                </div>
+                <span class="badge badge-box">music box</span>
+            </div>
+            
+            <audio id="audio-box" controls src="/audio/brahms_c_major_music_box_lullaby.wav" preload="metadata"></audio>
+            
+            <div class="track-specs">
+                <strong>Timbre Specifications:</strong>
+                <ul style="margin-left: 20px; margin-top: 6px;">
+                    <li><strong>Tine Harmonics:</strong> Tuned metal comb overtones (1.0x, 2.0x, 3.0x, 4.2x, 6.0x) with fast chime decay.</li>
+                    <li><strong>Stereo Placement:</strong> Dynamic pan curve tracking octave registers across the stereo field.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Live Web Audio Engine Preview -->
+        <div class="card" style="border-left: 4px solid var(--accent);">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">
+                        ⚡ Live In-Browser Web Audio Synthesizer Test
+                    </div>
+                    <div class="card-subtitle">
+                        Triggers real-time synthesis directly through the browser's <code>AudioContext</code> using identical mathematical parameters.
+                    </div>
+                </div>
+            </div>
+            <div class="playback-controls">
+                <button class="btn-live" id="btn-play-live-piano" onclick="playLiveWebAudio('piano')">▶ Play Live Piano</button>
+                <button class="btn-live" id="btn-play-live-box" style="background: linear-gradient(135deg, #a855f7, #6366f1);" onclick="playLiveWebAudio('box')">▶ Play Live Music Box</button>
+                <button class="btn-stop" id="btn-stop-live" onclick="stopLiveWebAudio()">⏹ Stop</button>
+                <span class="live-status" id="live-status">Ready</span>
+            </div>
+        </div>
+
+        <!-- Complete Chronological MIDI Sequence Table -->
+        <div class="card">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">🎼 Chronological MIDI Sequence (M1–M17)</h3>
+            <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px;">
+                Strict sequential timing without measure gaps. 1 Beat = 0.750s at 80 BPM. Total Duration: 59 beats (44.25 seconds).
+            </p>
+            <div style="overflow-x: auto;">
+                <table class="sequence-table">
+                    <thead>
+                        <tr>
+                            <th>Measure</th>
+                            <th>Note Events</th>
+                            <th>Note Names</th>
+                            <th>Durations</th>
+                            <th>Beats</th>
+                            <th>Cumulative Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>M1</strong></td><td>E4,Q | E4,Q | G4,DQ</td><td><span class="tag-note">E4</span> <span class="tag-note">E4</span> <span class="tag-note">G4</span></td><td>Quarter, Quarter, Dotted Quarter</td><td>1.0 + 1.0 + 1.5 = 3.5</td><td>0.00s – 2.625s</td></tr>
+                        <tr><td><strong>M2</strong></td><td>E4,E | E4,Q | G4,H</td><td><span class="tag-note">E4</span> <span class="tag-note">E4</span> <span class="tag-note">G4</span></td><td>Eighth, Quarter, Half</td><td>0.5 + 1.0 + 2.0 = 3.5</td><td>2.625s – 5.250s</td></tr>
+                        <tr><td><strong>M3</strong></td><td>E4,Q | G4,Q | C5,DQ</td><td><span class="tag-note">E4</span> <span class="tag-note">G4</span> <span class="tag-note">C5</span></td><td>Quarter, Quarter, Dotted Quarter</td><td>1.0 + 1.0 + 1.5 = 3.5</td><td>5.250s – 7.875s</td></tr>
+                        <tr><td><strong>M4</strong></td><td>B4,E | A4,Q | A4,Q</td><td><span class="tag-note">B4</span> <span class="tag-note">A4</span> <span class="tag-note">A4</span></td><td>Eighth, Quarter, Quarter</td><td>0.5 + 1.0 + 1.0 = 2.5</td><td>7.875s – 9.750s</td></tr>
+                        <tr><td><strong>M5</strong></td><td>G4,H | D4,Q | E4,Q</td><td><span class="tag-note">G4</span> <span class="tag-note">D4</span> <span class="tag-note">E4</span></td><td>Half, Quarter, Quarter</td><td>2.0 + 1.0 + 1.0 = 4.0</td><td>9.750s – 12.750s</td></tr>
+                        <tr><td><strong>M6</strong></td><td>F4,DQ | D4,E</td><td><span class="tag-note">F4</span> <span class="tag-note">D4</span></td><td>Dotted Quarter, Eighth</td><td>1.5 + 0.5 = 2.0</td><td>12.750s – 14.250s</td></tr>
+                        <tr><td><strong>M7</strong></td><td>E4,Q | F4,H | D4,Q</td><td><span class="tag-note">E4</span> <span class="tag-note">F4</span> <span class="tag-note">D4</span></td><td>Quarter, Half, Quarter</td><td>1.0 + 2.0 + 1.0 = 4.0</td><td>14.250s – 17.250s</td></tr>
+                        <tr><td><strong>M8</strong></td><td>F4,Q | B4,DQ</td><td><span class="tag-note">F4</span> <span class="tag-note">B4</span></td><td>Quarter, Dotted Quarter</td><td>1.0 + 1.5 = 2.5</td><td>17.250s – 19.125s</td></tr>
+                        <tr><td><strong>M9</strong></td><td>A4,E | G4,Q | B4,Q</td><td><span class="tag-note">A4</span> <span class="tag-note">G4</span> <span class="tag-note">B4</span></td><td>Eighth, Quarter, Quarter</td><td>0.5 + 1.0 + 1.0 = 2.5</td><td>19.125s – 21.000s</td></tr>
+                        <tr><td><strong>M10</strong></td><td>C5,H | C4,Q | C4,Q</td><td><span class="tag-note">C5</span> <span class="tag-note">C4</span> <span class="tag-note">C4</span></td><td>Half, Quarter, Quarter</td><td>2.0 + 1.0 + 1.0 = 4.0</td><td>21.000s – 24.000s</td></tr>
+                        <tr><td><strong>M11</strong></td><td>C5,DH</td><td><span class="tag-note">C5</span></td><td>Dotted Half</td><td>3.0</td><td>24.000s – 26.250s</td></tr>
+                        <tr><td><strong>M12</strong></td><td>A4,Q | F4,Q | G4,DH</td><td><span class="tag-note">A4</span> <span class="tag-note">F4</span> <span class="tag-note">G4</span></td><td>Quarter, Quarter, Dotted Half</td><td>1.0 + 1.0 + 3.0 = 5.0</td><td>26.250s – 30.000s</td></tr>
+                        <tr><td><strong>M13</strong></td><td>E4,Q | C4,Q | F4,Q</td><td><span class="tag-note">E4</span> <span class="tag-note">C4</span> <span class="tag-note">F4</span></td><td>Quarter, Quarter, Quarter</td><td>1.0 + 1.0 + 1.0 = 3.0</td><td>30.000s – 32.250s</td></tr>
+                        <tr><td><strong>M14</strong></td><td>G4,Q | E4,Q | C4,Q</td><td><span class="tag-note">G4</span> <span class="tag-note">E4</span> <span class="tag-note">C4</span></td><td>Quarter, Quarter, Quarter</td><td>1.0 + 1.0 + 1.0 = 3.0</td><td>32.250s – 34.500s</td></tr>
+                        <tr><td><strong>M15</strong></td><td>C4,Q | C5,DH</td><td><span class="tag-note">C4</span> <span class="tag-note">C5</span></td><td>Quarter, Dotted Half</td><td>1.0 + 3.0 = 4.0</td><td>34.500s – 37.500s</td></tr>
+                        <tr><td><strong>M16</strong></td><td>A4,Q | F4,Q | G4,DH</td><td><span class="tag-note">A4</span> <span class="tag-note">F4</span> <span class="tag-note">G4</span></td><td>Quarter, Quarter, Dotted Half</td><td>1.0 + 1.0 + 3.0 = 5.0</td><td>37.500s – 41.250s</td></tr>
+                        <tr><td><strong>M17</strong></td><td>D4,Q | E4,Q | C4,H</td><td><span class="tag-note">D4</span> <span class="tag-note">E4</span> <span class="tag-note">C4</span></td><td>Quarter, Quarter, Half</td><td>1.0 + 1.0 + 2.0 = 4.0</td><td>41.250s – 44.250s</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NOTE_FREQS = {
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+            'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25
+        };
+        const DURATION_BEATS = {
+            'E': 0.5, 'Q': 1.0, 'DQ': 1.5, 'H': 2.0, 'DH': 3.0
+        };
+        const SEQUENCE = [
+            ['E4', 'Q'], ['E4', 'Q'], ['G4', 'DQ'],
+            ['E4', 'E'], ['E4', 'Q'], ['G4', 'H'],
+            ['E4', 'Q'], ['G4', 'Q'], ['C5', 'DQ'],
+            ['B4', 'E'], ['A4', 'Q'], ['A4', 'Q'],
+            ['G4', 'H'], ['D4', 'Q'], ['E4', 'Q'],
+            ['F4', 'DQ'], ['D4', 'E'],
+            ['E4', 'Q'], ['F4', 'H'], ['D4', 'Q'],
+            ['F4', 'Q'], ['B4', 'DQ'],
+            ['A4', 'E'], ['G4', 'Q'], ['B4', 'Q'],
+            ['C5', 'H'], ['C4', 'Q'], ['C4', 'Q'],
+            ['C5', 'DH'],
+            ['A4', 'Q'], ['F4', 'Q'], ['G4', 'DH'],
+            ['E4', 'Q'], ['C4', 'Q'], ['F4', 'Q'],
+            ['G4', 'Q'], ['E4', 'Q'], ['C4', 'Q'],
+            ['C4', 'Q'], ['C5', 'DH'],
+            ['A4', 'Q'], ['F4', 'Q'], ['G4', 'DH'],
+            ['D4', 'Q'], ['E4', 'Q'], ['C4', 'H']
+        ];
+
+        let audioCtx = null;
+        let activeOscs = [];
+        let isLivePlaying = false;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function stopLiveWebAudio() {
+            activeOscs.forEach(node => {
+                try {
+                    if (node.stop) node.stop();
+                    node.disconnect();
+                } catch (e) {}
+            });
+            activeOscs = [];
+            isLivePlaying = false;
+            document.getElementById('live-status').innerText = 'Stopped';
+        }
+
+        function playLiveWebAudio(timbre) {
+            stopLiveWebAudio();
+            const ctx = getAudioContext();
+            isLivePlaying = true;
+            document.getElementById('live-status').innerText = 'Playing ' + (timbre === 'piano' ? 'Grand Piano...' : 'Music Box...');
+
+            const beatSec = 60.0 / 80.0; // 0.75s
+            let curTime = ctx.currentTime + 0.1;
+
+            // Simple room reverb node
+            const convolver = ctx.createConvolver();
+            const rate = ctx.sampleRate;
+            const len = rate * 1.5;
+            const imp = ctx.createBuffer(2, len, rate);
+            for (let c = 0; c < 2; c++) {
+                const d = imp.getChannelData(c);
+                for (let i = 0; i < len; i++) {
+                    d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (rate * 0.45));
+                }
+            }
+            convolver.buffer = imp;
+            const wet = ctx.createGain();
+            wet.gain.value = 0.25;
+            convolver.connect(wet);
+            wet.connect(ctx.destination);
+            activeOscs.push(convolver, wet);
+
+            SEQUENCE.forEach(([noteName, durKey]) => {
+                const freq = NOTE_FREQS[noteName];
+                const durSec = DURATION_BEATS[durKey] * beatSec;
+
+                if (freq) {
+                    const noteGain = ctx.createGain();
+                    noteGain.gain.setValueAtTime(0.0001, curTime);
+                    noteGain.gain.linearRampToValueAtTime(0.24, curTime + 0.015);
+                    noteGain.gain.exponentialRampToValueAtTime(0.0001, curTime + durSec * 1.3);
+
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(timbre === 'piano' ? 1200 : 3400, curTime);
+
+                    const osc = ctx.createOscillator();
+                    osc.type = timbre === 'piano' ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(freq, curTime);
+
+                    osc.connect(filter);
+                    filter.connect(noteGain);
+                    noteGain.connect(ctx.destination);
+                    noteGain.connect(convolver);
+
+                    osc.start(curTime);
+                    osc.stop(curTime + durSec * 1.35);
+                    activeOscs.push(osc, filter, noteGain);
+                }
+
+                curTime += durSec;
+            });
+
+            setTimeout(() => {
+                if (isLivePlaying) {
+                    document.getElementById('live-status').innerText = 'Finished';
+                    isLivePlaying = false;
+                }
+            }, (curTime - ctx.currentTime) * 1000);
+        }
+    </script>
+</body>
+</html>
