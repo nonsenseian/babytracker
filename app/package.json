@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:e2e": "node src/test/e2e-headless.js",
     "ios:sync": "npm run build && npx cap sync ios",
-    "ios:open": "npx cap open ios"
+    "ios:open": "npx cap open ios",
+    "postinstall": "node scripts/patch-speech-plugin.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
