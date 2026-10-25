@@ -34,7 +34,6 @@ const MainLayout: React.FC = () => {
         settings,
         updateSettings,
         activeChild,
-        selectedDate,
         startTimer,
         pauseTimer,
         resetTimer,
@@ -84,12 +83,16 @@ const MainLayout: React.FC = () => {
     };
 
     const handleLogTimer = (type: keyof TimersState, elapsedMinutes: number, meta?: any) => {
+        const timestamp = meta?.startTime || Date.now();
+        const d = new Date(timestamp);
+        const startDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
         if (type === 'sleep') {
-            addLog({ category: 'sleep', durationMinutes: elapsedMinutes, isNightSleep: false });
+            addLog({ category: 'sleep', durationMinutes: elapsedMinutes, isNightSleep: false, timestamp, dateStr: startDateStr });
         } else if (type === 'tummy') {
-            addLog({ category: 'tummy', durationMinutes: elapsedMinutes });
+            addLog({ category: 'tummy', durationMinutes: elapsedMinutes, timestamp, dateStr: startDateStr });
         } else if (type === 'pump') {
-            addLog({ category: 'pumping', durationMinutes: elapsedMinutes, amountMl: settings.defaultPumpAmount || 100 });
+            addLog({ category: 'pumping', durationMinutes: elapsedMinutes, amountMl: settings.defaultPumpAmount || 100, timestamp, dateStr: startDateStr });
         } else if (type === 'feed') {
             const isNursing = meta?.subType === 'nursing';
             addLog({
@@ -97,7 +100,9 @@ const MainLayout: React.FC = () => {
                 durationMinutes: elapsedMinutes,
                 subType: meta?.subType || 'formula',
                 amountMl: isNursing ? 0 : (settings.defaultFeedVolume || 60),
-                notes: meta?.notes || (isNursing ? `Nursing session (${elapsedMinutes} mins)` : undefined)
+                notes: meta?.notes || (isNursing ? `Nursing session (${elapsedMinutes} mins)` : undefined),
+                timestamp,
+                dateStr: startDateStr
             });
         }
     };
@@ -106,7 +111,8 @@ const MainLayout: React.FC = () => {
         const cat = type === 'sleep' ? 'sleep' : type === 'tummy' ? 'tummy' : type === 'pump' ? 'pumping' : 'feeding';
         setSelectedCategory(cat);
         const isNursing = meta?.subType === 'nursing';
-        const d = new Date();
+        const timestamp = meta?.startTime || Date.now();
+        const d = new Date(timestamp);
         const localDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         setEditingLog({
             id: '',
@@ -116,9 +122,9 @@ const MainLayout: React.FC = () => {
             durationMinutes: elapsedMinutes,
             amountMl: cat === 'pumping' ? (settings.defaultPumpAmount || 100) : (cat === 'feeding' && !isNursing ? (settings.defaultFeedVolume || 60) : undefined),
             notes: meta?.notes,
-            timestamp: Date.now(),
+            timestamp,
             timeStr: d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-            dateStr: selectedDate || localDateStr
+            dateStr: localDateStr
         } as any);
         setIsLogModalOpen(true);
     };
@@ -132,9 +138,11 @@ const MainLayout: React.FC = () => {
                     onStartNapTimer={() => startTimer('sleep')}
                     onPauseNapTimer={() => pauseTimer('sleep')}
                     onStopNapTimer={() => {
-                        const elapsedMinutes = Math.max(1, Math.round(timers.sleep.elapsedSeconds / 60));
+                        const session = timers.sleep;
+                        const elapsedMinutes = Math.max(1, Math.round(session.elapsedSeconds / 60));
+                        const startTime = session.startTime || (Date.now() - session.elapsedSeconds * 1000);
                         pauseTimer('sleep');
-                        handleLogTimer('sleep', elapsedMinutes);
+                        handleLogTimer('sleep', elapsedMinutes, { startTime });
                         resetTimer('sleep');
                     }}
                     onLogNapModal={() => handleEditTimer('sleep', 45)}

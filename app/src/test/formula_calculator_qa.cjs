@@ -20,12 +20,15 @@ async function runFormulaCalculatorQA() {
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
-    const context = await browser.newContext({ ...iPhoneDevice });
+    const context = await browser.newContext({
+        ...iPhoneDevice,
+        ignoreHTTPSErrors: true
+    });
     const page = await context.newPage();
 
     try {
-        console.log('Navigating to http://localhost:5173/ ...');
-        await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded', timeout: 15000 });
+        console.log('Navigating to https://localhost:5173/ ...');
+        await page.goto('https://localhost:5173/', { waitUntil: 'domcontentloaded', timeout: 15000 });
         await page.waitForSelector('header', { timeout: 10000 });
 
         // Switch to Metrics & Graphs tab
@@ -120,21 +123,21 @@ async function runFormulaCalculatorQA() {
             console.log(`Saved full element screenshot: ${elementShot}`);
         }
 
-        // Test 5: Switch to Arcade Theme and verify rendering & alignment
-        console.log('\n--- TEST 5: Verify Arcade Theme Layout ---');
+        // Test 5: Switch to Dark Theme and verify rendering & alignment
+        console.log('\n--- TEST 5: Verify Dark Theme Layout ---');
         await page.evaluate(() => window.scrollTo(0, 0));
-        await page.selectOption('select[aria-label="Theme selector"]', 'pixelated-arcade');
+        await page.selectOption('select[aria-label="Theme selector"]', 'simple-moonlight');
         await new Promise(r => setTimeout(r, 400));
 
         await calcCard.scrollIntoViewIfNeeded();
         await new Promise(r => setTimeout(r, 400));
 
         const hasHOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-        console.log(`Arcade Theme No Horizontal Overflow: ${!hasHOverflow ? 'PASS ✅' : 'FAIL ❌'}`);
+        console.log(`Dark Theme No Horizontal Overflow: ${!hasHOverflow ? 'PASS ✅' : 'FAIL ❌'}`);
 
-        const shotArcade = path.join(artifactDir, 'iphone_formula_calculator_arcade.png');
-        await page.screenshot({ path: shotArcade });
-        console.log(`Saved screenshot: ${shotArcade}`);
+        const shotDark = path.join(artifactDir, 'iphone_formula_calculator_dark.png');
+        await page.screenshot({ path: shotDark });
+        console.log(`Saved screenshot: ${shotDark}`);
 
         console.log('\n====================================================');
         console.log('ALL FORMULA CALCULATOR TESTS PASSED WITH 100% SUCCESS!');

@@ -56,6 +56,16 @@ export const PediatricGuardrails = {
                 return `Head circumference (${log.headCircumference} in) is outside realistic bounds (8.0 - 25.0 inches).`;
             }
         }
+        if (log.category === 'health' || (log.category as string) === 'vitals') {
+            if (log.temperature !== undefined) {
+                const isC = log.tempUnit === 'C';
+                const min = isC ? 32.0 : 90.0;
+                const max = isC ? 43.0 : 109.5;
+                if (log.temperature < min || log.temperature > max) {
+                    return `Temperature (${log.temperature}°${log.tempUnit || 'F'}) is outside plausible pediatric physiological range (${min}° - ${max}°).`;
+                }
+            }
+        }
         return null;
     }
 };

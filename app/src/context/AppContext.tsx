@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import type { ActivityLog } from '../types/log';
 import type { ChildProfile, Caregiver } from '../types/profile';
 import type { ActiveTab, MeasurementUnit, TimersState, AppSettings } from '../types/state';
@@ -8,6 +8,18 @@ import type { AuthSession } from '../types/auth';
 import { syncService } from '../engines/syncEngine';
 import { VoiceAssistant } from '../engines/voiceEngine';
 import { AuthEngine } from '../engines/authEngine';
+import { SoundEngine } from '../engines/soundMachine';
+
+export function sanitizeInput(input?: string | null): string {
+    if (!input || typeof input !== 'string') return '';
+    return input
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<[^>]+>/g, '')
+        .replace(/javascript:/gi, '')
+        .replace(/vbscript:/gi, '')
+        .replace(/on\w+=/gi, '')
+        .trim();
+}
 
 interface AppContextType {
     authSession: AuthSession | null;
@@ -218,6 +230,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         defaultTummyMinutes: 5,
         feedIntervalHours: 3.0,
         pumpIntervalHours: 3.0,
+        maxFeedTimerMinutes: 60,
+        maxPumpTimerMinutes: 60,
+        maxTummyTimerMinutes: 30,
+        maxSleepTimerMinutes: 720,
         isLayoutEditMode: false,
         hiddenSections: [],
         sectionOrder: ['timers', 'quick-logging', 'timeline-ribbon', 'activity-log', 'sound-machine', 'sweet-nap'],
@@ -260,6 +276,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         });
     };
 
+    const settingsRef = useRef<AppSettings>(settings);
+    settingsRef.current = settings;
+    const addLogRef = useRef<any>(null);
+
     const getTodayLocalDateStr = () => {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -298,8 +318,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     const addAppointment = (aptData: Omit<BabyAppointment, 'id' | 'createdAt' | 'updatedAt'>) => {
+        if (appointments.length >= 100) {
+            setRateLimitWarning('⚠️ Appointment Limit Reached: Maximum 100 scheduled checkups and appointments stored.');
+            return;
+        }
         const newApt: BabyAppointment = {
             ...aptData,
+            title: sanitizeInput(aptData.title).slice(0, 100) || 'Checkup',
+            location: sanitizeInput(aptData.location || '').slice(0, 120),
+            doctorName: sanitizeInput(aptData.doctorName || '').slice(0, 80),
+            notes: sanitizeInput(aptData.notes || '').slice(0, 1000),
+            durationMinutes: Math.min(480, Math.max(5, Number(aptData.durationMinutes) || 30)),
             id: 'apt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
             createdAt: Date.now(),
             updatedAt: Date.now()
@@ -308,7 +337,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const updateAppointment = (updated: BabyAppointment) => {
-        setAppointments(prev => prev.map(a => a.id === updated.id ? { ...updated, updatedAt: Date.now() } : a));
+        const sanitized: BabyAppointment = {
+            ...updated,
+            title: sanitizeInput(updated.title).slice(0, 100) || 'Checkup',
+            location: sanitizeInput(updated.location || '').slice(0, 120),
+            doctorName: sanitizeInput(updated.doctorName || '').slice(0, 80),
+            notes: sanitizeInput(updated.notes || '').slice(0, 1000),
+            durationMinutes: Math.min(480, Math.max(5, Number(updated.durationMinutes) || 30)),
+            updatedAt: Date.now()
+        };
+        setAppointments(prev => prev.map(a => a.id === sanitized.id ? sanitized : a));
     };
 
     const deleteAppointment = (id: string) => {
@@ -316,8 +354,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const setRoomId = (newRoom: string) => {
-        syncService.setRoomId(newRoom);
-        setRoomIdState(newRoom);
+        const sanitized = (newRoom || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+        if (sanitized.length >= 4) {
+            syncService.setRoomId(sanitized);
+            setRoomIdState(sanitized);
+        }
     };
 
     // Save state changes to localStorage and broadcast via BroadcastChannel
@@ -330,8 +371,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, [activeChildId]);
 
     useEffect(() => {
-        localStorage.setItem('bt_app_logs', JSON.stringify(logs));
-        syncService.broadcastState({ logs, activeChildId, appointments, children: childrenList, caregivers });
+        // Enforce maximum 3,000 historical logs in storage to prevent localStorage quota crash
+        const cappedLogs = logs.length > 3000 ? logs.slice(0, 3000) : logs;
+        localStorage.setItem('bt_app_logs', JSON.stringify(cappedLogs));
+        syncService.broadcastState({ logs: cappedLogs, activeChildId, appointments, children: childrenList, caregivers });
     }, [logs, activeChildId]);
 
     useEffect(() => {
@@ -462,6 +505,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     useEffect(() => {
         const updateAllRunningTimers = () => {
             const now = Date.now();
+            const curSettings = settingsRef.current;
+            const cutoffConfigs: Record<keyof TimersState, { maxMinutes: number; maxSeconds: number; label: string }> = {
+                feed: {
+                    maxMinutes: curSettings.maxFeedTimerMinutes || 60,
+                    maxSeconds: (curSettings.maxFeedTimerMinutes || 60) * 60,
+                    label: 'Feed'
+                },
+                pump: {
+                    maxMinutes: curSettings.maxPumpTimerMinutes || 60,
+                    maxSeconds: (curSettings.maxPumpTimerMinutes || 60) * 60,
+                    label: 'Pump'
+                },
+                tummy: {
+                    maxMinutes: curSettings.maxTummyTimerMinutes || 30,
+                    maxSeconds: (curSettings.maxTummyTimerMinutes || 30) * 60,
+                    label: 'Tummy Time'
+                },
+                sleep: {
+                    maxMinutes: curSettings.maxSleepTimerMinutes || 720,
+                    maxSeconds: (curSettings.maxSleepTimerMinutes || 720) * 60,
+                    label: 'Sleep'
+                }
+            };
+
+            const autoCutoffEvents: Array<{
+                childId: string;
+                key: keyof TimersState;
+                durationMinutes: number;
+                startTime: number;
+                label: string;
+            }> = [];
+
             setChildTimersMap(prev => {
                 let changed = false;
                 const next = { ...prev };
@@ -474,10 +549,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                             const since = session.runningSince || session.startTime || now;
                             const base = Number.isFinite(session.baseSeconds) ? session.baseSeconds! : (Number.isFinite(session.elapsedSeconds) ? session.elapsedSeconds : 0);
                             const delta = Math.floor((now - since) / 1000);
-                            const exactElapsed = base + (Number.isFinite(delta) ? Math.max(0, delta) : 0);
-                            if (session.elapsedSeconds !== exactElapsed || !session.runningSince) {
+                            let exactElapsed = base + (Number.isFinite(delta) ? Math.max(0, delta) : 0);
+
+                            const config = cutoffConfigs[k];
+                            const ceiling = config ? config.maxSeconds : 3600;
+
+                            if (exactElapsed >= ceiling) {
+                                // Cutoff reached: automatically stop, cut itself off, reset timer to 0, and record cutoff event
+                                timers[k] = {
+                                    isRunning: false,
+                                    startTime: null,
+                                    elapsedSeconds: 0,
+                                    baseSeconds: 0,
+                                    runningSince: null,
+                                    discardMilkStartTime: k === 'feed' ? null : session.discardMilkStartTime
+                                };
+                                childChanged = true;
+                                autoCutoffEvents.push({
+                                    childId: cId,
+                                    key: k,
+                                    durationMinutes: config.maxMinutes,
+                                    startTime: session.startTime || (now - ceiling * 1000),
+                                    label: config.label
+                                });
+                            } else if (session.elapsedSeconds !== exactElapsed || !session.runningSince) {
                                 timers[k] = {
                                     ...session,
+                                    isRunning: true,
                                     baseSeconds: base,
                                     runningSince: since,
                                     elapsedSeconds: exactElapsed
@@ -493,6 +591,61 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 });
                 return changed ? next : prev;
             });
+
+            // Process auto-cutoff sessions: log into activity history, alert user, and play chime
+            if (autoCutoffEvents.length > 0 && addLogRef.current) {
+                autoCutoffEvents.forEach(evt => {
+                    if (evt.key === 'feed') {
+                        addLogRef.current({
+                            childId: evt.childId,
+                            category: 'feeding',
+                            durationMinutes: evt.durationMinutes,
+                            subType: curSettings.defaultFeedType || 'formula',
+                            amountMl: curSettings.defaultFeedVolume || 60,
+                            timestamp: evt.startTime,
+                            notes: `Feed session auto-stopped & logged (reached ${evt.durationMinutes}m safety cutoff)`,
+                            skipAudioAnnouncement: true
+                        });
+                    } else if (evt.key === 'pump') {
+                        addLogRef.current({
+                            childId: evt.childId,
+                            category: 'pumping',
+                            durationMinutes: evt.durationMinutes,
+                            amountMl: curSettings.defaultPumpAmount || 100,
+                            timestamp: evt.startTime,
+                            notes: `Pumping session auto-stopped & logged (reached ${evt.durationMinutes}m safety cutoff)`,
+                            skipAudioAnnouncement: true
+                        });
+                    } else if (evt.key === 'sleep') {
+                        addLogRef.current({
+                            childId: evt.childId,
+                            category: 'sleep',
+                            durationMinutes: evt.durationMinutes,
+                            isNightSleep: false,
+                            timestamp: evt.startTime,
+                            notes: `Sleep session auto-stopped & logged (reached ${evt.durationMinutes}m safety cutoff)`,
+                            skipAudioAnnouncement: true
+                        });
+                    } else if (evt.key === 'tummy') {
+                        addLogRef.current({
+                            childId: evt.childId,
+                            category: 'tummy',
+                            durationMinutes: evt.durationMinutes,
+                            timestamp: evt.startTime,
+                            notes: `Tummy time auto-stopped & logged (reached ${evt.durationMinutes}m safety cutoff)`,
+                            skipAudioAnnouncement: true
+                        });
+                    }
+
+                    setRateLimitWarning(`⏱️ Safety Cutoff Reached: ${evt.label} timer auto-stopped and logged after reaching maximum limit (${evt.durationMinutes} min).`);
+
+                    if (curSettings.reminderChimes) {
+                        try {
+                            SoundEngine.playChime('reminder');
+                        } catch (e) {}
+                    }
+                });
+            }
         };
 
         const interval = setInterval(updateAllRunningTimers, 1000);
@@ -542,7 +695,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const localMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
         const localDay = String(dateObj.getDate()).padStart(2, '0');
         const localDateStr = `${localYear}-${localMonth}-${localDay}`;
-        const dateStr = logData.dateStr || (selectedDate || localDateStr);
+        // If explicit dateStr or explicit timestamp is provided (e.g. overnight timer started at 11:50pm), anchor to start date!
+        const dateStr = logData.dateStr || (logData.timestamp ? localDateStr : (selectedDate || localDateStr));
+
+        // De-duplication guard: Never duplicate identical timer or quick logs within 2.5 seconds
+        const isDuplicate = logs.some(l =>
+            (l.childId === targetChildId || (!l.childId && targetChildId === 'child_1')) &&
+            l.category === logData.category &&
+            Math.abs((l.timestamp || 0) - timestamp) < 2500 &&
+            l.durationMinutes === logData.durationMinutes &&
+            l.amountMl === logData.amountMl
+        );
+        if (isDuplicate) {
+            return null;
+        }
 
         // Clinical safety rate limits per child per day to prevent spam clicking / bad actors
         const childTodayLogs = logs.filter(l => (l.childId === targetChildId || (!l.childId && targetChildId === 'child_1')) && l.dateStr === dateStr);
@@ -581,12 +747,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const displayHr = hours % 12 || 12;
         const timeStr = `${displayHr}:${mins} ${ampm}`;
 
+        const sanitizedNotes = logData.notes ? sanitizeInput(logData.notes).slice(0, 1000) : undefined;
+
         const newLog: ActivityLog = {
             id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
             childId: targetChildId,
             timeStr,
             updatedAt: Date.now(),
             ...logData,
+            notes: sanitizedNotes,
+            foodName: logData.foodName ? sanitizeInput(logData.foodName).slice(0, 100) : undefined,
+            medicationName: logData.medicationName ? sanitizeInput(logData.medicationName).slice(0, 100) : undefined,
+            dosage: logData.dosage ? sanitizeInput(logData.dosage).slice(0, 100) : undefined,
             timestamp,
             dateStr
         } as ActivityLog;
@@ -601,8 +773,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return newLog;
     };
 
+    addLogRef.current = addLog;
+
     const updateLog = (log: ActivityLog) => {
-        setLogs(prev => prev.map(l => (l.id === log.id ? { ...log, updatedAt: Date.now() } : l)));
+        const sanitized: ActivityLog = {
+            ...log,
+            notes: log.notes ? sanitizeInput(log.notes).slice(0, 1000) : undefined,
+            foodName: log.foodName ? sanitizeInput(log.foodName).slice(0, 100) : undefined,
+            medicationName: log.medicationName ? sanitizeInput(log.medicationName).slice(0, 100) : undefined,
+            dosage: log.dosage ? sanitizeInput(log.dosage).slice(0, 100) : undefined,
+            updatedAt: Date.now()
+        };
+        setLogs(prev => prev.map(l => (l.id === sanitized.id ? sanitized : l)));
     };
 
     const deleteLog = (id: string) => {
@@ -614,8 +796,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (!exists && childrenList.length >= 6) {
             return { success: false, error: 'Pro tier limit reached. You can add up to 6 children.' };
         }
+        const sanitizedChild: ChildProfile = {
+            ...child,
+            name: sanitizeInput(child.name).slice(0, 50) || 'Baby',
+            pediatrician: child.pediatrician ? sanitizeInput(child.pediatrician).slice(0, 80) : undefined,
+            clinic: child.clinic ? sanitizeInput(child.clinic).slice(0, 100) : undefined,
+            allergies: child.allergies ? sanitizeInput(child.allergies).slice(0, 200) : undefined
+        };
         setChildrenList(prev => {
-            const next = exists ? prev.map(c => (c.id === child.id ? child : c)) : [...prev, child];
+            const next = exists ? prev.map(c => (c.id === sanitizedChild.id ? sanitizedChild : c)) : [...prev, sanitizedChild];
             return next;
         });
         return { success: true };

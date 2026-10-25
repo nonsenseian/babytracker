@@ -294,12 +294,7 @@ export const Header: React.FC<HeaderProps> = ({
 
     const themesList: { id: AppTheme; label: string }[] = [
         { id: 'simple-daylight', label: 'Light' },
-        { id: 'simple-moonlight', label: 'Dark' },
-        { id: 'soft-pastel', label: 'Pastel' },
-        { id: 'forest-sage', label: 'Forest' },
-        { id: 'high-contrast-dark', label: 'High contrast Dark' },
-        { id: 'vintage-warmth', label: 'Soil' },
-        { id: 'pixelated-arcade', label: 'Arcade' }
+        { id: 'simple-moonlight', label: 'Dark' }
     ];
 
     // Calculate milestone incentive text

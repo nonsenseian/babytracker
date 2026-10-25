@@ -646,9 +646,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                             <div>
-                                <div style={{ fontSize: '13px', fontWeight: 700 }}>Realistic Spoken Voice Reminders</div>
+                                <div style={{ fontSize: '13px', fontWeight: 700 }}>Voice Reminders</div>
                                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                                    Speaks gentle maternal voice notification when feedings or pumps are due
+                                    Spoken alerts when feedings or pumps are due
                                 </div>
                             </div>
                             <input
@@ -661,9 +661,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
                         <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                             <div>
-                                <div style={{ fontSize: '13px', fontWeight: 700 }}>Audio Chime Sound</div>
+                                <div style={{ fontSize: '13px', fontWeight: 700 }}>Audio Chime</div>
                                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                                    Plays harmonic ding-dong chime on alert due times
+                                    Plays chime for reminder due times
                                 </div>
                             </div>
                             <input
@@ -690,7 +690,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                 }}
                             >
                                 <Mic size={14} style={{ color: '#f43f5e' }} />
-                                <span>Test Voice Feed Reminder</span>
+                                <span>Test Feed Voice</span>
                             </button>
 
                             <button
@@ -707,7 +707,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                 }}
                             >
                                 <Mic size={14} style={{ color: '#9333ea' }} />
-                                <span>Test Voice Pump Reminder</span>
+                                <span>Test Pump Voice</span>
                             </button>
 
                             <button
@@ -741,130 +741,404 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                         <Sliders size={18} style={{ color: '#38bdf8' }} />
                         <h3 style={{ fontSize: '14px', fontWeight: 800 }}>
-                            Category Default Values
+                            Category Default Values & Timer Safety Cutoffs
                         </h3>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
                         {/* Feed Volume Default */}
-                        <div>
-                            <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
-                                Default Feed Volume ({unit})
-                            </label>
-                            <input
-                                type="number"
-                                min={10}
-                                max={500}
-                                step={5}
-                                value={settings.defaultFeedVolume}
-                                onChange={(e) => updateSettings({ defaultFeedVolume: parseInt(e.target.value) || 60 })}
-                                className="input-field"
-                                style={{ width: '100%', padding: '8px 10px', fontSize: '13px' }}
-                            />
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Default Feed Volume ({unit})
+                                </label>
+                                <input
+                                    type="number"
+                                    min={10}
+                                    max={500}
+                                    step={5}
+                                    value={settings.defaultFeedVolume}
+                                    onChange={(e) => updateSettings({ defaultFeedVolume: parseInt(e.target.value) || 60 })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
                                 Pre-fills formula & bottle quick logging
                             </span>
                         </div>
 
                         {/* Default Feed Type */}
-                        <div>
-                            <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
-                                Default Feed Type
-                            </label>
-                            <select
-                                value={settings.defaultFeedType}
-                                onChange={(e) => updateSettings({ defaultFeedType: e.target.value as any })}
-                                className="input-field"
-                                style={{ width: '100%', padding: '8px 10px', fontSize: '13px' }}
-                            >
-                                <option value="formula">Formula Bottle</option>
-                                <option value="breastmilk">Breastmilk Bottle</option>
-                                <option value="nursing">Nursing Session</option>
-                            </select>
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Default Feed Type
+                                </label>
+                                <select
+                                    value={settings.defaultFeedType}
+                                    onChange={(e) => updateSettings({ defaultFeedType: e.target.value as any })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                >
+                                    <option value="formula">Formula Bottle</option>
+                                    <option value="breastmilk">Breastmilk Bottle</option>
+                                    <option value="nursing">Nursing Session</option>
+                                </select>
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
                                 Primary nutritional source
                             </span>
                         </div>
 
                         {/* Default Pump Amount */}
-                        <div>
-                            <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
-                                Default Pump Yield ({unit})
-                            </label>
-                            <input
-                                type="number"
-                                min={10}
-                                max={500}
-                                step={10}
-                                value={settings.defaultPumpAmount}
-                                onChange={(e) => updateSettings({ defaultPumpAmount: parseInt(e.target.value) || 100 })}
-                                className="input-field"
-                                style={{ width: '100%', padding: '8px 10px', fontSize: '13px' }}
-                            />
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Default Pump Yield ({unit})
+                                </label>
+                                <input
+                                    type="number"
+                                    min={10}
+                                    max={500}
+                                    step={10}
+                                    value={settings.defaultPumpAmount}
+                                    onChange={(e) => updateSettings({ defaultPumpAmount: parseInt(e.target.value) || 100 })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
                                 Standard pumped yield
                             </span>
                         </div>
 
                         {/* Nap Target Minutes */}
-                        <div>
-                            <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
-                                Default Nap Target (min)
-                            </label>
-                            <input
-                                type="number"
-                                min={15}
-                                max={240}
-                                step={15}
-                                value={settings.defaultNapMinutes}
-                                onChange={(e) => updateSettings({ defaultNapMinutes: parseInt(e.target.value) || 60 })}
-                                className="input-field"
-                                style={{ width: '100%', padding: '8px 10px', fontSize: '13px' }}
-                            />
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Default Nap Target (min)
+                                </label>
+                                <input
+                                    type="number"
+                                    min={15}
+                                    max={240}
+                                    step={15}
+                                    value={settings.defaultNapMinutes}
+                                    onChange={(e) => updateSettings({ defaultNapMinutes: parseInt(e.target.value) || 60 })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
                                 Preset sleep timer target
                             </span>
                         </div>
 
                         {/* Feed Reminder Interval (hours) */}
-                        <div>
-                            <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
-                                Feed Reminder Interval (hrs)
-                            </label>
-                            <input
-                                id="settings-feed-interval-input"
-                                type="number"
-                                min={1}
-                                max={12}
-                                step={0.5}
-                                value={settings.feedIntervalHours || 3.0}
-                                onChange={(e) => updateSettings({ feedIntervalHours: parseFloat(e.target.value) || 3.0 })}
-                                className="input-field"
-                                style={{ width: '100%', padding: '8px 10px', fontSize: '13px' }}
-                            />
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Feed Reminder Interval (hrs)
+                                </label>
+                                <input
+                                    id="settings-feed-interval-input"
+                                    type="number"
+                                    min={1}
+                                    max={12}
+                                    step={0.5}
+                                    value={settings.feedIntervalHours || 3.0}
+                                    onChange={(e) => updateSettings({ feedIntervalHours: parseFloat(e.target.value) || 3.0 })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
                                 Default: 3h (anchored to feed start)
                             </span>
                         </div>
 
                         {/* Pump Reminder Interval (hours) */}
-                        <div>
-                            <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
-                                Pump Reminder Interval (hrs)
-                            </label>
-                            <input
-                                id="settings-pump-interval-input"
-                                type="number"
-                                min={1}
-                                max={12}
-                                step={0.5}
-                                value={settings.pumpIntervalHours || 3.0}
-                                onChange={(e) => updateSettings({ pumpIntervalHours: parseFloat(e.target.value) || 3.0 })}
-                                className="input-field"
-                                style={{ width: '100%', padding: '8px 10px', fontSize: '13px' }}
-                            />
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Pump Reminder Interval (hrs)
+                                </label>
+                                <input
+                                    id="settings-pump-interval-input"
+                                    type="number"
+                                    min={1}
+                                    max={12}
+                                    step={0.5}
+                                    value={settings.pumpIntervalHours || 3.0}
+                                    onChange={(e) => updateSettings({ pumpIntervalHours: parseFloat(e.target.value) || 3.0 })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
                                 Default: 3h between sessions
+                            </span>
+                        </div>
+
+                        {/* Max Feed Timer Cutoff */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Max Feed Cutoff (min)
+                                </label>
+                                <input
+                                    id="settings-max-feed-timer-input"
+                                    type="number"
+                                    min={15}
+                                    max={180}
+                                    step={5}
+                                    value={settings.maxFeedTimerMinutes || 60}
+                                    onChange={(e) => updateSettings({ maxFeedTimerMinutes: Math.min(180, Math.max(15, parseInt(e.target.value) || 60)) })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
+                                Auto-stops & logs feed (15–180m, def 60m)
+                            </span>
+                        </div>
+
+                        {/* Max Pump Timer Cutoff */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Max Pump Cutoff (min)
+                                </label>
+                                <input
+                                    id="settings-max-pump-timer-input"
+                                    type="number"
+                                    min={15}
+                                    max={120}
+                                    step={5}
+                                    value={settings.maxPumpTimerMinutes || 60}
+                                    onChange={(e) => updateSettings({ maxPumpTimerMinutes: Math.min(120, Math.max(15, parseInt(e.target.value) || 60)) })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
+                                Auto-stops & logs pump (15–120m, def 60m)
+                            </span>
+                        </div>
+
+                        {/* Max Tummy Timer Cutoff */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Max Tummy Cutoff (min)
+                                </label>
+                                <input
+                                    id="settings-max-tummy-timer-input"
+                                    type="number"
+                                    min={5}
+                                    max={60}
+                                    step={5}
+                                    value={settings.maxTummyTimerMinutes || 30}
+                                    onChange={(e) => updateSettings({ maxTummyTimerMinutes: Math.min(60, Math.max(5, parseInt(e.target.value) || 30)) })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
+                                Auto-stops & logs tummy (5–60m, def 30m)
+                            </span>
+                        </div>
+
+                        {/* Max Sleep Timer Cutoff */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            padding: '12px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-color)',
+                            boxSizing: 'border-box'
+                        }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                    display: 'block',
+                                    marginBottom: '6px',
+                                    minHeight: '34px',
+                                    lineHeight: '1.3'
+                                }}>
+                                    Max Sleep Cutoff (min)
+                                </label>
+                                <input
+                                    id="settings-max-sleep-timer-input"
+                                    type="number"
+                                    min={30}
+                                    max={1440}
+                                    step={30}
+                                    value={settings.maxSleepTimerMinutes || 720}
+                                    onChange={(e) => updateSettings({ maxSleepTimerMinutes: Math.min(1440, Math.max(30, parseInt(e.target.value) || 720)) })}
+                                    className="input-field"
+                                    style={{ width: '100%', height: '38px', padding: '0 10px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', display: 'block', lineHeight: '1.3' }}>
+                                Auto-stops & logs sleep (30m–24h, def 12h)
                             </span>
                         </div>
                     </div>

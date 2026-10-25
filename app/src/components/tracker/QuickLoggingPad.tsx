@@ -705,7 +705,7 @@ export const QuickLoggingPad: React.FC<QuickLoggingPadProps> = ({ onOpenCustomEn
                                     border: isOver
                                         ? '2px dashed #f59e0b'
                                         : isFlashed
-                                            ? `2px solid ${item.color}`
+                                            ? `1.5px solid ${item.color}`
                                             : settings.isLayoutEditMode
                                                 ? '1px dashed var(--border-color)'
                                                 : '1px solid var(--border-color)',
@@ -714,9 +714,10 @@ export const QuickLoggingPad: React.FC<QuickLoggingPadProps> = ({ onOpenCustomEn
                                         ? 'rgba(245, 158, 11, 0.12)'
                                         : isFlashed
                                             ? `${item.color}25`
-                                            : 'transparent',
+                                            : 'linear-gradient(135deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%)',
+                                    boxShadow: isFlashed ? `0 0 12px ${item.color}40` : '0 2px 6px rgba(0, 0, 0, 0.04)',
                                     transform: isFlashed ? 'scale(0.95)' : 'scale(1)',
-                                    transition: 'transform 0.12s ease, border-color 0.12s ease, background 0.12s ease',
+                                    transition: 'transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease',
                                     textAlign: 'center',
                                     minHeight: '76px'
                                 }}

@@ -1,13 +1,6 @@
 export type AppTheme =
     | 'simple-daylight'
-    | 'simple-moonlight'
-    | 'soft-pastel'
-    | 'forest-sage'
-    | 'high-contrast-dark'
-    | 'vintage-warmth'
-    | 'soil'
-    | 'pixelated-arcade'
-    | 'arcade';
+    | 'simple-moonlight';
 
 export type MeasurementUnit = 'mL' | 'oz';
 
@@ -46,6 +39,10 @@ export interface AppSettings {
     defaultTummyMinutes: number;
     feedIntervalHours: number;
     pumpIntervalHours: number;
+    maxFeedTimerMinutes?: number;
+    maxPumpTimerMinutes?: number;
+    maxTummyTimerMinutes?: number;
+    maxSleepTimerMinutes?: number;
     isLayoutEditMode: boolean;
     hiddenSections: string[];
     sectionOrder: string[];

@@ -30,10 +30,17 @@ interface PendingTimerSave {
     isFading: boolean;
 }
 
-// Unified Muted Semantic Timer Button Colors (Calm, non-distracting palette)
-const TIMER_BTN_START = '#16a34a'; // Muted Green for Start (Play)
-const TIMER_BTN_PAUSE = '#ca8a04'; // Muted Warm Yellow/Amber for Pause
-const TIMER_BTN_SAVE = '#2563eb';  // Muted Slate Blue for Save
+// Unified Soft Subtle Gradient Semantic Timer Button Styles (Gentle dual-tone gradients with soft border glows)
+const TIMER_BTN_START = 'linear-gradient(135deg, #15803d 0%, #166534 100%)'; // Soft Forest/Emerald
+const TIMER_BTN_PAUSE = 'linear-gradient(135deg, #b45309 0%, #92400e 100%)'; // Soft Warm Amber
+const TIMER_BTN_SAVE = 'linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%)';  // Soft Slate Blue
+
+const getTimerBtnActionBorder = (isRunning: boolean) =>
+    isRunning ? '1px solid rgba(251, 191, 36, 0.35)' : '1px solid rgba(74, 222, 128, 0.35)';
+const getTimerBtnActionShadow = (isRunning: boolean) =>
+    isRunning ? '0 2px 8px rgba(180, 83, 9, 0.25)' : '0 2px 8px rgba(22, 101, 52, 0.25)';
+const TIMER_BTN_SAVE_BORDER = '1px solid rgba(96, 165, 250, 0.35)';
+const TIMER_BTN_SAVE_SHADOW = '0 2px 8px rgba(30, 58, 138, 0.25)';
 
 // Unified Timer Box Border & Glow Styling (Identical across all timer cards)
 const getTimerBoxStyle = (isRunning: boolean): React.CSSProperties => ({
@@ -142,6 +149,7 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
     const fadeTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const isCommittingRef = useRef<boolean>(false);
 
     const lastNursingTickRef = useRef<number>(Date.now());
 
@@ -178,6 +186,14 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
             window.removeEventListener('pageshow', updateNursingSplit);
         };
     }, [timers.feed.isRunning, feedMode, nursingSide]);
+
+    // Reset nursing split seconds if feed timer is stopped and reset to 0
+    useEffect(() => {
+        if (!timers.feed.isRunning && timers.feed.elapsedSeconds === 0) {
+            setLeftSeconds(0);
+            setRightSeconds(0);
+        }
+    }, [timers.feed.isRunning, timers.feed.elapsedSeconds]);
 
     // Clean up timeouts on unmount
     useEffect(() => {
@@ -351,8 +367,14 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
         let icon = 'formula';
         let meta: any = undefined;
 
+        // Preserve true wall-clock start time (anchoring overnight timers to the day they started)
+        const session = timers[type];
+        const now = Date.now();
+        let sessionSecs = session?.elapsedSeconds || 1;
+
         if (type === 'feed') {
             const secs = feedMode === 'nursing' ? nursingTotalSeconds : timers.feed.elapsedSeconds;
+            sessionSecs = secs;
             elapsedMinutes = Math.max(1, Math.round(secs / 60));
             if (feedMode === 'nursing') {
                 title = 'Nursing Feed';
@@ -379,24 +401,30 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                 meta = { subType: 'formula' };
             }
         } else if (type === 'pump') {
+            sessionSecs = timers.pump.elapsedSeconds;
             elapsedMinutes = Math.max(1, Math.round(timers.pump.elapsedSeconds / 60));
             title = 'Pumping Session';
             subtitle = `${elapsedMinutes}m breast pump session`;
             color = '#a855f7';
             icon = 'pump';
         } else if (type === 'sleep') {
+            sessionSecs = timers.sleep.elapsedSeconds;
             elapsedMinutes = Math.max(1, Math.round(timers.sleep.elapsedSeconds / 60));
             title = 'Nap Sleep';
             subtitle = `${elapsedMinutes}m daytime nap`;
             color = '#6366f1';
             icon = 'sleep';
         } else if (type === 'tummy') {
+            sessionSecs = timers.tummy.elapsedSeconds;
             elapsedMinutes = Math.max(1, Math.round(timers.tummy.elapsedSeconds / 60));
             title = 'Tummy Time';
             subtitle = `${elapsedMinutes}m development play`;
             color = '#10b981';
             icon = 'tummy';
         }
+
+        const actualStartTime = session?.startTime || (now - (sessionSecs * 1000));
+        meta = { ...meta, startTime: actualStartTime };
 
         const newPending: PendingTimerSave = {
             type,
@@ -427,8 +455,11 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
         }, 5000);
     };
 
-    // Commit save to log and reset timer
+    // Commit save to log and reset timer (with deduplication lock)
     const commitPendingSave = (item: PendingTimerSave) => {
+        if (isCommittingRef.current) return;
+        isCommittingRef.current = true;
+
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
         if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
 
@@ -443,6 +474,7 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
         setPendingSave(null);
         setToastMessage(`✅ Saved and logged ${item.title} (${item.elapsedMinutes}m)!`);
         setTimeout(() => setToastMessage(null), 2500);
+        setTimeout(() => { isCommittingRef.current = false; }, 400);
     };
 
     // User clicked Undo: Cancels save completely, leaves timer paused with all seconds preserved
@@ -463,7 +495,9 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
 
     // User clicked Edit Activity: Opens custom modal with prefilled data and resets timer
     const handleEditSave = () => {
-        if (!pendingSave) return;
+        if (!pendingSave || isCommittingRef.current) return;
+        isCommittingRef.current = true;
+
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
         if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
 
@@ -481,6 +515,7 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
             setLeftSeconds(0);
             setRightSeconds(0);
         }
+        setTimeout(() => { isCommittingRef.current = false; }, 400);
     };
 
     const handleResetFeed = () => {
@@ -603,15 +638,17 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                                 flex: 1,
                                 height: '24px',
                                 borderRadius: '6px',
-                                border: nursingSide === 'left' ? '1.5px solid #be123c' : '1px solid var(--border-color)',
-                                background: nursingSide === 'left' ? '#fda4af' : 'var(--bg-surface)',
-                                color: nursingSide === 'left' ? '#881337' : 'var(--text-secondary)',
+                                border: nursingSide === 'left' ? '1px solid rgba(244, 63, 94, 0.45)' : '1px solid var(--border-color)',
+                                background: nursingSide === 'left' ? 'linear-gradient(135deg, #be123c 0%, #9f1239 100%)' : 'var(--bg-surface)',
+                                color: nursingSide === 'left' ? '#ffffff' : 'var(--text-secondary)',
                                 fontSize: '11px',
                                 fontWeight: 800,
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                boxShadow: nursingSide === 'left' ? '0 2px 6px rgba(190, 18, 60, 0.25)' : 'none',
+                                transition: 'all 0.2s ease'
                             }}
                         >
                             Left ({Math.round(leftSeconds / 60)}m)
@@ -624,15 +661,17 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                                 flex: 1,
                                 height: '24px',
                                 borderRadius: '6px',
-                                border: nursingSide === 'right' ? '1.5px solid #be123c' : '1px solid var(--border-color)',
-                                background: nursingSide === 'right' ? '#f43f5e' : 'var(--bg-surface)',
-                                color: nursingSide === 'right' ? '#fff' : 'var(--text-secondary)',
+                                border: nursingSide === 'right' ? '1px solid rgba(244, 63, 94, 0.45)' : '1px solid var(--border-color)',
+                                background: nursingSide === 'right' ? 'linear-gradient(135deg, #be123c 0%, #9f1239 100%)' : 'var(--bg-surface)',
+                                color: nursingSide === 'right' ? '#ffffff' : 'var(--text-secondary)',
                                 fontSize: '11px',
                                 fontWeight: 800,
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                boxShadow: nursingSide === 'right' ? '0 2px 6px rgba(190, 18, 60, 0.25)' : 'none',
+                                transition: 'all 0.2s ease'
                             }}
                         >
                             Right ({Math.round(rightSeconds / 60)}m)
@@ -650,7 +689,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         flex: 1,
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: getTimerBtnActionBorder(timers.feed.isRunning),
+                        boxShadow: getTimerBtnActionShadow(timers.feed.isRunning),
                         background: timers.feed.isRunning ? TIMER_BTN_PAUSE : TIMER_BTN_START,
                         color: '#fff',
                         fontSize: '12px',
@@ -682,7 +722,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         width: '68px',
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: TIMER_BTN_SAVE_BORDER,
+                        boxShadow: TIMER_BTN_SAVE_SHADOW,
                         background: TIMER_BTN_SAVE,
                         color: '#fff',
                         fontSize: '12px',
@@ -692,7 +733,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '4px'
+                        gap: '4px',
+                        transition: 'all 0.2s ease'
                     }}
                 >
                     <Save size={12} />
@@ -765,7 +807,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         flex: 1,
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: getTimerBtnActionBorder(timers.pump.isRunning),
+                        boxShadow: getTimerBtnActionShadow(timers.pump.isRunning),
                         background: timers.pump.isRunning ? TIMER_BTN_PAUSE : TIMER_BTN_START,
                         color: '#fff',
                         fontSize: '12px',
@@ -797,7 +840,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         width: '68px',
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: TIMER_BTN_SAVE_BORDER,
+                        boxShadow: TIMER_BTN_SAVE_SHADOW,
                         background: TIMER_BTN_SAVE,
                         color: '#fff',
                         fontSize: '12px',
@@ -807,7 +851,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '4px'
+                        gap: '4px',
+                        transition: 'all 0.2s ease'
                     }}
                 >
                     <Save size={12} />
@@ -865,7 +910,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         flex: 1,
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: getTimerBtnActionBorder(timers.sleep.isRunning),
+                        boxShadow: getTimerBtnActionShadow(timers.sleep.isRunning),
                         background: timers.sleep.isRunning ? TIMER_BTN_PAUSE : TIMER_BTN_START,
                         color: '#fff',
                         fontSize: '12px',
@@ -874,7 +920,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px'
+                        gap: '6px',
+                        transition: 'all 0.2s ease'
                     }}
                 >
                     {timers.sleep.isRunning ? <Pause size={13} /> : <Play size={13} />}
@@ -888,7 +935,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         width: '68px',
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: TIMER_BTN_SAVE_BORDER,
+                        boxShadow: TIMER_BTN_SAVE_SHADOW,
                         background: TIMER_BTN_SAVE,
                         color: '#fff',
                         fontSize: '12px',
@@ -898,7 +946,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '4px'
+                        gap: '4px',
+                        transition: 'all 0.2s ease'
                     }}
                 >
                     <Save size={12} />
@@ -956,7 +1005,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         flex: 1,
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: getTimerBtnActionBorder(timers.tummy.isRunning),
+                        boxShadow: getTimerBtnActionShadow(timers.tummy.isRunning),
                         background: timers.tummy.isRunning ? TIMER_BTN_PAUSE : TIMER_BTN_START,
                         color: '#fff',
                         fontSize: '12px',
@@ -965,7 +1015,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px'
+                        gap: '6px',
+                        transition: 'all 0.2s ease'
                     }}
                 >
                     {timers.tummy.isRunning ? <Pause size={13} /> : <Play size={13} />}
@@ -979,7 +1030,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         width: '68px',
                         height: '36px',
                         borderRadius: '8px',
-                        border: 'none',
+                        border: TIMER_BTN_SAVE_BORDER,
+                        boxShadow: TIMER_BTN_SAVE_SHADOW,
                         background: TIMER_BTN_SAVE,
                         color: '#fff',
                         fontSize: '12px',
@@ -989,7 +1041,8 @@ export const LiveTimersBar: React.FC<LiveTimersBarProps> = ({ onLogTimer, onEdit
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '4px'
+                        gap: '4px',
+                        transition: 'all 0.2s ease'
                     }}
                 >
                     <Save size={12} />

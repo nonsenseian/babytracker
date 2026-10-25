@@ -16,10 +16,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         try {
             const params = new URLSearchParams(window.location.search);
             const urlTheme = params.get('theme') as AppTheme;
-            if (urlTheme) return urlTheme;
+            if (urlTheme === 'simple-daylight' || urlTheme === 'simple-moonlight') return urlTheme;
         } catch (e) {}
         const saved = localStorage.getItem('bt_app_theme');
-        return (saved as AppTheme) || 'simple-daylight';
+        if (saved === 'simple-moonlight') return 'simple-moonlight';
+        return 'simple-daylight';
     });
 
     const setTheme = (newTheme: AppTheme) => {

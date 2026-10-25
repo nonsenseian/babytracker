@@ -95,37 +95,18 @@ export const MilestoneTrophyCase: React.FC = () => {
             if (!AudioCtx) return;
             const ctx = new AudioCtx();
             const now = ctx.currentTime;
-            const isArcade = document.documentElement.getAttribute('data-theme') === 'pixelated-arcade' ||
-                document.body.getAttribute('data-theme') === 'pixelated-arcade';
-
-            if (isArcade) {
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-                    gain.gain.setValueAtTime(0.12, now + idx * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.12);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(now + idx * 0.08);
-                    osc.stop(now + idx * 0.08 + 0.15);
-                });
-            } else {
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.09);
-                    gain.gain.setValueAtTime(0.18, now + idx * 0.09);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(now + idx * 0.09);
-                    osc.stop(now + idx * 0.09 + 0.4);
-                });
-            }
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+                gain.gain.setValueAtTime(0.18, now + idx * 0.09);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + idx * 0.09);
+                osc.stop(now + idx * 0.09 + 0.4);
+            });
         } catch (e) {}
     }, []);
 

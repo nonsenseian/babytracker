@@ -23,7 +23,8 @@ async function runIPhoneQASuite() {
     });
 
     const context = await browser.newContext({
-        ...iPhoneDevice
+        ...iPhoneDevice,
+        ignoreHTTPSErrors: true
     });
 
     const page = await context.newPage();
@@ -31,9 +32,8 @@ async function runIPhoneQASuite() {
     // Collect QA Test Assertions
     const qaResults = {
         themeNamesPassed: false,
-        arcadeAtBottom: false,
         noHorizontalOverflow: true,
-        layoutParityLightVsArcade: false,
+        layoutParityLightVsDark: false,
         dateCyclingPassed: false,
         calendarHidePassed: false,
         calendarTriggerPassed: false,
@@ -41,8 +41,8 @@ async function runIPhoneQASuite() {
     };
 
     try {
-        console.log('Navigating to http://localhost:5173/ on iPhone simulator...');
-        await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded', timeout: 15000 });
+        console.log('Navigating to https://localhost:5173/ on iPhone simulator...');
+        await page.goto('https://localhost:5173/', { waitUntil: 'domcontentloaded', timeout: 15000 });
         await page.waitForSelector('header', { timeout: 10000 });
 
         // Seed a sample log if needed so all sections have realistic content
@@ -78,26 +78,17 @@ async function runIPhoneQASuite() {
         console.log('Detected Theme Dropdown Options:', themeOptions);
         const expectedThemes = [
             'Light',
-            'Dark',
-            'Pastel',
-            'Forest',
-            'High contrast Dark',
-            'Soil',
-            'Arcade'
+            'Dark'
         ];
 
         const optionLabels = themeOptions.map(o => o.text);
-        const matchesNames = expectedThemes.every(name => optionLabels.includes(name));
-        const lastOption = themeOptions[themeOptions.length - 1];
-        const arcadeIsBottom = lastOption && lastOption.text === 'Arcade';
+        const matchesNames = expectedThemes.every(name => optionLabels.includes(name)) && themeOptions.length === 2;
 
         qaResults.themeNamesPassed = matchesNames;
-        qaResults.arcadeAtBottom = arcadeIsBottom;
 
         console.log(`✓ All expected simpler names present: ${matchesNames ? 'PASS' : 'FAIL'}`);
-        console.log(`✓ Arcade style is at bottom of list: ${arcadeIsBottom ? 'PASS' : 'FAIL'} (${lastOption ? lastOption.text : 'none'})`);
 
-        if (!matchesNames || !arcadeIsBottom) {
+        if (!matchesNames) {
             throw new Error(`Theme dropdown mismatch! Expected: ${expectedThemes.join(', ')}. Found: ${optionLabels.join(', ')}`);
         }
 
@@ -108,9 +99,7 @@ async function runIPhoneQASuite() {
         console.log('\n--- UI/UX TEST 2: Measuring Layout & Button Consistency ---');
         const themesToMeasure = [
             { id: 'simple-daylight', name: 'Light' },
-            { id: 'vintage-warmth', name: 'Soil' },
-            { id: 'high-contrast-dark', name: 'High contrast Dark' },
-            { id: 'pixelated-arcade', name: 'Arcade' }
+            { id: 'simple-moonlight', name: 'Dark' }
         ];
 
         for (const t of themesToMeasure) {
@@ -160,19 +149,19 @@ async function runIPhoneQASuite() {
             }
         }
 
-        // Compare Light vs Arcade button heights and horizontal bounds
+        // Compare Light vs Dark button heights and horizontal bounds
         const lightM = qaResults.themeMeasurements['Light'];
-        const arcadeM = qaResults.themeMeasurements['Arcade'];
+        const darkM = qaResults.themeMeasurements['Dark'];
 
-        const soundHeightDiff = Math.abs((lightM.soundBtn?.height || 0) - (arcadeM.soundBtn?.height || 0));
-        const couplesHeightDiff = Math.abs((lightM.couplesBtn?.height || 0) - (arcadeM.couplesBtn?.height || 0));
+        const soundHeightDiff = Math.abs((lightM.soundBtn?.height || 0) - (darkM.soundBtn?.height || 0));
+        const couplesHeightDiff = Math.abs((lightM.couplesBtn?.height || 0) - (darkM.couplesBtn?.height || 0));
 
-        console.log(`Layout Height Variance (Light vs Arcade): SoundBtn diff=${soundHeightDiff}px, CouplesBtn diff=${couplesHeightDiff}px`);
+        console.log(`Layout Height Variance (Light vs Dark): SoundBtn diff=${soundHeightDiff}px, CouplesBtn diff=${couplesHeightDiff}px`);
         if (soundHeightDiff <= 2 && couplesHeightDiff <= 2) {
-            qaResults.layoutParityLightVsArcade = true;
+            qaResults.layoutParityLightVsDark = true;
             console.log('✓ UI Consistency Test: PASSED! Button dimensions & alignments match across themes.');
         } else {
-            console.warn('⚠️ Warning: Layout difference between Light and Arcade exceeded 2px!');
+            console.warn('⚠️ Warning: Layout difference between Light and Dark exceeded 2px!');
         }
 
         // -------------------------------------------------------------
@@ -245,17 +234,16 @@ async function runIPhoneQASuite() {
         // -------------------------------------------------------------
         console.log('\n====================================================');
         console.log('📱 IPHONE QA SUITE RESULTS SUMMARY:');
-        console.log(`1. Simpler Theme Names: ${qaResults.themeNamesPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
-        console.log(`2. Arcade at Bottom: ${qaResults.arcadeAtBottom ? 'PASSED ✅' : 'FAILED ❌'}`);
-        console.log(`3. Layout Consistency Across Styles: ${qaResults.layoutParityLightVsArcade ? 'PASSED ✅' : 'FAILED ❌'}`);
-        console.log(`4. No Mobile Horizontal Overflow: ${qaResults.noHorizontalOverflow ? 'PASSED ✅' : 'FAILED ❌'}`);
-        console.log(`5. Hide Calendar Button: ${qaResults.calendarHidePassed ? 'PASSED ✅' : 'FAILED ❌'}`);
-        console.log(`6. Mobile Date Cycling: ${qaResults.dateCyclingPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
-        console.log(`7. Click Date Brings Up Calendar: ${qaResults.calendarTriggerPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`1. Simpler Theme Names (Light & Dark): ${qaResults.themeNamesPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`2. Layout Consistency (Light vs Dark): ${qaResults.layoutParityLightVsDark ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`3. No Mobile Horizontal Overflow: ${qaResults.noHorizontalOverflow ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`4. Hide Calendar Button: ${qaResults.calendarHidePassed ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`5. Mobile Date Cycling: ${qaResults.dateCyclingPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`6. Click Date Brings Up Calendar: ${qaResults.calendarTriggerPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
         console.log('====================================================');
 
         const allPassed = qaResults.themeNamesPassed &&
-            qaResults.arcadeAtBottom &&
+            qaResults.layoutParityLightVsDark &&
             qaResults.calendarHidePassed &&
             qaResults.dateCyclingPassed &&
             qaResults.calendarTriggerPassed;

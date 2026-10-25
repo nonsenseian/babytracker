@@ -100,7 +100,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
             category,
             subType,
             dateStr,
-            notes: effectiveNotes,
+            notes: effectiveNotes.slice(0, 1000),
             amountMl: parsedAmountMl,
             leftAmountMl: parsedLeftMl,
             rightAmountMl: parsedRightMl,
@@ -110,11 +110,11 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
             weightOz: weightOz ? parseFloat(weightOz) : undefined,
             heightInches: heightInches ? parseFloat(heightInches) : undefined,
             headCircumference: headCirc ? parseFloat(headCirc) : undefined,
-            foodName: foodName || undefined,
-            portion: portion || undefined,
+            foodName: foodName ? foodName.slice(0, 100) : undefined,
+            portion: portion ? portion.slice(0, 60) : undefined,
             reaction: reaction || undefined,
-            medicationName: medicationName || undefined,
-            dosage: dosage || undefined,
+            medicationName: medicationName ? medicationName.slice(0, 100) : undefined,
+            dosage: dosage ? dosage.slice(0, 100) : undefined,
             medRoute: medRoute || undefined,
             temperature: temperature ? parseFloat(temperature) : undefined,
             tempUnit,
@@ -275,6 +275,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
                                             placeholder="e.g. Sweet Potato, Avocado puree, Oatmeal"
                                             className="input-field"
                                             style={{ marginTop: '4px' }}
+                                            maxLength={100}
                                         />
                                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
                                             {['Sweet Potato', 'Avocado', 'Oatmeal', 'Banana', 'Carrots'].map(f => (
@@ -308,6 +309,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
                                             placeholder="e.g. 2 tbsp, 1/2 jar, 2 oz"
                                             className="input-field"
                                             style={{ marginTop: '4px' }}
+                                            maxLength={60}
                                         />
                                     </div>
 
@@ -389,6 +391,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
                                             placeholder="e.g. Infant Tylenol, Vitamin D, Motrin"
                                             className="input-field"
                                             style={{ marginTop: '4px' }}
+                                            maxLength={100}
                                         />
                                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
                                             {['Infant Tylenol', 'Vitamin D Drops', 'Infant Motrin', 'Gas Relief Drops', 'Probiotics', 'Amoxicillin'].map(m => (
@@ -423,6 +426,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
                                                 placeholder="e.g. 1.25 mL, 400 IU, 2 drops"
                                                 className="input-field"
                                                 style={{ marginTop: '4px' }}
+                                                maxLength={100}
                                             />
                                         </div>
                                         <div>
@@ -757,6 +761,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({
                             placeholder="e.g. Calm session, burped smoothly"
                             className="input-field"
                             style={{ marginTop: '4px' }}
+                            maxLength={1000}
                         />
                     </div>
 

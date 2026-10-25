@@ -9,7 +9,7 @@ interface AppointmentModalProps {
 }
 
 export const AppointmentModal: React.FC<AppointmentModalProps> = ({ appointmentToEdit, onClose }) => {
-    const { addAppointment, updateAppointment, activeChild, selectedDate } = useApp();
+    const { addAppointment, updateAppointment, activeChild, selectedDate, appointments } = useApp();
 
     const isEditing = !!appointmentToEdit;
 
@@ -37,27 +37,32 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ appointmentT
         e.preventDefault();
         if (!title.trim() || !date || !time) return;
 
+        if (!isEditing && appointments && appointments.length >= 100) {
+            alert('⚠️ Capacity reached: Maximum 100 scheduled checkups can be stored.');
+            return;
+        }
+
         if (isEditing && appointmentToEdit) {
             updateAppointment({
                 ...appointmentToEdit,
-                title: title.trim(),
+                title: title.trim().slice(0, 100),
                 date,
                 time,
-                durationMinutes: Number(durationMinutes),
-                location: location.trim(),
-                doctorName: doctorName.trim(),
-                notes: notes.trim()
+                durationMinutes: Math.min(480, Math.max(5, Number(durationMinutes) || 30)),
+                location: location.trim().slice(0, 120),
+                doctorName: doctorName.trim().slice(0, 80),
+                notes: notes.trim().slice(0, 1000)
             });
         } else {
             addAppointment({
                 childId: activeChild.id,
-                title: title.trim(),
+                title: title.trim().slice(0, 100),
                 date,
                 time,
-                durationMinutes: Number(durationMinutes),
-                location: location.trim(),
-                doctorName: doctorName.trim(),
-                notes: notes.trim()
+                durationMinutes: Math.min(480, Math.max(5, Number(durationMinutes) || 30)),
+                location: location.trim().slice(0, 120),
+                doctorName: doctorName.trim().slice(0, 80),
+                notes: notes.trim().slice(0, 1000)
             });
         }
         onClose();
@@ -125,6 +130,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ appointmentT
                             placeholder="e.g. 2-Month Well-Baby & Vaccines"
                             className="input-field"
                             style={{ marginTop: '4px' }}
+                            maxLength={100}
                             required
                         />
                     </div>
@@ -181,6 +187,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ appointmentT
                                 placeholder="e.g. Dr. Sarah Smith"
                                 className="input-field"
                                 style={{ marginTop: '4px' }}
+                                maxLength={80}
                             />
                         </div>
                     </div>
@@ -195,6 +202,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ appointmentT
                             placeholder="e.g. Westside Pediatrics, Suite 200"
                             className="input-field"
                             style={{ marginTop: '4px' }}
+                            maxLength={120}
                         />
                     </div>
 
@@ -208,6 +216,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ appointmentT
                             rows={3}
                             className="input-field"
                             style={{ marginTop: '4px', resize: 'vertical' }}
+                            maxLength={1000}
                         />
                     </div>
 

@@ -134,12 +134,61 @@ export class SyncService {
         }
     }
 
+    private sanitizeIncomingPayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') return null;
+
+        const sanitized: any = { ...payload };
+
+        // 1. Clamp logs to 2,000 items and validate structure & string lengths
+        if (Array.isArray(sanitized.logs)) {
+            sanitized.logs = sanitized.logs.slice(0, 2000).map((log: any) => {
+                if (!log || typeof log !== 'object') return null;
+                return {
+                    ...log,
+                    notes: typeof log.notes === 'string'
+                        ? log.notes.slice(0, 1000).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').replace(/<[^>]+>/g, '')
+                        : '',
+                    foodName: typeof log.foodName === 'string' ? log.foodName.slice(0, 100) : undefined,
+                    medicationName: typeof log.medicationName === 'string' ? log.medicationName.slice(0, 100) : undefined
+                };
+            }).filter(Boolean);
+        }
+
+        // 2. Clamp appointments to 100 items
+        if (Array.isArray(sanitized.appointments)) {
+            sanitized.appointments = sanitized.appointments.slice(0, 100).map((apt: any) => {
+                if (!apt || typeof apt !== 'object') return null;
+                return {
+                    ...apt,
+                    title: typeof apt.title === 'string' ? apt.title.slice(0, 100).replace(/<[^>]+>/g, '') : 'Checkup',
+                    location: typeof apt.location === 'string' ? apt.location.slice(0, 120).replace(/<[^>]+>/g, '') : '',
+                    doctorName: typeof apt.doctorName === 'string' ? apt.doctorName.slice(0, 80).replace(/<[^>]+>/g, '') : '',
+                    notes: typeof apt.notes === 'string' ? apt.notes.slice(0, 1000).replace(/<[^>]+>/g, '') : ''
+                };
+            }).filter(Boolean);
+        }
+
+        // 3. Clamp children to 10 profiles
+        if (Array.isArray(sanitized.children)) {
+            sanitized.children = sanitized.children.slice(0, 10);
+        }
+
+        // 4. Clamp caregivers to 6 profiles
+        if (Array.isArray(sanitized.caregivers)) {
+            sanitized.caregivers = sanitized.caregivers.slice(0, 6);
+        }
+
+        return sanitized;
+    }
+
     private handleIncomingMessage(msg: RemoteSyncPayload) {
         if (!msg || msg.senderId === this.deviceId) return;
 
         if (msg.type === 'STATE_UPDATE' && msg.payload) {
+            const safePayload = this.sanitizeIncomingPayload(msg.payload);
+            if (!safePayload) return;
             this.listeners.forEach(fn => {
-                try { fn(msg.payload); } catch (e) {}
+                try { fn(safePayload); } catch (e) {}
             });
         } else if (msg.type === 'PING') {
             this.broadcastPong();
@@ -284,13 +333,14 @@ export class SyncService {
      */
     public importTransferCode(rawCode: string): any | null {
         try {
+            if (!rawCode || rawCode.length > 2000000) return null; // Reject payloads > 2MB
             const json = decodeURIComponent(escape(atob(rawCode.trim())));
             const parsed = JSON.parse(json);
             if (parsed && parsed.data) {
-                if (parsed.room) {
-                    this.setRoomId(parsed.room);
+                if (parsed.room && typeof parsed.room === 'string') {
+                    this.setRoomId(parsed.room.slice(0, 50));
                 }
-                return parsed.data;
+                return this.sanitizeIncomingPayload(parsed.data);
             }
         } catch (e) {
             console.warn('Failed to parse transfer code:', e);

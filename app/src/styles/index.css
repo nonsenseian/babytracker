@@ -30,143 +30,11 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* ==================== THEME 1: CUTESY / SOFT PASTEL ==================== */
-/* Pastel orange background with subtle nursery teddy bear wallpaper pattern */
-[data-theme="soft-pastel"] body,
-[data-theme="soft-pastel"],
-[data-theme="cutesy"] body,
-[data-theme="cutesy"] {
-    background-color: #fff2e6 !important;
-    background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='14' y='28' font-size='20' opacity='0.12'%3E🧸%3C/text%3E%3Ctext x='50' y='64' font-size='20' opacity='0.12'%3E🧸%3C/text%3E%3C/svg%3E") !important;
-    background-repeat: repeat !important;
-}
+/* Standard Layout & Resets */
 
 /* ==================== VINTAGE WARMTH / SOIL (NIGHT MODE WITH VINTAGE PAPER TEXTURE) ==================== */
-[data-theme="vintage-warmth"] body,
-[data-theme="vintage-warmth"],
-[data-theme="soil"] body,
-[data-theme="soil"] {
-    background-color: #191410 !important;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)' fill='none'/%3E%3C/svg%3E") !important;
-    background-repeat: repeat !important;
-}
-
-/* ==================== THEME 2: 8-BIT RETRO ARCADE ==================== */
-/* Real CRT scanline raster effect, glowing pixel aesthetics, with normalized box metrics */
-[data-theme="pixelated-arcade"],
-[data-theme="pixelated"],
-[data-theme="arcade"] {
-    background-color: #161626 !important;
-    background-image: linear-gradient(rgba(18, 16, 38, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04)) !important;
-    background-size: 100% 4px, 6px 100% !important;
-    color: #ffd700 !important;
-    font-family: 'Silkscreen', monospace !important;
-    font-size: 13px;
-}
-
-/* Surface cards: keep 1px solid border so internal padding and flex flow match all other themes */
-[data-theme="pixelated-arcade"] .surface-card,
-[data-theme="pixelated-arcade"] .surface-elevated,
-[data-theme="pixelated"] .surface-card,
-[data-theme="pixelated"] .surface-elevated,
-[data-theme="arcade"] .surface-card,
-[data-theme="arcade"] .surface-elevated {
-    background-color: #12121f !important;
-    border: 1px solid #ffd700 !important;
-    border-radius: 4px !important;
-    box-shadow: 0 0 0 1px #ffd700, 3px 3px 0px #000 !important;
-}
-
-/* Typography scale normalization: Pixel fonts have wider glyph bounds. Proportional scaling prevents wrapping & layout displacement */
-[data-theme="pixelated-arcade"] h1,
-[data-theme="pixelated"] h1,
-[data-theme="arcade"] h1 {
-    font-family: 'Press Start 2P', monospace !important;
-    font-size: 15px !important;
-    line-height: 1.25 !important;
-    letter-spacing: -0.5px !important;
-    text-shadow: 2px 2px 0px #000, 2px 2px 0px #d97706 !important;
-}
-
-[data-theme="pixelated-arcade"] h2,
-[data-theme="pixelated"] h2,
-[data-theme="arcade"] h2 {
-    font-family: 'Press Start 2P', monospace !important;
-    font-size: 12.5px !important;
-    line-height: 1.25 !important;
-    letter-spacing: -0.4px !important;
-    text-shadow: 1px 1px 0px #000 !important;
-}
-
-[data-theme="pixelated-arcade"] h3,
-[data-theme="pixelated"] h3,
-[data-theme="arcade"] h3 {
-    font-family: 'Press Start 2P', monospace !important;
-    font-size: 11px !important;
-    line-height: 1.3 !important;
-    letter-spacing: -0.3px !important;
-    text-shadow: 1px 1px 0px #000 !important;
-}
-
-[data-theme="pixelated-arcade"] .font-outfit,
-[data-theme="pixelated"] .font-outfit,
-[data-theme="arcade"] .font-outfit {
-    font-family: 'Press Start 2P', monospace !important;
-    font-size: 11px !important;
-    letter-spacing: -0.35px !important;
-    text-shadow: 1px 1px 0px #000 !important;
-}
-
-[data-theme="pixelated-arcade"] .font-mono,
-[data-theme="pixelated-arcade"] .arcade-pixel-text,
-[data-theme="pixelated"] .font-mono,
-[data-theme="pixelated"] .arcade-pixel-text,
-[data-theme="arcade"] .font-mono,
-[data-theme="arcade"] .arcade-pixel-text {
-    font-family: 'Press Start 2P', monospace !important;
-    font-size: 10.5px !important;
-    color: #ffd700 !important;
-    text-shadow: 1px 1px 0px #000 !important;
-}
-
-/* Button placement and height normalization: 1px border ensures button heights and positions match other themes */
-[data-theme="pixelated-arcade"] button,
-[data-theme="pixelated"] button,
-[data-theme="arcade"] button {
-    border-radius: 4px !important;
-    border: 1px solid #ffd700 !important;
-    box-shadow: 2px 2px 0px #000 !important;
-    font-family: 'Silkscreen', monospace !important;
-    font-size: 10.5px !important;
-    letter-spacing: -0.2px !important;
-    box-sizing: border-box !important;
-}
-
-[data-theme="pixelated-arcade"] button:active,
-[data-theme="pixelated"] button:active,
-[data-theme="arcade"] button:active {
-    transform: translate(1px, 1px) !important;
-    box-shadow: 1px 1px 0px #000 !important;
-}
-
-/* Normalized inputs and selects */
-[data-theme="pixelated-arcade"] input,
-[data-theme="pixelated-arcade"] select,
-[data-theme="arcade"] input,
-[data-theme="arcade"] select {
-    font-family: 'Silkscreen', monospace !important;
-    font-size: 10px !important;
-    letter-spacing: -0.25px !important;
-    box-sizing: border-box !important;
-}
-
-[data-theme="pixelated-arcade"] select,
-[data-theme="arcade"] select {
-    max-width: 105px !important;
-}
-
 /* ==================== ADAPTIVE ICON RULES ==================== */
-/* Default for all standard & dark themes: Vibrant Native Color Emojis */
+/* Vibrant Native Color Emojis across Light and Dark themes */
 .theme-icon-svg {
     display: none !important;
 }
@@ -182,19 +50,9 @@ body {
     display: none !important;
 }
 
-/* Pixelated Arcade theme uses custom 8-bit crisp pixel sprites exclusively */
-[data-theme="pixelated-arcade"] .theme-icon-svg,
-[data-theme="pixelated-arcade"] .theme-icon-emoji,
-[data-theme="pixelated"] .theme-icon-svg,
-[data-theme="pixelated"] .theme-icon-emoji {
-    display: none !important;
-}
-[data-theme="pixelated-arcade"] .theme-icon-pixel,
-[data-theme="pixelated"] .theme-icon-pixel {
-    display: inline-flex !important;
-    image-rendering: pixelated !important;
-    shape-rendering: crispEdges !important;
-    filter: drop-shadow(2px 2px 0px #000);
+.arcade-pixel-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
 }
 
 /* ==================== DASHBOARD LAYOUT CUSTOMIZATION ==================== */
@@ -278,9 +136,9 @@ body {
 
 /* Buttons */
 .btn-primary {
-    background-color: var(--primary-accent);
+    background: linear-gradient(135deg, var(--primary-accent) 0%, var(--primary-accent-hover, var(--primary-accent)) 100%);
     color: var(--primary-accent-contrast, #ffffff);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 10px;
     padding: 8px 16px;
     font-weight: 700;
@@ -289,33 +147,13 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.15s ease;
-}
-
-/* ==================== HIGH CONTRAST DARK (BUTTON READABILITY FIX) ==================== */
-/* Bright yellow boxes and buttons must have black text for high contrast readability */
-[data-theme="high-contrast-dark"] .btn-primary,
-[data-theme="high-contrast-dark"] .btn-primary *,
-[data-theme="high-contrast-dark"] button.btn-primary,
-[data-theme="high-contrast-dark"] [style*="background: var(--primary-accent)"],
-[data-theme="high-contrast-dark"] [style*="background-color: var(--primary-accent)"],
-[data-theme="high-contrast-dark"] [style*="background: #ffff00"],
-[data-theme="high-contrast-dark"] [style*="background-color: #ffff00"],
-[data-theme="high-contrast-dark"] [style*="background: rgb(255, 255, 0)"],
-[data-theme="high-contrast-dark"] [style*="background-color: rgb(255, 255, 0)"] {
-    color: #000000 !important;
-    font-weight: 800 !important;
-}
-
-[data-theme="high-contrast-dark"] [style*="background: var(--primary-accent)"] *,
-[data-theme="high-contrast-dark"] [style*="background-color: var(--primary-accent)"] *,
-[data-theme="high-contrast-dark"] [style*="background: #ffff00"] *,
-[data-theme="high-contrast-dark"] [style*="background-color: #ffff00"] * {
-    color: #000000 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-accent-hover);
+    background: linear-gradient(135deg, var(--primary-accent-hover, var(--primary-accent)) 0%, var(--primary-accent) 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     transform: translateY(-1px);
 }
 
