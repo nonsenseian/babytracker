@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - NovaBaby</title>
+    <meta name="description" content="NovaBaby Privacy Policy: Offline-first architecture, zero third-party tracking, peer-to-peer end-to-end encryption, and full COPPA & GDPR compliance.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        :root {
+            --bg-page: #0f172a;
+            --bg-card: #1e293b;
+            --border-subtle: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --primary-accent: #6366f1;
+            --primary-accent-light: #818cf8;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-page: #f8fafc;
+                --bg-card: #ffffff;
+                --border-subtle: #e2e8f0;
+                --text-primary: #0f172a;
+                --text-secondary: #475569;
+                --text-muted: #94a3b8;
+                --primary-accent: #4f46e5;
+                --primary-accent-light: #6366f1;
+            }
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 32px 16px 64px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-accent-light);
+            margin-bottom: 12px;
+            text-decoration: none;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+        .meta {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .highlight-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .highlight-box h3 {
+            color: var(--primary-accent-light);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .section {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        p {
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        ul {
+            margin-bottom: 14px;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        strong {
+            color: var(--text-primary);
+        }
+        a {
+            color: var(--primary-accent-light);
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .footer a {
+            margin: 0 8px;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="/" class="logo-badge">
+                👶 NovaBaby
+            </a>
+            <h1>Privacy Policy</h1>
+            <div class="meta">Effective Date: October 28, 2026 • Last Reviewed: October 28, 2026</div>
+        </header>
+
+        <div class="highlight-box">
+            <h3>🔒 Core Privacy Commitment</h3>
+            <p style="margin-bottom: 0;">
+                NovaBaby is engineered with an <strong>offline-first, zero-knowledge architecture</strong>. We do not operate advertising tracking networks, we do not monetize baby logs, and we never sell, rent, or broker family records. Your data belongs exclusively to you and remains on your device under your complete control.
+            </p>
+        </div>
+
+        <section class="section">
+            <h2>1. Information We Process</h2>
+            <p>NovaBaby operates primarily as a client-side offline application. The categories of data you enter into the application include:</p>
+            <ul>
+                <li><strong>Infant & Toddler Profile Data:</strong> First name or nickname, birth date, gestational age, gender, blood type, and known allergies.</li>
+                <li><strong>Activity & Health Logs:</strong> Timestamps and durations of sleep periods, breast milk and formula intake volumes, solids and food logs, diaper changes (wet/dirty/texture), tummy time, bath sessions, and developmental milestones.</li>
+                <li><strong>Medication & Health Measurements:</strong> Medication dosages, body temperature readings, weight, height, and head circumference entries.</li>
+                <li><strong>Caregiver & Pediatrician Information:</strong> Caregiver display names and pediatrician contact details entered solely for emergency and export convenience.</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>2. Storage & Zero-Knowledge Architecture</h2>
+            <p><strong>Local-First Storage:</strong> All child activity records and profiles are stored directly within your device's browser sandbox using HTML5 LocalStorage and IndexedDB. NovaBaby does not maintain a centralized cloud repository of your family's daily activity records.</p>
+            <p><strong>Peer-to-Peer Encrypted Synchronization:</strong> When you connect multiple caregiver devices via local network or WebRTC/WebSocket sync, data payloads are encrypted using client-side <code>AES-GCM-256</code> cryptography. The encryption key is derived directly from your pairing PIN or QR code; no unencrypted payloads or plaintext secrets pass through or are stored on intermediary servers.</p>
+        </section>
+
+        <section class="section">
+            <h2>3. Children's Privacy (COPPA & GDPR-K Compliance)</h2>
+            <p>NovaBaby strictly complies with the United States <strong>Children's Online Privacy Protection Act (COPPA)</strong> and Article 8 of the European Union <strong>General Data Protection Regulation (GDPR)</strong>:</p>
+            <ul>
+                <li>NovaBaby is designed for adult parents, guardians, and authorized caregivers over 18 years of age.</li>
+                <li>We do not knowingly collect personal contact information directly from children under 13 years of age.</li>
+                <li>Infant profiles entered into the app remain in localized client-side storage and are never subjected to profiling, cross-site behavioral tracking, or commercial marketing.</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>4. Third-Party Services & Apple App Store Guidelines</h2>
+            <p><strong>Zero Third-Party Advertising Trackers:</strong> NovaBaby contains zero advertising SDKs, zero data brokers, and zero social media tracking pixels.</p>
+            <p><strong>In-App Purchases (StoreKit):</strong> Pro subscriptions are processed securely through Apple StoreKit or Google Play In-App Billing. NovaBaby does not collect, process, or store credit card numbers or financial account details.</p>
+            <p><strong>Device Permissions:</strong> Optional microphone access (for ambient cry detection or voice logging) is processed strictly on-device in real time and is never transmitted or recorded to external servers.</p>
+        </section>
+
+        <section class="section">
+            <h2>5. Data Subject Rights & Two-Step Complete Erasure</h2>
+            <p>In full compliance with <strong>Apple App Store Review Guideline 5.1.1(v)</strong>, <strong>GDPR Article 17 (Right to Erasure)</strong>, and <strong>CCPA/CPRA</strong>:</p>
+            <ul>
+                <li><strong>Right of Access & Portability:</strong> You can export your full activity and health history at any time from Settings in both plain text (.txt) and structured database (.json) format.</li>
+                <li><strong>Two-Step Immediate Data Erasure:</strong> You can purge all infant data, logs, caregiver links, and stored preferences at any time by navigating to <code>Settings &gt; Danger Zone &gt; Delete Profile &amp; Wipe All Data</code>. This instantly wipes local storage, unregisters service workers, and resets the application.</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>6. Contact Information</h2>
+            <p>If you have any questions or privacy concerns regarding this policy, please reach out to our privacy team:</p>
+            <p>
+                <strong>NovaBaby Technologies, Inc.</strong><br>
+                Privacy & Data Governance Team<br>
+                Email: <a href="mailto:privacy@novababy.app">privacy@novababy.app</a>
+            </p>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2026 NovaBaby Technologies, Inc. All rights reserved.</p>
+            <p style="margin-top: 8px;">
+                <a href="/privacy.html">Privacy Policy</a> •
+                <a href="/terms.html">Terms of Service</a> •
+                <a href="/">NovaBaby App</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

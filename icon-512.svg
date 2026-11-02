@@ -1,59 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>NovaBaby Logo</title>
   <defs>
-    <linearGradient id="faceGrad512" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFBEB" />
-      <stop offset="100%" stop-color="#FED7AA" />
+    <!-- Background Twilight Sky Gradient -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b6ccfe" />
+      <stop offset="100%" stop-color="#e0e7ff" />
     </linearGradient>
-    <linearGradient id="paciGrad512" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#0284C7" />
+
+    <!-- Sun Ray Gradient: Warm Honey to Golden Amber -->
+    <linearGradient id="rayGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f59e0b" />
     </linearGradient>
-    <filter id="softShadow512" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#78350F" flood-opacity="0.22" />
-    </filter>
+
+    <!-- Sun Face Gradient: Soft Creamy Butter to Golden Warmth -->
+    <radialGradient id="faceGrad" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="60%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#fcd34d" />
+    </radialGradient>
   </defs>
 
-  <!-- Background Flat Pastel Dark Orange Rounded Squircle -->
-  <rect width="512" height="512" rx="128" fill="#E87A42" />
+  <!-- iOS-Style Rounded Squircle Container -->
+  <rect width="512" height="512" rx="112" fill="url(#skyGrad)" />
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#ffffff" stroke-width="6" stroke-opacity="0.6" />
 
-  <!-- Baby Face Circle with Warm Soft Shadow -->
-  <circle cx="256" cy="256" r="185" fill="url(#faceGrad512)" filter="url(#softShadow512)" />
+  <!-- Background Celestial Pastel Stars (Bold & Scalable at 16px) -->
+  <!-- Top Right 4-Point Golden Star -->
+  <path d="M 390 94 Q 390 114 410 114 Q 390 114 390 134 Q 390 114 370 114 Q 390 114 390 94 Z" fill="#fde047" />
 
-  <!-- Baby Hair Tuft at Top -->
-  <path d="M256 112 C238 72 274 52 256 36 C238 52 274 82 256 112 Z" fill="#92400E" />
+  <!-- Bottom Left 4-Point Lavender Star -->
+  <path d="M 120 374 Q 120 390 136 390 Q 120 390 120 406 Q 120 390 104 390 Q 120 390 120 374 Z" fill="#ddd6fe" />
 
-  <!-- Expressive Eyebrows -->
-  <path d="M174 192 Q194 180 214 192" stroke="#92400E" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.65" />
-  <path d="M298 192 Q318 180 338 192" stroke="#92400E" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.65" />
+  <!-- Ambient Clay Depth Glow -->
+  <circle cx="256" cy="264" r="188" fill="#4338ca" opacity="0.14" />
 
-  <!-- Big Kawaii Eyes -->
-  <!-- Left Eye -->
-  <circle cx="194" cy="236" r="28" fill="#1E293B" />
-  <circle cx="203" cy="226" r="10" fill="#FFFFFF" />
-  <circle cx="187" cy="245" r="4.5" fill="#FFFFFF" />
+  <!-- Cheerful Claymorphic Sun Rays (12 Soft Rounded Rays) -->
+  <g>
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(0 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(30 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(60 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(90 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(120 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(150 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(180 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(210 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(240 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(270 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(300 256 256)" />
+    <rect x="238" y="74" width="36" height="88" rx="18" fill="url(#rayGrad)" transform="rotate(330 256 256)" />
+  </g>
 
-  <!-- Right Eye -->
-  <circle cx="318" cy="236" r="28" fill="#1E293B" />
-  <circle cx="327" cy="226" r="10" fill="#FFFFFF" />
-  <circle cx="311" cy="245" r="4.5" fill="#FFFFFF" />
+  <!-- Face Depth Bevel Shadow (Layered Vector) -->
+  <circle cx="256" cy="264" r="126" fill="#b45309" opacity="0.22" />
 
-  <!-- Rosy Cheeks -->
-  <circle cx="146" cy="278" r="30" fill="#F472B6" opacity="0.45" />
-  <circle cx="366" cy="278" r="30" fill="#F472B6" opacity="0.45" />
+  <!-- Sun Center Face Circle -->
+  <circle cx="256" cy="256" r="124" fill="url(#faceGrad)" />
 
-  <!-- Cute Large Pacifier In Mouth -->
-  <!-- Ring Handle Hanging Below -->
-  <path d="M230 324 C230 376 282 376 282 324" stroke="#0284C7" stroke-width="12" stroke-linecap="round" fill="none" />
+  <!-- Specular 3D Lighting Highlight on Forehead -->
+  <path d="M 196 172 C 220 156 292 156 316 172" stroke="#ffffff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.6" />
 
-  <!-- Pacifier Butterfly Shield -->
-  <path d="M256 286 C290 270 326 286 322 310 C318 334 286 338 256 328 C226 338 194 334 190 310 C186 286 222 270 256 286 Z" fill="url(#paciGrad512)" stroke="#0284C7" stroke-width="2.5" />
+  <!-- Adorable Rosy Cheeks -->
+  <ellipse cx="194" cy="280" rx="22" ry="14" fill="#fda4af" opacity="0.9" />
+  <ellipse cx="318" cy="280" rx="22" ry="14" fill="#fda4af" opacity="0.9" />
 
-  <!-- Ventilation Air Holes on Wings -->
-  <circle cx="218" cy="310" r="5" fill="#FED7AA" opacity="0.85" />
-  <circle cx="294" cy="310" r="5" fill="#FED7AA" opacity="0.85" />
+  <!-- Sweet Happy Smiling Baby Eyes (Warm Espresso Brown) -->
+  <path d="M 190 240 Q 210 216 230 240" stroke="#78350f" stroke-width="11" stroke-linecap="round" fill="none" />
+  <path d="M 282 240 Q 302 216 322 240" stroke="#78350f" stroke-width="11" stroke-linecap="round" fill="none" />
 
-  <!-- Center Pacifier Button / Grip -->
-  <circle cx="256" cy="310" r="18" fill="#FFFFFF" stroke="#0284C7" stroke-width="2.5" />
-  <circle cx="256" cy="310" r="12" fill="#38BDF8" />
-  <circle cx="253" cy="306" r="3.5" fill="#FFFFFF" opacity="0.9" />
+  <!-- Cute Baby Button Nose -->
+  <ellipse cx="256" cy="254" rx="9" ry="7" fill="#f59e0b" />
+
+  <!-- Cheerful Warm Baby Smile -->
+  <path d="M 232 274 Q 256 298 280 274" stroke="#78350f" stroke-width="9.5" stroke-linecap="round" fill="none" />
 </svg>

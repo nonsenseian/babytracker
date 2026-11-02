@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="64" height="64">
+  <title>NovaBaby Favicon</title>
+  <defs>
+    <linearGradient id="favSky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b6ccfe" />
+      <stop offset="100%" stop-color="#e0e7ff" />
+    </linearGradient>
+    <linearGradient id="favRay" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <radialGradient id="favFace" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="60%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#fcd34d" />
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="120" fill="url(#favSky)" />
+  <rect width="504" height="504" x="4" y="4" rx="116" fill="none" stroke="#ffffff" stroke-width="8" stroke-opacity="0.6" />
+
+  <!-- Bold Twinkling Star (Scales cleanly to 16px) -->
+  <path d="M 400 88 Q 400 110 422 110 Q 400 110 400 132 Q 400 110 378 110 Q 400 110 400 88 Z" fill="#fde047" />
+
+  <!-- 12 Rays -->
+  <g>
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(0 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(30 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(60 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(90 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(120 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(150 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(180 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(210 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(240 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(270 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(300 256 256)" />
+    <rect x="236" y="65" width="40" height="96" rx="20" fill="url(#favRay)" transform="rotate(330 256 256)" />
+  </g>
+
+  <!-- Sun Face -->
+  <circle cx="256" cy="256" r="130" fill="url(#favFace)" />
+
+  <!-- Cheeks -->
+  <ellipse cx="190" cy="282" rx="24" ry="15" fill="#fda4af" opacity="0.9" />
+  <ellipse cx="322" cy="282" rx="24" ry="15" fill="#fda4af" opacity="0.9" />
+
+  <!-- High-Contrast Smiling Eyes for 16px Clarity -->
+  <path d="M 186 240 Q 208 212 230 240" stroke="#78350f" stroke-width="14" stroke-linecap="round" fill="none" />
+  <path d="M 282 240 Q 304 212 326 240" stroke="#78350f" stroke-width="14" stroke-linecap="round" fill="none" />
+
+  <!-- Nose -->
+  <ellipse cx="256" cy="254" rx="10" ry="8" fill="#f59e0b" />
+
+  <!-- Smile -->
+  <path d="M 226 274 Q 256 304 286 274" stroke="#78350f" stroke-width="12" stroke-linecap="round" fill="none" />
+</svg>
