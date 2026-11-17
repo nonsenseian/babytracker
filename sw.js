@@ -1,5 +1,5 @@
 // BabyTracker Offline Service Worker
-const CACHE_NAME = 'babytracker-v3.6-offline';
+const CACHE_NAME = 'babytracker-v4.0-offline';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
